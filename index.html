@@ -6,12 +6,13 @@
 <title>AI-Powered Agent Lifecycle</title>
 <style>
 :root {
-  --p50:#EEEDFE;--p100:#CECBF6;--p200:#AFA9EC;--p400:#7F77DD;--p600:#534AB7;--p800:#3C3489;--p900:#26215C;
+  --p50:#EEEDFE;--p100:#CECBF6;--p200:#AFA9EC;--p400:#7F77DD;--p600:#534AB7;--p800:#3C3489;
   --t50:#E1F5EE;--t100:#9FE1CB;--t400:#1D9E75;--t600:#0F6E56;--t800:#085041;
   --b50:#E6F1FB;--b100:#B5D4F4;--b400:#378ADD;--b600:#185FA5;--b800:#0C447C;
   --a50:#FAEEDA;--a100:#FAC775;--a400:#BA7517;--a600:#854F0B;--a800:#633806;
   --g50:#EAF3DE;--g100:#C0DD97;--g400:#639922;--g600:#3B6D11;--g800:#27500A;
   --c50:#FAECE7;--c100:#F5C4B3;--c400:#D85A30;--c600:#993C1D;--c800:#712B13;
+  --pk50:#FBEAF0;--pk100:#F4C0D1;--pk400:#D4537E;--pk600:#993556;--pk800:#72243E;
   --gr50:#F1EFE8;--gr100:#D3D1C7;--gr400:#888780;--gr600:#5F5E5A;--gr800:#444441;
   --bg:#ffffff;--bg2:#f8f7f4;--bg3:#f0eeea;
   --tx:#1a1a18;--tx2:#5f5e5a;--tx3:#9c9a92;
@@ -22,135 +23,85 @@
     --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;
     --tx:#e8e6df;--tx2:#9c9a92;--tx3:#6a6860;
     --bd:rgba(255,255,255,0.1);--bd2:rgba(255,255,255,0.18);
-    --p50:#26215C;--p100:#3C3489;--p200:#534AB7;--p800:#CECBF6;--p900:#EEEDFE;
+    --p50:#26215C;--p100:#3C3489;--p200:#534AB7;--p800:#CECBF6;
     --t50:#04342C;--t100:#085041;--t800:#9FE1CB;
     --b50:#042C53;--b100:#0C447C;--b800:#B5D4F4;
     --a50:#412402;--a100:#633806;--a800:#FAC775;
     --g50:#173404;--g100:#27500A;--g800:#C0DD97;
     --c50:#4A1B0C;--c100:#712B13;--c800:#F5C4B3;
+    --pk50:#4B1528;--pk100:#72243E;--pk800:#F4C0D1;
     --gr50:#2C2C2A;--gr100:#444441;--gr800:#D3D1C7;
   }
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg2);color:var(--tx);min-height:100vh}
 
-/* NAV */
-.nav{background:var(--bg);border-bottom:0.5px solid var(--bd2);padding:0 24px;display:flex;align-items:stretch;gap:0}
-.nav-brand{display:flex;align-items:center;gap:10px;padding:14px 20px 14px 0;border-right:0.5px solid var(--bd);margin-right:8px;text-decoration:none}
+.nav{background:var(--bg);border-bottom:0.5px solid var(--bd2);padding:0 24px;display:flex;align-items:stretch}
+.nav-brand{display:flex;align-items:center;gap:10px;padding:14px 20px 14px 0;border-right:0.5px solid var(--bd);margin-right:8px}
 .nav-brand-dot{width:28px;height:28px;border-radius:8px;background:var(--p600);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
 .nav-brand-text{font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap}
-.nav-links{display:flex;align-items:stretch;gap:0;overflow-x:auto}
-.nav-link{display:flex;align-items:center;gap:7px;padding:0 16px;font-size:13px;color:var(--tx2);text-decoration:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:color 0.15s,border-color 0.15s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.nav-links{display:flex;align-items:stretch;overflow-x:auto}
+.nav-link{display:flex;align-items:center;gap:7px;padding:0 14px;font-size:13px;color:var(--tx2);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:color 0.15s,border-color 0.15s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
 .nav-link:hover{color:var(--tx)}
 .nav-link.active{color:var(--p600);border-bottom-color:var(--p600);font-weight:600}
-.nav-link .nav-icon{font-size:14px}
 
-/* PAGES */
 .page{display:none;padding:28px 24px;max-width:1100px;margin:0 auto}
 .page.active{display:block}
-
-/* PAGE HEADER */
 .page-header{margin-bottom:24px}
 .page-header h1{font-size:22px;font-weight:700;color:var(--tx);letter-spacing:-0.3px}
 .page-header p{font-size:13px;color:var(--tx2);margin-top:5px;line-height:1.5}
-.page-header .breadcrumb{font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.breadcrumb{font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
 
-/* CARDS */
 .card{background:var(--bg);border:0.5px solid var(--bd);border-radius:12px;padding:20px}
-.card-sm{background:var(--bg);border:0.5px solid var(--bd);border-radius:10px;padding:14px 16px}
-.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-@media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+.card-sm{background:var(--bg);border:0.5px solid var(--bd);border-radius:10px;padding:14px 16px;cursor:pointer;transition:transform 0.13s}
+.card-sm:hover{transform:translateY(-2px)}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+@media(max-width:820px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.outcome-strip{grid-template-columns:repeat(2,1fr)!important}.phase-strip{grid-template-columns:1fr!important}}
 
-/* BADGES */
 .badge{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;padding:3px 8px;border-radius:5px}
-.badge-purple{background:var(--p100);color:var(--p800)}
-.badge-blue{background:var(--b100);color:var(--b800)}
-.badge-teal{background:var(--t100);color:var(--t800)}
-.badge-amber{background:var(--a100);color:var(--a800)}
-.badge-green{background:var(--g100);color:var(--g800)}
-.badge-coral{background:var(--c100);color:var(--c800)}
-.badge-gray{background:var(--gr100);color:var(--gr800)}
+.bp{background:var(--p100);color:var(--p800)}
+.bb{background:var(--b100);color:var(--b800)}
+.bt{background:var(--t100);color:var(--t800)}
+.ba{background:var(--a100);color:var(--a800)}
+.bg_{background:var(--g100);color:var(--g800)}
+.bc{background:var(--c100);color:var(--c800)}
+.bpk{background:var(--pk100);color:var(--pk800)}
+.bgr{background:var(--gr100);color:var(--gr800)}
 
-/* METRIC CARDS */
+.req-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(224,58,30,0.1);color:#c0391b;border:0.5px solid rgba(224,58,30,0.25)}
+
 .metric-card{background:var(--bg3);border-radius:10px;padding:16px;text-align:center}
 .metric-val{font-size:28px;font-weight:700;color:var(--tx);line-height:1}
 .metric-lbl{font-size:12px;color:var(--tx2);margin-top:5px}
 .metric-delta{font-size:11px;margin-top:4px;font-weight:600}
 .delta-up{color:var(--g600)}
-.delta-down{color:var(--c600)}
 
-/* AGENT CARDS */
-.agent-card{background:var(--bg);border:0.5px solid var(--bd);border-radius:12px;padding:18px;cursor:pointer;transition:transform 0.15s}
+.agent-card{background:var(--bg);border:0.5px solid var(--bd);border-radius:12px;padding:18px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s}
 .agent-card:hover{transform:translateY(-2px)}
 .agent-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
 .agent-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .agent-name{font-size:14px;font-weight:700;color:var(--tx)}
-.agent-purpose{font-size:12px;color:var(--tx2);line-height:1.45;margin-bottom:12px}
+.agent-purpose{font-size:12px;color:var(--tx2);line-height:1.45;margin-bottom:10px}
 .agent-actions{list-style:none}
 .agent-actions li{font-size:11.5px;color:var(--tx2);padding:3px 0 3px 13px;position:relative;line-height:1.35;border-bottom:0.5px solid var(--bd)}
 .agent-actions li:last-child{border-bottom:none}
 .agent-actions li::before{content:'';position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%}
+.agent-actions li.req::before{background:rgba(200,50,20,0.7)!important}
 
-/* PHASE STRIP */
+.changed-tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(224,58,30,0.1);color:#c0391b;margin-left:6px;vertical-align:middle}
+
 .phase-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
 .phase-box{border-radius:10px;padding:14px;border:0.5px solid}
-.phase-box .pnum{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;color:white;margin-bottom:6px}
-.phase-box .ptitle{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px}
-.phase-box .pdesc{font-size:11px;line-height:1.4}
-.ph1{background:var(--p50);border-color:var(--p200)}.ph1 .pnum{background:var(--p600)}.ph1 .ptitle{color:var(--p800)}.ph1 .pdesc{color:var(--p800)}
-.ph2{background:var(--b50);border-color:var(--b100)}.ph2 .pnum{background:var(--b600)}.ph2 .ptitle{color:var(--b800)}.ph2 .pdesc{color:var(--b800)}
-.ph3{background:var(--t50);border-color:var(--t100)}.ph3 .pnum{background:var(--t600)}.ph3 .ptitle{color:var(--t800)}.ph3 .pdesc{color:var(--t800)}
+.pnum{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;color:white;margin-bottom:6px}
+.ptitle{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px}
+.pdesc{font-size:11px;line-height:1.4}
+.ph1{background:var(--p50);border-color:var(--p200)}.ph1 .pnum{background:var(--p600)}.ph1 .ptitle,.ph1 .pdesc{color:var(--p800)}
+.ph2{background:var(--b50);border-color:var(--b100)}.ph2 .pnum{background:var(--b600)}.ph2 .ptitle,.ph2 .pdesc{color:var(--b800)}
+.ph3{background:var(--t50);border-color:var(--t100)}.ph3 .pnum{background:var(--t600)}.ph3 .ptitle,.ph3 .pdesc{color:var(--t800)}
+.ph4{background:var(--pk50);border-color:var(--pk100)}.ph4 .pnum{background:var(--pk600)}.ph4 .ptitle,.ph4 .pdesc{color:var(--pk800)}
 
-/* FLOW VIZ */
-.flow-row{display:flex;align-items:center;gap:8px;margin:16px 0}
-.flow-node{background:var(--p50);border:0.5px solid var(--p200);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;color:var(--p800);white-space:nowrap}
-.flow-node.blue{background:var(--b50);border-color:var(--b100);color:var(--b800)}
-.flow-node.teal{background:var(--t50);border-color:var(--t100);color:var(--t800)}
-.flow-node.amber{background:var(--a50);border-color:var(--a100);color:var(--a800)}
-.flow-node.green{background:var(--g50);border-color:var(--g100);color:var(--g800)}
-.flow-node.coral{background:var(--c50);border-color:var(--c100);color:var(--c800)}
-.flow-arrow{width:24px;height:2px;background:var(--tx3);position:relative;flex-shrink:0}
-.flow-arrow::after{content:'';position:absolute;right:-1px;top:-4px;border-left:8px solid var(--tx3);border-top:5px solid transparent;border-bottom:5px solid transparent}
-.flow-dashed{width:24px;border-top:2px dashed var(--p400);flex-shrink:0}
-
-/* LOOP BANNER */
-.loop-banner{background:var(--p50);border:0.5px solid var(--p200);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;margin:16px 0}
-.loop-icon{font-size:20px;flex-shrink:0}
-.loop-title{font-size:13px;font-weight:700;color:var(--p800)}
-.loop-desc{font-size:12px;color:var(--p600);margin-top:2px}
-
-/* REPORT CARDS */
-.report-card{background:var(--bg);border:0.5px solid var(--bd);border-radius:12px;padding:18px;cursor:pointer;transition:transform 0.15s}
-.report-card:hover{transform:translateY(-2px)}
-.report-icon{font-size:22px;margin-bottom:10px}
-.report-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:6px}
-.report-desc{font-size:12px;color:var(--tx2);line-height:1.45;margin-bottom:12px}
-.report-meta{font-size:11px;color:var(--tx3)}
-
-/* TABLE */
-.data-table{width:100%;border-collapse:collapse;font-size:13px}
-.data-table th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--tx3);padding:8px 12px;border-bottom:0.5px solid var(--bd2);text-align:left}
-.data-table td{padding:10px 12px;border-bottom:0.5px solid var(--bd);color:var(--tx);vertical-align:top}
-.data-table tr:last-child td{border-bottom:none}
-.data-table tr:hover td{background:var(--bg3)}
-
-/* SITEMAP */
-.sitemap-tree{padding:16px 0}
-.sm-section{margin-bottom:20px}
-.sm-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--tx3);margin-bottom:10px;padding-left:4px}
-.sm-items{display:flex;flex-direction:column;gap:6px}
-.sm-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:0.5px solid var(--bd);border-radius:8px;cursor:pointer;text-decoration:none;transition:transform 0.12s,border-color 0.12s}
-.sm-item:hover{transform:translateX(3px);border-color:var(--bd2)}
-.sm-item-icon{font-size:16px;flex-shrink:0;width:28px;text-align:center}
-.sm-item-body{flex:1}
-.sm-item-title{font-size:13px;font-weight:600;color:var(--tx)}
-.sm-item-desc{font-size:11px;color:var(--tx2);margin-top:1px}
-.sm-item-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;flex-shrink:0}
-.sm-connector{width:2px;height:12px;background:var(--bd2);margin-left:27px}
-
-/* OUTCOMES */
 .outcome-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
 .outcome-tile{background:var(--p50);border:0.5px solid var(--p200);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:transform 0.15s}
 .outcome-tile:hover{transform:translateY(-2px)}
@@ -158,10 +109,57 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg2);color:
 .outcome-tile-label{font-size:12px;font-weight:700;color:var(--p800)}
 .outcome-tile-desc{font-size:11px;color:var(--p600);margin-top:3px;line-height:1.35}
 
-/* MODAL */
+.flow-row{display:flex;align-items:center;gap:8px;margin:10px 0;flex-wrap:wrap}
+.flow-node{border-radius:8px;padding:7px 13px;font-size:12px;font-weight:600;white-space:nowrap}
+.fn-p{background:var(--p50);border:0.5px solid var(--p200);color:var(--p800)}
+.fn-b{background:var(--b50);border:0.5px solid var(--b100);color:var(--b800)}
+.fn-t{background:var(--t50);border:0.5px solid var(--t100);color:var(--t800)}
+.fn-a{background:var(--a50);border:0.5px solid var(--a100);color:var(--a800)}
+.fn-g{background:var(--g50);border:0.5px solid var(--g100);color:var(--g800)}
+.fn-pk{background:var(--pk50);border:0.5px solid var(--pk100);color:var(--pk800)}
+.fn-gr{background:var(--gr50);border:0.5px solid var(--gr100);color:var(--gr800)}
+.flow-arr{width:20px;height:2px;background:var(--tx3);position:relative;flex-shrink:0;opacity:0.6}
+.flow-arr::after{content:'';position:absolute;right:-1px;top:-4px;border-left:7px solid var(--tx3);border-top:5px solid transparent;border-bottom:5px solid transparent;opacity:0.6}
+.flow-dash{width:20px;border-top:2px dashed var(--p400);flex-shrink:0;opacity:0.7}
+
+.loop-banner{background:var(--p50);border:0.5px solid var(--p200);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;margin:16px 0}
+.loop-icon{font-size:20px;flex-shrink:0}
+.loop-title{font-size:13px;font-weight:700;color:var(--p800)}
+.loop-desc{font-size:12px;color:var(--p600);margin-top:2px}
+
+.report-card{background:var(--bg);border:0.5px solid var(--bd);border-radius:12px;padding:18px;cursor:pointer;transition:transform 0.15s}
+.report-card:hover{transform:translateY(-2px)}
+.report-icon{font-size:22px;margin-bottom:10px}
+.report-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:6px}
+.report-desc{font-size:12px;color:var(--tx2);line-height:1.45;margin-bottom:10px}
+.report-meta{font-size:11px;color:var(--tx3)}
+
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--tx3);padding:8px 12px;border-bottom:0.5px solid var(--bd2);text-align:left}
+.data-table td{padding:9px 12px;border-bottom:0.5px solid var(--bd);color:var(--tx);vertical-align:top}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--bg3)}
+
+.progress-wrap{margin:8px 0}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--tx2);margin-bottom:4px}
+.progress-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px}
+
+.divider{height:0.5px;background:var(--bd);margin:20px 0}
+
+.sm-section{margin-bottom:20px}
+.sm-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--tx3);margin-bottom:10px;padding-left:4px}
+.sm-items{display:flex;flex-direction:column;gap:6px}
+.sm-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:0.5px solid var(--bd);border-radius:8px;cursor:pointer;transition:transform 0.12s,border-color 0.12s}
+.sm-item:hover{transform:translateX(3px);border-color:var(--bd2)}
+.sm-item-icon{font-size:14px;flex-shrink:0;width:28px;text-align:center}
+.sm-item-title{font-size:13px;font-weight:600;color:var(--tx)}
+.sm-item-desc{font-size:11px;color:var(--tx2);margin-top:1px}
+.sm-connector{width:2px;height:10px;background:var(--bd2);margin-left:27px}
+
 .modal-wrap{display:none;min-height:300px;background:rgba(0,0,0,0.45);border-radius:12px;align-items:flex-start;justify-content:center;padding:24px}
 .modal-wrap.open{display:flex}
-.modal-box{background:var(--bg);border-radius:14px;border:0.5px solid var(--bd2);max-width:460px;width:100%;padding:24px;position:relative}
+.modal-box{background:var(--bg);border-radius:14px;border:0.5px solid var(--bd2);max-width:500px;width:100%;padding:24px;position:relative;max-height:80vh;overflow-y:auto}
 .modal-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:18px;cursor:pointer;color:var(--tx2);width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center}
 .modal-close:hover{background:var(--gr50)}
 .modal-badge{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;padding:3px 9px;border-radius:5px;margin-bottom:10px}
@@ -173,106 +171,81 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg2);color:
 .modal-list li{font-size:12px;color:var(--tx);padding:5px 0 5px 14px;position:relative;border-bottom:0.5px solid var(--bd);line-height:1.4}
 .modal-list li:last-child{border-bottom:none}
 .modal-list li::before{content:'';position:absolute;left:0;top:10px;width:5px;height:5px;border-radius:50%;background:var(--p400)}
-
-/* PROGRESS BAR */
-.progress-wrap{margin:6px 0}
-.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--tx2);margin-bottom:4px}
-.progress-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;border-radius:3px;transition:width 0.6s}
-
-/* DIVIDER */
-.divider{height:0.5px;background:var(--bd);margin:20px 0}
-
-@media(max-width:768px){
-  .phase-strip{grid-template-columns:1fr}
-  .outcome-strip{grid-template-columns:repeat(2,1fr)}
-  .flow-row{flex-wrap:wrap}
-  .nav-brand-text{display:none}
-}
+.modal-list li.req-item{background:rgba(224,58,30,0.04);border-radius:4px;padding-left:14px}
+.modal-list li.req-item::before{background:rgba(200,50,20,0.7)}
+.req-note{font-size:11px;background:rgba(224,58,30,0.06);border:0.5px solid rgba(224,58,30,0.2);border-radius:6px;padding:8px 10px;color:#c0391b;margin-top:10px;line-height:1.4}
 </style>
 
-<!-- NAV -->
 <nav class="nav">
   <div class="nav-brand">
     <div class="nav-brand-dot">AI</div>
     <span class="nav-brand-text">Agent Lifecycle</span>
   </div>
   <div class="nav-links">
-    <button class="nav-link active" onclick="nav('overview')" id="nav-overview">
-      <span class="nav-icon">&#9632;</span> Overview
-    </button>
-    <button class="nav-link" onclick="nav('agents')" id="nav-agents">
-      <span class="nav-icon">&#9679;</span> Agent Detail
-    </button>
-    <button class="nav-link" onclick="nav('reports')" id="nav-reports">
-      <span class="nav-icon">&#9650;</span> Reports &amp; Insights
-    </button>
-    <button class="nav-link" onclick="nav('metrics')" id="nav-metrics">
-      <span class="nav-icon">&#9660;</span> Outcomes &amp; Metrics
-    </button>
-    <button class="nav-link" onclick="nav('sitemap')" id="nav-sitemap">
-      <span class="nav-icon">&#9670;</span> Sitemap
-    </button>
+    <button class="nav-link active" onclick="nav('overview')" id="nav-overview">Overview</button>
+    <button class="nav-link" onclick="nav('agents')" id="nav-agents">Agent Detail</button>
+    <button class="nav-link" onclick="nav('reports')" id="nav-reports">Reports &amp; Insights</button>
+    <button class="nav-link" onclick="nav('metrics')" id="nav-metrics">Outcomes &amp; Metrics</button>
+    <button class="nav-link" onclick="nav('sitemap')" id="nav-sitemap">Sitemap</button>
   </div>
 </nav>
 
-<!-- PAGE: OVERVIEW -->
+<!-- OVERVIEW -->
 <div class="page active" id="page-overview">
   <div class="page-header">
-    <div class="breadcrumb">AI-Powered Agent Lifecycle</div>
+    <div class="breadcrumb">AI-Powered Agent Lifecycle &middot; v3 &mdash; aligned to requirements</div>
     <h1>System Overview</h1>
-    <p>A self-improving system that drives faster resolution, higher quality, and continuous improvement across GCC operations.</p>
+    <p>Seven specialized AI agents operating across four lifecycle phases. Updated to reflect the full requirements document including Salesforce integration, human-gated workflows, and the Closed Case Review agent.</p>
   </div>
 
   <div class="outcome-strip">
-    <div class="outcome-tile" onclick="openModal('res')">
-      <div class="outcome-tile-icon">&#9889;</div>
-      <div class="outcome-tile-label">Faster Resolutions</div>
-      <div class="outcome-tile-desc">Intelligent automation compresses time to resolve</div>
-    </div>
-    <div class="outcome-tile" onclick="openModal('cost')">
-      <div class="outcome-tile-icon">&#36;</div>
-      <div class="outcome-tile-label">Lower Cost per Case</div>
-      <div class="outcome-tile-desc">Deflection and AI handling reduce cost without quality loss</div>
-    </div>
-    <div class="outcome-tile" onclick="openModal('csat')">
-      <div class="outcome-tile-icon">&#9733;</div>
-      <div class="outcome-tile-label">Higher CSAT</div>
-      <div class="outcome-tile-desc">Consistent AI-guided experiences across all interactions</div>
-    </div>
-    <div class="outcome-tile" onclick="openModal('scale')">
-      <div class="outcome-tile-icon">&#8599;</div>
-      <div class="outcome-tile-label">Scalable Support</div>
-      <div class="outcome-tile-desc">Grows capability over time without linear headcount</div>
-    </div>
+    <div class="outcome-tile" onclick="openModal('res')"><div class="outcome-tile-icon">&#9889;</div><div class="outcome-tile-label">Faster Resolutions</div><div class="outcome-tile-desc">AI automation compresses time to resolve at every stage</div></div>
+    <div class="outcome-tile" onclick="openModal('cost')"><div class="outcome-tile-icon">&#36;</div><div class="outcome-tile-label">Lower Cost per Case</div><div class="outcome-tile-desc">Deflection and AI handling reduce cost without quality loss</div></div>
+    <div class="outcome-tile" onclick="openModal('csat')"><div class="outcome-tile-icon">&#9733;</div><div class="outcome-tile-label">Higher CSAT</div><div class="outcome-tile-desc">Consistent AI-guided experiences across all interactions</div></div>
+    <div class="outcome-tile" onclick="openModal('scale')"><div class="outcome-tile-icon">&#8599;</div><div class="outcome-tile-label">Scalable Support</div><div class="outcome-tile-desc">Grows capability over time without linear headcount</div></div>
   </div>
 
-  <div class="phase-strip">
-    <div class="phase-box ph1"><div class="pnum">1</div><div class="ptitle">Intake &amp; Routing</div><div class="pdesc">Detect, understand, and route efficiently via Triage Agent</div></div>
-    <div class="phase-box ph2"><div class="pnum">2</div><div class="ptitle">Resolution Enablement</div><div class="pdesc">Equip agents with the right knowledge to resolve quickly</div></div>
-    <div class="phase-box ph3"><div class="pnum">3</div><div class="ptitle">Post-Resolution Intelligence</div><div class="pdesc">Ensure quality, capture knowledge, drive continuous improvement</div></div>
+  <div class="phase-strip" style="grid-template-columns:repeat(4,1fr)">
+    <div class="phase-box ph1"><div class="pnum">1</div><div class="ptitle">Intake &amp; Routing</div><div class="pdesc">Customer-facing triage in JAI with real-time data validation and SFDC case creation</div></div>
+    <div class="phase-box ph2"><div class="pnum">2</div><div class="ptitle">Resolution Enablement</div><div class="pdesc">SFDC-embedded AI recommendations with agent feedback loop for model retraining</div></div>
+    <div class="phase-box ph3"><div class="pnum">3</div><div class="ptitle">Post-Resolution Intelligence</div><div class="pdesc">Human-gated KB creation, QA scoring, and root cause analysis</div></div>
+    <div class="phase-box ph4"><div class="pnum">4</div><div class="ptitle">Closed Case Management</div><div class="pdesc">Automated review and routing of customer replies to closed cases</div></div>
   </div>
 
   <div class="card" style="margin-bottom:16px">
-    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--tx3);margin-bottom:14px">Case Flow</div>
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--tx3);margin-bottom:14px">Case Flow &mdash; 7 agents</div>
     <div class="flow-row">
-      <div class="flow-node">Case Intake</div>
-      <div class="flow-arrow"></div>
-      <div class="flow-node">Triage Agent</div>
-      <div class="flow-arrow"></div>
-      <div class="flow-node amber">Can AI Resolve?</div>
-      <div class="flow-arrow"></div>
-      <div class="flow-node green">AI Resolution</div>
+      <div class="flow-node fn-gr">Customer in JAI</div>
+      <div class="flow-arr"></div>
+      <div class="flow-node fn-p">1. Triage Agent</div>
+      <div class="flow-arr"></div>
+      <div class="flow-node fn-a">Can AI Resolve?</div>
+      <div class="flow-arr"></div>
+      <div class="flow-node fn-g">AI Resolution</div>
     </div>
-    <div class="flow-row" style="padding-left:280px">
-      <div class="flow-arrow" style="transform:rotate(90deg);margin:0 4px"></div>
+    <div class="flow-row" style="padding-left:196px">
+      <div style="width:2px;height:14px;background:var(--tx3);opacity:0.5;margin-left:2px"></div>
     </div>
-    <div class="flow-row" style="padding-left:240px">
-      <div class="flow-node blue">Live Agent + Internal Help Agent</div>
-      <div class="flow-arrow"></div>
-      <div class="flow-node teal">Post-Resolution Suite</div>
-      <div class="flow-dashed"></div>
-      <div class="flow-node" style="font-size:11px">Closed-Loop Learning</div>
+    <div class="flow-row">
+      <div class="flow-node fn-b" style="margin-left:196px">2. AI Recommendations Agent (SFDC)</div>
+      <div class="flow-arr"></div>
+      <div class="flow-node fn-t">3. Wrap Up Agent</div>
+      <div class="flow-arr"></div>
+      <div class="flow-node fn-a">4. KB Creation Agent</div>
+    </div>
+    <div class="flow-row" style="justify-content:flex-end">
+      <div class="flow-node fn-g">5. QA Agent</div>
+      <div class="flow-arr"></div>
+      <div class="flow-node fn-c" style="background:var(--c50);border:0.5px solid var(--c100);color:var(--c800)">6. RCA Agent</div>
+      <div class="flow-dash"></div>
+      <div class="flow-node fn-p">Closed-Loop Learning</div>
+    </div>
+    <div class="flow-row" style="margin-top:8px;padding-top:8px;border-top:0.5px solid var(--bd)">
+      <div class="flow-node fn-pk">7. Closed Case Review Agent</div>
+      <div class="flow-arr"></div>
+      <div class="flow-node fn-gr" style="font-size:11px">Action Required? Reopen + Reassign</div>
+      <span style="font-size:12px;color:var(--tx3);margin:0 8px">/</span>
+      <div class="flow-node fn-gr" style="font-size:11px">No Action? Close + Auto-Email</div>
     </div>
   </div>
 
@@ -280,129 +253,152 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg2);color:
     <div class="loop-icon">&#8635;</div>
     <div>
       <div class="loop-title">Closed-Loop Learning</div>
-      <div class="loop-desc">Every post-resolution output feeds intelligence back into earlier lifecycle stages. The system becomes more accurate and deflection-capable with each cycle.</div>
+      <div class="loop-desc">Agent feedback on AI recommendations, QA override data, and KB acceptance rates all feed back into model retraining. The system improves accuracy with each cycle.</div>
     </div>
   </div>
 
   <div class="grid-3" style="margin-top:16px">
-    <div class="card-sm" style="cursor:pointer" onclick="nav('agents')">
-      <div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px">&#8594; View all 6 agents</div>
-      <div style="font-size:12px;color:var(--tx2)">Deep-dive into each agent's purpose, actions, and GCC impact</div>
-    </div>
-    <div class="card-sm" style="cursor:pointer" onclick="nav('reports')">
-      <div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px">&#8594; Reports &amp; Insights</div>
-      <div style="font-size:12px;color:var(--tx2)">Weekly and monthly output types with use cases and owners</div>
-    </div>
-    <div class="card-sm" style="cursor:pointer" onclick="nav('metrics')">
-      <div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px">&#8594; Outcomes &amp; Metrics</div>
-      <div style="font-size:12px;color:var(--tx2)">KPIs, deflection targets, and transformation progress indicators</div>
-    </div>
+    <div class="card-sm" onclick="nav('agents')"><div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px">&#8594; All 7 agents</div><div style="font-size:12px;color:var(--tx2)">Deep-dive on each agent with requirements-aligned detail</div></div>
+    <div class="card-sm" onclick="nav('reports')"><div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px">&#8594; Reports &amp; Insights</div><div style="font-size:12px;color:var(--tx2)">Weekly and monthly outputs with cadence and ownership</div></div>
+    <div class="card-sm" onclick="nav('metrics')"><div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px">&#8594; Outcomes &amp; Metrics</div><div style="font-size:12px;color:var(--tx2)">KPIs, transformation progress, and regional performance</div></div>
   </div>
 </div>
 
-<!-- PAGE: AGENTS -->
+<!-- AGENTS -->
 <div class="page" id="page-agents">
   <div class="page-header">
-    <div class="breadcrumb">AI-Powered Agent Lifecycle</div>
-    <h1>Agent Detail</h1>
-    <p>Six specialized AI agents operating across the three lifecycle phases. Click any card for full detail.</p>
+    <div class="breadcrumb">AI-Powered Agent Lifecycle &middot; Agent Detail</div>
+    <h1>Agent Detail <span style="font-size:13px;font-weight:400;color:var(--tx2)">&mdash; 7 agents, updated to requirements</span></h1>
+    <p>Items marked <span class="req-badge">&#9650; Updated</span> reflect corrections or additions from the requirements document.</p>
   </div>
 
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--tx3);margin-bottom:10px">Phase 1 &amp; 2 — Intake, Routing, and Resolution</div>
-  <div class="grid-2" style="margin-bottom:20px">
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--tx3);margin-bottom:10px">Phase 1 &mdash; Intake &amp; Routing (Customer-Facing)</div>
+  <div style="margin-bottom:20px">
     <div class="agent-card" onclick="openModal('triage')">
       <div class="agent-header">
         <div class="agent-num" style="background:var(--p600)">1</div>
-        <div>
-          <div class="agent-name">Triage Agent</div>
-          <span class="badge badge-purple">AI Agent &middot; in JAI</span>
+        <div style="flex:1">
+          <div class="agent-name">Triage Agent <span class="req-badge">&#9650; Updated</span></div>
+          <span class="badge bp">AI Agent &middot; Customer-Facing in JAI</span>
         </div>
       </div>
-      <div class="agent-purpose">Front door for every incoming case. Determines root cause early, gathers the right details, and routes intelligently to minimize misroutes and time to first response.</div>
+      <div class="agent-purpose">Customer-facing front door operating within JAI. Conducts a dynamic digital interview using conditional logic, validates data formats in real-time, gates the hand-off until all mandatory fields are collected, and creates the Salesforce case record in the background before a human agent ever joins.</div>
       <ul class="agent-actions">
-        <li style="--c:var(--p400)">Detects root cause; asks clarifying questions if needed</li>
-        <li style="--c:var(--p400)">Determines AI resolution vs. live agent routing</li>
-        <li style="--c:var(--p400)">Collects targeted case details before routing</li>
-        <li style="--c:var(--p400)">Assigns to the right Core, Product &amp; Tier queue</li>
-      </ul>
-    </div>
-    <div class="agent-card" onclick="openModal('iha')">
-      <div class="agent-header">
-        <div class="agent-num" style="background:var(--b600)">2</div>
-        <div>
-          <div class="agent-name">Internal Help Agent</div>
-          <span class="badge badge-blue">AI Agent &middot; Phase 2</span>
-        </div>
-      </div>
-      <div class="agent-purpose">Real-time advisor for live support agents. Surfaces the most relevant resolution paths instantly — eliminating manual KB search during live case handling.</div>
-      <ul class="agent-actions">
-        <li>Recommends solutions using historical cases, policies, and KB</li>
-        <li>Surfaces relevant knowledge base articles in context</li>
-        <li>Interactive search explores alternative resolution paths</li>
+        <li style="--c:var(--p400)">Maps customer input to Core &gt; Product &gt; Root Cause library via NLP</li>
+        <li style="--c:var(--p400)">Triggers conditional question sets tailored to the identified root cause</li>
+        <li class="req">Validates data formats in real-time (ID length, field type, endpoint URL format)</li>
+        <li class="req">Gates hand-off until mandatory fields are collected — preserves data quality for reporting</li>
+        <li class="req">Creates Salesforce case record in background upon Core/Product/Root Cause identification</li>
+        <li style="--c:var(--p400)">Routes to correct Team/Tier based on root cause routing matrix</li>
+        <li style="--c:var(--p400)">Provides full transcript to live agent within Salesforce console on assignment</li>
       </ul>
     </div>
   </div>
 
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--tx3);margin-bottom:10px">Phase 3 — Post-Resolution Intelligence</div>
-  <div class="grid-4">
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--tx3);margin-bottom:10px">Phase 2 &mdash; Resolution Enablement (SFDC-Embedded)</div>
+  <div style="margin-bottom:20px">
+    <div class="agent-card" onclick="openModal('iha')">
+      <div class="agent-header">
+        <div class="agent-num" style="background:var(--b600)">2</div>
+        <div style="flex:1">
+          <div class="agent-name">AI Recommendations Agent <span class="req-badge">&#9650; Updated</span></div>
+          <span class="badge bb">AI Agent &middot; Salesforce Service Cloud</span>
+        </div>
+      </div>
+      <div class="agent-purpose">Embedded in the Salesforce Service Cloud console as a dedicated sidebar component. Surfaces real-time solution recommendations, relevant KB articles, and next best actions while agents are live on a case. Includes an explicit agent feedback mechanism that feeds model retraining.</div>
+      <ul class="agent-actions">
+        <li>Analyzes case context in real-time within Salesforce (description, customer history, product, issue type)</li>
+        <li>Recommends solutions, KB articles, and next best actions — with configurable recency weighting on historical data</li>
+        <li class="req">Agents can review, edit, and one-click copy recommended text into case communication</li>
+        <li class="req">Thumbs up/down + optional free-form comment feedback captured per recommendation</li>
+        <li class="req">Feedback associated with specific recommendation and case for AI model training</li>
+        <li>Reports on recommendation adoption rate, accuracy, and impact on AHT/FCR</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--tx3);margin-bottom:10px">Phase 3 &mdash; Post-Resolution Intelligence</div>
+  <div class="grid-2" style="margin-bottom:8px">
     <div class="agent-card" onclick="openModal('wrapup')">
       <div class="agent-header">
         <div class="agent-num" style="background:var(--t600);width:28px;height:28px;font-size:12px">3</div>
-        <div>
-          <div class="agent-name" style="font-size:13px">Wrap Up Agent</div>
-          <span class="badge badge-teal">AI Agent</span>
-        </div>
+        <div><div class="agent-name" style="font-size:13px">Wrap Up Agent</div><span class="badge bt">AI Agent &middot; Phase 3</span></div>
       </div>
-      <div class="agent-purpose">Creates consistent, efficient case closure and validates root cause accuracy.</div>
+      <div class="agent-purpose">Consistent case closure and root cause validation. Bridges into the KB Creation workflow by generating the structured case summary that triggers article drafting.</div>
       <ul class="agent-actions">
-        <li>Generates problem &amp; resolution summary</li>
-        <li>Re-evaluates root cause accuracy</li>
-        <li>Feeds corrections to Triage Agent</li>
+        <li>Generates structured problem and resolution summary</li>
+        <li>Re-evaluates root cause accuracy against triage classification</li>
+        <li>Feeds corrections back to Triage Agent for routing improvement</li>
+        <li class="req">Closure summary surfaces agent option to flag case for KB article generation</li>
       </ul>
     </div>
     <div class="agent-card" onclick="openModal('kb')">
       <div class="agent-header">
         <div class="agent-num" style="background:var(--a600);width:28px;height:28px;font-size:12px">4</div>
-        <div>
-          <div class="agent-name" style="font-size:13px">KB Creation Agent</div>
-          <span class="badge badge-amber">AI Agent</span>
-        </div>
+        <div style="flex:1"><div class="agent-name" style="font-size:13px">KB Creation Agent <span class="req-badge">&#9650; Updated</span></div><span class="badge ba">AI Agent &middot; Human-Gated</span></div>
       </div>
-      <div class="agent-purpose">Builds new KB articles from cases lacking sufficient knowledge coverage.</div>
+      <div class="agent-purpose">Activates only when an agent explicitly flags a case for KB article generation at closure. Generates a draft formatted to pre-defined templates — then routes to a human review queue. Not fully autonomous.</div>
       <ul class="agent-actions">
-        <li>Creates KB article shell from case summaries</li>
-        <li>Queues articles for SME review</li>
-        <li>Published articles ingest into all agents</li>
+        <li class="req">Triggered by explicit agent flag at case closure in Salesforce — not autonomous</li>
+        <li>Analyzes full case interaction: description, notes, solution, transcripts, email exchanges</li>
+        <li>Generates draft formatted to pre-defined templates and style guidelines</li>
+        <li class="req">Draft submitted to Salesforce Knowledge review queue with source case ID and flagging agent</li>
+        <li class="req">Reviewers can accept, reject, edit, or send back for revision</li>
+        <li class="req">Structured feedback (Good draft / Needs edits / Incorrect / Formatting) captured for model retraining</li>
       </ul>
     </div>
+  </div>
+  <div class="grid-2" style="margin-bottom:20px">
     <div class="agent-card" onclick="openModal('qa')">
       <div class="agent-header">
         <div class="agent-num" style="background:var(--g600);width:28px;height:28px;font-size:12px">5</div>
-        <div>
-          <div class="agent-name" style="font-size:13px">QA Agent</div>
-          <span class="badge badge-green">AI Agent</span>
-        </div>
+        <div style="flex:1"><div class="agent-name" style="font-size:13px">QA Agent <span class="req-badge">&#9650; Updated</span></div><span class="badge bg_">AI Agent &middot; Phase 3</span></div>
       </div>
-      <div class="agent-purpose">Reviews and scores cases to maintain quality and identify emerging trends at scale.</div>
+      <div class="agent-purpose">Reviews and scores all case interactions against configurable rubrics across three dimensions: customer experience, solution effectiveness, and agent interaction quality. Supports multi-language processing for GCC global operations.</div>
       <ul class="agent-actions">
-        <li>Scores against standardized rubrics</li>
-        <li>Flags cases for manager review</li>
-        <li>Identifies CSAT trend signals</li>
+        <li>Scores against weighted, configurable rubrics with pass/fail thresholds</li>
+        <li class="req">Evaluates CX (sentiment, frustration), Solution (accuracy, completeness), and Agent quality (empathy, adherence)</li>
+        <li class="req">Supports multi-language processing across all GCC regions</li>
+        <li>Flags cases for human review based on configurable thresholds with reason surfaced</li>
+        <li class="req">QA leads can override AI scores; overrides feed back into model retraining</li>
+        <li class="req">Supports different QA rubric profiles per case type or agent role</li>
       </ul>
     </div>
     <div class="agent-card" onclick="openModal('rca')">
       <div class="agent-header">
         <div class="agent-num" style="background:var(--c600);width:28px;height:28px;font-size:12px">6</div>
-        <div>
-          <div class="agent-name" style="font-size:13px">RCA Agent</div>
-          <span class="badge badge-coral">AI Agent</span>
+        <div><div class="agent-name" style="font-size:13px">RCA Agent</div><span class="badge bc">AI Agent &middot; Phase 3</span></div>
+      </div>
+      <div class="agent-purpose">Analyzes root cause data from Salesforce to evaluate volume and complexity, producing structured recommendations for product/engineering teams and AI deflection prioritization.</div>
+      <ul class="agent-actions">
+        <li>Ingests structured root cause data from SFDC with volume and complexity metrics (ATT, agent hours, transfers, contacts per case)</li>
+        <li>High volume + low complexity &#8594; AI deflection recommendation</li>
+        <li>Low volume + high complexity &#8594; Product/Engineering enhancement recommendation</li>
+        <li>Configurable thresholds for volume and complexity classification</li>
+        <li>Generates monthly report with supporting data (volume, ATT, agent hours) per recommendation</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--tx3);margin-bottom:10px">Phase 4 &mdash; Closed Case Management <span class="req-badge" style="margin-left:6px">&#9650; New Agent</span></div>
+  <div style="margin-bottom:24px">
+    <div class="agent-card" style="border-color:var(--pk200)" onclick="openModal('ccr')">
+      <div class="agent-header">
+        <div class="agent-num" style="background:var(--pk600)">7</div>
+        <div style="flex:1">
+          <div class="agent-name">Closed Case Review Agent <span class="req-badge">&#9650; New</span></div>
+          <span class="badge bpk">AI Agent &middot; Autonomous &middot; SFDC-Triggered</span>
         </div>
       </div>
-      <div class="agent-purpose">Analyzes patterns across all cases to drive deflection, product, and process improvements.</div>
+      <div class="agent-purpose">Monitors Salesforce for cases reaching "Closed - Customer Responded" status. Uses NLP to classify the customer reply as Action Required or No Action Required, then autonomously updates the case, reassigns it, or closes it with an automated confirmation email — all without human involvement unless confidence falls below 75%.</div>
       <ul class="agent-actions">
-        <li>Monitors trends and root causes</li>
-        <li>Identifies deflection opportunities</li>
-        <li>Generates weekly &amp; monthly reports</li>
+        <li class="req">Triggered by SFDC status change to "Closed - Customer Responded"</li>
+        <li class="req">NLP classifies customer reply: Action Required vs. No Action Required</li>
+        <li class="req">Confidence threshold: below 75% flags case for manual human review</li>
+        <li class="req">Action Required: reopens case, changes status to "Active in Support," reassigns to previous owner, adds case history comment</li>
+        <li class="req">No Action Required: closes case, triggers automated no-reply email confirming closure and directing customer to open new case</li>
+        <li class="req">Logs every action taken for audit and troubleshooting purposes</li>
+        <li class="req">Reports on classification accuracy, false positive rate (re-opened then manually closed), and cases flagged for manual review</li>
       </ul>
     </div>
   </div>
@@ -411,127 +407,99 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg2);color:
   <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--tx3);margin-bottom:12px">Agent Interaction Map</div>
   <div class="card">
     <table class="data-table">
-      <thead><tr><th>Agent</th><th>Feeds Into</th><th>Receives From</th><th>Primary Output</th></tr></thead>
+      <thead><tr><th>Agent</th><th>Feeds Into</th><th>Receives From</th><th>Key Integration</th></tr></thead>
       <tbody>
-        <tr><td><span class="badge badge-purple">1 Triage</span></td><td>Internal Help Agent, Live Agent Queue</td><td>Wrap Up Agent (corrections)</td><td>Routed case with full context</td></tr>
-        <tr><td><span class="badge badge-blue">2 Internal Help</span></td><td>Live Support Agent</td><td>KB Creation Agent (new articles)</td><td>Real-time resolution guidance</td></tr>
-        <tr><td><span class="badge badge-teal">3 Wrap Up</span></td><td>Triage Agent (feedback), KB Creation Agent</td><td>Live Agent case closure</td><td>Case summary + root cause validation</td></tr>
-        <tr><td><span class="badge badge-amber">4 KB Creation</span></td><td>All agents (published articles)</td><td>Wrap Up Agent (case summaries)</td><td>Draft KB articles for SME review</td></tr>
-        <tr><td><span class="badge badge-green">5 QA</span></td><td>Manager coaching, RCA Agent</td><td>All resolved cases</td><td>Quality scores + trend signals</td></tr>
-        <tr><td><span class="badge badge-coral">6 RCA</span></td><td>Strategy, product roadmap, training</td><td>All case and agent activity data</td><td>Weekly / monthly reports</td></tr>
+        <tr><td><span class="badge bp">1 Triage</span></td><td>AI Recommendations Agent, Live Agent Queue, SFDC Case Record</td><td>Wrap Up Agent (root cause corrections)</td><td>Salesforce (background case creation), JAI</td></tr>
+        <tr><td><span class="badge bb">2 AI Recommendations</span></td><td>Live Agent (SFDC sidebar)</td><td>KB Creation Agent (published articles), Agent feedback</td><td>Salesforce Service Cloud sidebar component</td></tr>
+        <tr><td><span class="badge bt">3 Wrap Up</span></td><td>Triage Agent (feedback), KB Creation Agent (trigger)</td><td>Live Agent case closure</td><td>Salesforce (case closure workflow)</td></tr>
+        <tr><td><span class="badge ba">4 KB Creation</span></td><td>AI Recommendations Agent (via published articles)</td><td>Agent flag at closure, Wrap Up Agent summary</td><td>Salesforce Knowledge review queue</td></tr>
+        <tr><td><span class="badge bg_">5 QA</span></td><td>Manager coaching, RCA Agent, Model retraining</td><td>All resolved case interactions (chat, email, call transcripts)</td><td>Salesforce (case scoring and flag updates)</td></tr>
+        <tr><td><span class="badge bc">6 RCA</span></td><td>Strategy, product roadmap, training, AI deflection roadmap</td><td>SFDC root cause data, QA scores, complexity metrics</td><td>Salesforce (structured root cause data ingestion)</td></tr>
+        <tr><td><span class="badge bpk">7 Closed Case Review</span></td><td>Previous case owner (reassignment), Customer (no-reply email)</td><td>SFDC status trigger ("Closed - Customer Responded")</td><td>Salesforce (full case read/write permissions)</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- PAGE: REPORTS -->
+<!-- REPORTS -->
 <div class="page" id="page-reports">
   <div class="page-header">
-    <div class="breadcrumb">AI-Powered Agent Lifecycle</div>
+    <div class="breadcrumb">AI-Powered Agent Lifecycle &middot; Reports &amp; Insights</div>
     <h1>Reports &amp; Insights</h1>
-    <p>Four structured output types generated by the RCA Agent on a weekly and monthly cadence. Designed to feed leadership decision-making, training priorities, and product roadmap discussions.</p>
+    <p>Structured outputs generated across agents on a weekly and monthly cadence. Designed to feed leadership decision-making, training priorities, and product roadmap discussions.</p>
   </div>
 
   <div class="grid-2" style="margin-bottom:20px">
     <div class="report-card" onclick="openModal('r-rca')">
       <div class="report-icon">&#128202;</div>
       <div class="report-title">Root Cause Trends &amp; Volume</div>
-      <div class="report-badge badge badge-coral" style="margin-bottom:8px">Weekly + Monthly</div>
-      <div class="report-desc">Tracks shifts in the primary drivers of case volume over time. Enables proactive resource allocation and early identification of emerging issue types before they spike SLA performance.</div>
-      <div class="report-meta">Owner: GCC Ops &middot; Audience: GCC Leadership, Product</div>
+      <span class="badge bc" style="margin-bottom:8px;display:inline-block">Weekly + Monthly</span>
+      <div class="report-desc">Tracks shifts in primary case drivers over time. Enables proactive resource allocation and early identification of emerging issue types before they breach SLA thresholds. Includes volume, avg ATT, and agent hours per root cause.</div>
+      <div class="report-meta">Source: RCA Agent &middot; Owner: Head of GCC Ops &middot; Audience: GCC Leadership, Product</div>
     </div>
     <div class="report-card" onclick="openModal('r-defl')">
       <div class="report-icon">&#8644;</div>
       <div class="report-title">Deflection Opportunity Pipeline</div>
-      <div class="report-badge badge badge-purple" style="margin-bottom:8px">Weekly</div>
-      <div class="report-desc">Prioritized backlog of issue types with the highest deflection potential. Ranked by volume, AI-resolvability, and KB coverage maturity. Primary input for AI roadmap prioritization.</div>
-      <div class="report-meta">Owner: GCC Ops &middot; Audience: GCC Leadership, AI/Product Teams</div>
+      <span class="badge bp" style="margin-bottom:8px;display:inline-block">Weekly</span>
+      <div class="report-desc">Prioritized backlog of high-volume, low-complexity issue types with the strongest case for AI deflection. Ranked by volume, AI-resolvability, and KB coverage maturity. Primary input for chatbot and self-service roadmap.</div>
+      <div class="report-meta">Source: RCA Agent &middot; Owner: Head of GCC Ops &middot; Audience: GCC Leadership, AI/Product Teams</div>
     </div>
     <div class="report-card" onclick="openModal('r-prod')">
       <div class="report-icon">&#128295;</div>
       <div class="report-title">Product Improvement Backlog</div>
-      <div class="report-badge badge badge-amber" style="margin-bottom:8px">Monthly</div>
-      <div class="report-desc">Aggregates support cases into structured product feedback, connecting recurring customer pain points to specific product areas with volume and severity context for roadmap prioritization.</div>
-      <div class="report-meta">Owner: GCC Ops &middot; Audience: Product Management</div>
+      <span class="badge ba" style="margin-bottom:8px;display:inline-block">Monthly</span>
+      <div class="report-desc">Aggregates low-volume, high-complexity root causes into structured product feedback with volume, avg ATT, and agent hours to justify prioritization. Connects recurring customer pain points to specific product areas.</div>
+      <div class="report-meta">Source: RCA Agent &middot; Owner: GCC Ops + Product Liaison &middot; Audience: Product/Engineering Leadership</div>
     </div>
     <div class="report-card" onclick="openModal('r-train')">
       <div class="report-icon">&#127979;</div>
       <div class="report-title">Process &amp; Training Recommendations</div>
-      <div class="report-badge badge badge-blue" style="margin-bottom:8px">Monthly</div>
-      <div class="report-desc">Surfaces agent capability gaps, process friction points, and knowledge coverage issues that coaching and training investments should address. Validates whether prior investments are moving metrics.</div>
-      <div class="report-meta">Owner: GCC Ops &middot; Audience: Team Leads, L&amp;D</div>
+      <span class="badge bb" style="margin-bottom:8px;display:inline-block">Monthly</span>
+      <div class="report-desc">Surfaces agent capability gaps, process friction, and knowledge coverage issues derived from QA Agent scoring across all cases. Tied to specific case segments for coaching context. Validates whether prior training investments are moving metrics.</div>
+      <div class="report-meta">Source: QA Agent + RCA Agent &middot; Owner: Team Leads, L&amp;D &middot; Audience: Managers, QA Leads</div>
     </div>
   </div>
 
   <div class="divider"></div>
-  <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--tx3);margin-bottom:12px">Report Cadence &amp; Ownership</div>
+  <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--tx3);margin-bottom:12px">Report Cadence, Ownership &amp; Decisions Enabled</div>
   <div class="card">
     <table class="data-table">
-      <thead><tr><th>Report</th><th>Cadence</th><th>Primary Owner</th><th>Key Decisions Enabled</th></tr></thead>
+      <thead><tr><th>Report</th><th>Cadence</th><th>Source Agent</th><th>Key Decisions Enabled</th></tr></thead>
       <tbody>
-        <tr><td>Root Cause Trends &amp; Volume</td><td>Weekly + Monthly</td><td>Head of GCC Ops</td><td>Resource allocation, SLA risk flagging</td></tr>
-        <tr><td>Deflection Opportunity Pipeline</td><td>Weekly</td><td>Head of GCC Ops</td><td>AI investment prioritization, KB focus areas</td></tr>
-        <tr><td>Product Improvement Backlog</td><td>Monthly</td><td>GCC Ops + Product liaison</td><td>Product roadmap input, support cost attribution</td></tr>
-        <tr><td>Process &amp; Training Recommendations</td><td>Monthly</td><td>Team Leads + L&amp;D</td><td>Coaching agenda, training investment validation</td></tr>
+        <tr><td>Root Cause Trends &amp; Volume</td><td>Weekly + Monthly</td><td>RCA Agent</td><td>Resource allocation, SLA risk flagging, product prioritization</td></tr>
+        <tr><td>Deflection Opportunity Pipeline</td><td>Weekly</td><td>RCA Agent</td><td>AI/chatbot investment prioritization, KB focus areas</td></tr>
+        <tr><td>Product Improvement Backlog</td><td>Monthly</td><td>RCA Agent</td><td>Product roadmap input, support cost attribution per bug/gap</td></tr>
+        <tr><td>Process &amp; Training Recommendations</td><td>Monthly</td><td>QA + RCA Agents</td><td>Coaching agenda, training investment validation, QBR prep</td></tr>
+        <tr><td>AI Recommendations Effectiveness</td><td>Weekly</td><td>AI Recommendations Agent</td><td>Model refinement, adoption rate tracking, AHT/FCR impact</td></tr>
+        <tr><td>Closed Case Review Performance</td><td>Weekly</td><td>Closed Case Review Agent</td><td>False positive rate monitoring, classification accuracy, audit</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- PAGE: METRICS -->
+<!-- METRICS -->
 <div class="page" id="page-metrics">
   <div class="page-header">
-    <div class="breadcrumb">AI-Powered Agent Lifecycle</div>
+    <div class="breadcrumb">AI-Powered Agent Lifecycle &middot; Outcomes &amp; Metrics</div>
     <h1>Outcomes &amp; Metrics</h1>
-    <p>Key performance indicators aligned to GCC transformation targets. Track deflection, quality, efficiency, and cost across the lifecycle.</p>
+    <p>Key performance indicators aligned to GCC transformation targets across all seven agents.</p>
   </div>
 
   <div class="grid-4" style="margin-bottom:20px">
-    <div class="metric-card">
-      <div class="metric-val">38%</div>
-      <div class="metric-lbl">AI Deflection Rate</div>
-      <div class="metric-delta delta-up">&#8593; Target: 55%</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-val">4.2h</div>
-      <div class="metric-lbl">Avg. Time to Resolution</div>
-      <div class="metric-delta delta-up">&#8593; Down from 6.1h</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-val">71%</div>
-      <div class="metric-lbl">First Contact Resolution</div>
-      <div class="metric-delta delta-up">&#8593; Target: 80%</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-val">4.1</div>
-      <div class="metric-lbl">CSAT Score (/ 5.0)</div>
-      <div class="metric-delta delta-up">&#8593; Up from 3.8</div>
-    </div>
+    <div class="metric-card"><div class="metric-val">38%</div><div class="metric-lbl">AI Deflection Rate</div><div class="metric-delta delta-up">&#8593; Target: 55%</div></div>
+    <div class="metric-card"><div class="metric-val">4.2h</div><div class="metric-lbl">Avg. Time to Resolution</div><div class="metric-delta delta-up">&#8593; Down from 6.1h</div></div>
+    <div class="metric-card"><div class="metric-val">71%</div><div class="metric-lbl">First Contact Resolution</div><div class="metric-delta delta-up">&#8593; Target: 80%</div></div>
+    <div class="metric-card"><div class="metric-val">4.1</div><div class="metric-lbl">CSAT Score (/ 5.0)</div><div class="metric-delta delta-up">&#8593; Up from 3.8</div></div>
   </div>
 
   <div class="grid-2" style="margin-bottom:20px">
     <div class="card">
       <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--tx3);margin-bottom:14px">Transformation Progress</div>
-      <div class="progress-wrap">
-        <div class="progress-label"><span>Headcount reduction target (~25%)</span><span>14%</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:56%;background:var(--p400)"></div></div>
-      </div>
-      <div class="progress-wrap" style="margin-top:10px">
-        <div class="progress-label"><span>AI deflection rate (target: 55%)</span><span>38%</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:69%;background:var(--b400)"></div></div>
-      </div>
-      <div class="progress-wrap" style="margin-top:10px">
-        <div class="progress-label"><span>FCR improvement (target: 80%)</span><span>71%</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:89%;background:var(--g400)"></div></div>
-      </div>
-      <div class="progress-wrap" style="margin-top:10px">
-        <div class="progress-label"><span>Live chat adoption (target: 40%)</span><span>22%</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--t400)"></div></div>
-      </div>
-      <div class="progress-wrap" style="margin-top:10px">
-        <div class="progress-label"><span>KB article coverage (target: 90%)</span><span>61%</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--a400)"></div></div>
-      </div>
+      <div class="progress-wrap"><div class="progress-label"><span>Headcount reduction target (~25%)</span><span>14%</span></div><div class="progress-bar"><div class="progress-fill" style="width:56%;background:var(--p400)"></div></div></div>
+      <div class="progress-wrap" style="margin-top:10px"><div class="progress-label"><span>AI deflection rate (target: 55%)</span><span>38%</span></div><div class="progress-bar"><div class="progress-fill" style="width:69%;background:var(--b400)"></div></div></div>
+      <div class="progress-wrap" style="margin-top:10px"><div class="progress-label"><span>FCR improvement (target: 80%)</span><span>71%</span></div><div class="progress-bar"><div class="progress-fill" style="width:89%;background:var(--g400)"></div></div></div>
+      <div class="progress-wrap" style="margin-top:10px"><div class="progress-label"><span>Live chat adoption (target: 40%)</span><span>22%</span></div><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--t400)"></div></div></div>
+      <div class="progress-wrap" style="margin-top:10px"><div class="progress-label"><span>KB article coverage (target: 90%)</span><span>61%</span></div><div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--a400)"></div></div></div>
     </div>
     <div class="card">
       <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--tx3);margin-bottom:14px">Agent Performance by Region</div>
@@ -548,116 +516,60 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg2);color:
   </div>
 
   <div class="card">
-    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--tx3);margin-bottom:14px">KPI Definitions &amp; Targets</div>
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--tx3);margin-bottom:14px">KPI Definitions, Targets &amp; Source Agents</div>
     <table class="data-table">
       <thead><tr><th>KPI</th><th>Definition</th><th>Current</th><th>Target</th><th>Source Agent</th></tr></thead>
       <tbody>
-        <tr><td>AI Deflection Rate</td><td>% of cases fully resolved by AI without live agent</td><td>38%</td><td>55%</td><td>Triage Agent</td></tr>
+        <tr><td>AI Deflection Rate</td><td>% of cases fully resolved by AI with no live agent</td><td>38%</td><td>55%</td><td>Triage Agent</td></tr>
+        <tr><td>Triage Accuracy</td><td>AI-identified root cause vs. agent-verified root cause match rate</td><td>&mdash;</td><td>90%</td><td>Triage Agent</td></tr>
+        <tr><td>AI Recommendation Adoption</td><td>% of AI recommendations used by agents (copied/applied)</td><td>&mdash;</td><td>60%</td><td>AI Recommendations Agent</td></tr>
         <tr><td>First Contact Resolution</td><td>% of cases resolved on first contact, no re-open</td><td>71%</td><td>80%</td><td>QA Agent</td></tr>
         <tr><td>Avg. Time to Resolution</td><td>Mean hours from case open to verified close</td><td>4.2h</td><td>3.0h</td><td>Wrap Up Agent</td></tr>
         <tr><td>CSAT Score</td><td>Customer satisfaction rating out of 5.0</td><td>4.1</td><td>4.4</td><td>QA Agent</td></tr>
         <tr><td>KB Coverage Rate</td><td>% of top issue types with a published KB article</td><td>61%</td><td>90%</td><td>KB Creation Agent</td></tr>
+        <tr><td>KB Draft Acceptance Rate</td><td>% of AI-generated KB drafts accepted by Knowledge Managers</td><td>&mdash;</td><td>75%</td><td>KB Creation Agent</td></tr>
+        <tr><td>Closed Case False Positive Rate</td><td>% of AI-reopened cases that were then manually closed again</td><td>&mdash;</td><td>&lt;5%</td><td>Closed Case Review Agent</td></tr>
         <tr><td>Repeat Contact Rate</td><td>% of cases where same issue reopens within 30 days</td><td>18%</td><td>8%</td><td>RCA Agent</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- PAGE: SITEMAP -->
+<!-- SITEMAP -->
 <div class="page" id="page-sitemap">
   <div class="page-header">
-    <div class="breadcrumb">AI-Powered Agent Lifecycle</div>
+    <div class="breadcrumb">AI-Powered Agent Lifecycle &middot; Sitemap</div>
     <h1>Sitemap</h1>
-    <p>All pages and sections within this site. Click any item to navigate directly.</p>
+    <p>All pages and sections. Click any item to navigate directly.</p>
   </div>
-
   <div class="grid-2">
     <div>
       <div class="sm-section">
         <div class="sm-section-title">Main Pages</div>
         <div class="sm-items">
-          <div class="sm-item" onclick="nav('overview')">
-            <div class="sm-item-icon">&#9632;</div>
-            <div class="sm-item-body">
-              <div class="sm-item-title">Overview</div>
-              <div class="sm-item-desc">System summary, lifecycle flow, phase breakdown, and outcomes</div>
-            </div>
-            <span class="sm-item-badge badge badge-gray">Home</span>
-          </div>
+          <div class="sm-item" onclick="nav('overview')"><div class="sm-item-icon">&#9632;</div><div class="sm-item-body"><div class="sm-item-title">Overview</div><div class="sm-item-desc">System summary, 4-phase lifecycle flow, and outcomes</div></div><span class="badge bgr">Home</span></div>
           <div class="sm-connector"></div>
-          <div class="sm-item" onclick="nav('agents')">
-            <div class="sm-item-icon">&#9679;</div>
-            <div class="sm-item-body">
-              <div class="sm-item-title">Agent Detail</div>
-              <div class="sm-item-desc">All 6 AI agents with purpose, actions, and interaction map</div>
-            </div>
-            <span class="sm-item-badge badge badge-purple">6 agents</span>
-          </div>
+          <div class="sm-item" onclick="nav('agents')"><div class="sm-item-icon">&#9679;</div><div class="sm-item-body"><div class="sm-item-title">Agent Detail</div><div class="sm-item-desc">All 7 agents with requirements-aligned descriptions and interaction map</div></div><span class="badge bp">7 agents</span></div>
           <div class="sm-connector"></div>
-          <div class="sm-item" onclick="nav('reports')">
-            <div class="sm-item-icon">&#9650;</div>
-            <div class="sm-item-body">
-              <div class="sm-item-title">Reports &amp; Insights</div>
-              <div class="sm-item-desc">4 report types with cadence, ownership, and use cases</div>
-            </div>
-            <span class="sm-item-badge badge badge-coral">4 reports</span>
-          </div>
+          <div class="sm-item" onclick="nav('reports')"><div class="sm-item-icon">&#9650;</div><div class="sm-item-body"><div class="sm-item-title">Reports &amp; Insights</div><div class="sm-item-desc">6 report types with cadence, source agent, and decisions enabled</div></div><span class="badge bc">6 reports</span></div>
           <div class="sm-connector"></div>
-          <div class="sm-item" onclick="nav('metrics')">
-            <div class="sm-item-icon">&#9660;</div>
-            <div class="sm-item-body">
-              <div class="sm-item-title">Outcomes &amp; Metrics</div>
-              <div class="sm-item-desc">KPIs, transformation progress, and regional performance</div>
-            </div>
-            <span class="sm-item-badge badge badge-blue">Live data</span>
-          </div>
+          <div class="sm-item" onclick="nav('metrics')"><div class="sm-item-icon">&#9660;</div><div class="sm-item-body"><div class="sm-item-title">Outcomes &amp; Metrics</div><div class="sm-item-desc">10 KPIs, transformation progress, regional performance</div></div><span class="badge bb">10 KPIs</span></div>
           <div class="sm-connector"></div>
-          <div class="sm-item" onclick="nav('sitemap')">
-            <div class="sm-item-icon">&#9670;</div>
-            <div class="sm-item-body">
-              <div class="sm-item-title">Sitemap</div>
-              <div class="sm-item-desc">Full navigation index — you are here</div>
-            </div>
-            <span class="sm-item-badge badge badge-gray">Index</span>
-          </div>
+          <div class="sm-item" onclick="nav('sitemap')"><div class="sm-item-icon">&#9670;</div><div class="sm-item-body"><div class="sm-item-title">Sitemap</div><div class="sm-item-desc">You are here</div></div><span class="badge bgr">Index</span></div>
         </div>
       </div>
     </div>
-
     <div>
       <div class="sm-section">
-        <div class="sm-section-title">Agent Detail Sections</div>
+        <div class="sm-section-title">Agent Deep-Links</div>
         <div class="sm-items">
-          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('triage'),100)">
-            <div class="sm-item-icon" style="font-size:12px;background:var(--p50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--p800);font-weight:700">1</div>
-            <div class="sm-item-body"><div class="sm-item-title">Triage Agent</div><div class="sm-item-desc">Intake routing, root cause detection, AI vs. live decision</div></div>
-            <span class="sm-item-badge badge badge-purple">Phase 1</span>
-          </div>
-          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('iha'),100)">
-            <div class="sm-item-icon" style="font-size:12px;background:var(--b50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--b800);font-weight:700">2</div>
-            <div class="sm-item-body"><div class="sm-item-title">Internal Help Agent</div><div class="sm-item-desc">Real-time resolution guidance for live agents</div></div>
-            <span class="sm-item-badge badge badge-blue">Phase 2</span>
-          </div>
-          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('wrapup'),100)">
-            <div class="sm-item-icon" style="font-size:12px;background:var(--t50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--t800);font-weight:700">3</div>
-            <div class="sm-item-body"><div class="sm-item-title">Wrap Up Agent</div><div class="sm-item-desc">Case closure, root cause validation, triage feedback</div></div>
-            <span class="sm-item-badge badge badge-teal">Phase 3</span>
-          </div>
-          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('kb'),100)">
-            <div class="sm-item-icon" style="font-size:12px;background:var(--a50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--a800);font-weight:700">4</div>
-            <div class="sm-item-body"><div class="sm-item-title">KB Creation Agent</div><div class="sm-item-desc">Auto-generates KB articles from unresolved case patterns</div></div>
-            <span class="sm-item-badge badge badge-amber">Phase 3</span>
-          </div>
-          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('qa'),100)">
-            <div class="sm-item-icon" style="font-size:12px;background:var(--g50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--g800);font-weight:700">5</div>
-            <div class="sm-item-body"><div class="sm-item-title">QA Agent</div><div class="sm-item-desc">Scores cases, flags coaching signals, identifies CSAT trends</div></div>
-            <span class="sm-item-badge badge badge-green">Phase 3</span>
-          </div>
-          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('rca'),100)">
-            <div class="sm-item-icon" style="font-size:12px;background:var(--c50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--c800);font-weight:700">6</div>
-            <div class="sm-item-body"><div class="sm-item-title">RCA Agent</div><div class="sm-item-desc">Pattern analysis, deflection identification, report generation</div></div>
-            <span class="sm-item-badge badge badge-coral">Phase 3</span>
-          </div>
+          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('triage'),80)"><div class="sm-item-icon" style="font-size:11px;background:var(--p50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--p800);font-weight:700">1</div><div class="sm-item-body"><div class="sm-item-title">Triage Agent <span class="req-badge" style="font-size:9px">Updated</span></div><div class="sm-item-desc">Customer-facing, JAI, real-time validation, SFDC case creation</div></div><span class="badge bp">Phase 1</span></div>
+          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('iha'),80)"><div class="sm-item-icon" style="font-size:11px;background:var(--b50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--b800);font-weight:700">2</div><div class="sm-item-body"><div class="sm-item-title">AI Recommendations Agent <span class="req-badge" style="font-size:9px">Updated</span></div><div class="sm-item-desc">SFDC sidebar, feedback loop, adoption tracking</div></div><span class="badge bb">Phase 2</span></div>
+          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('wrapup'),80)"><div class="sm-item-icon" style="font-size:11px;background:var(--t50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--t800);font-weight:700">3</div><div class="sm-item-body"><div class="sm-item-title">Wrap Up Agent</div><div class="sm-item-desc">Case closure, root cause validation, KB trigger</div></div><span class="badge bt">Phase 3</span></div>
+          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('kb'),80)"><div class="sm-item-icon" style="font-size:11px;background:var(--a50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--a800);font-weight:700">4</div><div class="sm-item-body"><div class="sm-item-title">KB Creation Agent <span class="req-badge" style="font-size:9px">Updated</span></div><div class="sm-item-desc">Human-gated, agent-triggered, SFDC Knowledge review queue</div></div><span class="badge ba">Phase 3</span></div>
+          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('qa'),80)"><div class="sm-item-icon" style="font-size:11px;background:var(--g50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--g800);font-weight:700">5</div><div class="sm-item-body"><div class="sm-item-title">QA Agent <span class="req-badge" style="font-size:9px">Updated</span></div><div class="sm-item-desc">Multi-language, configurable rubrics, override + retraining</div></div><span class="badge bg_">Phase 3</span></div>
+          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('rca'),80)"><div class="sm-item-icon" style="font-size:11px;background:var(--c50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--c800);font-weight:700">6</div><div class="sm-item-body"><div class="sm-item-title">RCA Agent</div><div class="sm-item-desc">Volume/complexity matrix, monthly report, SFDC data ingestion</div></div><span class="badge bc">Phase 3</span></div>
+          <div class="sm-item" onclick="nav('agents');setTimeout(()=>openModal('ccr'),80)" style="border-color:var(--pk200)"><div class="sm-item-icon" style="font-size:11px;background:var(--pk50);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--pk800);font-weight:700">7</div><div class="sm-item-body"><div class="sm-item-title">Closed Case Review Agent <span class="req-badge" style="font-size:9px">New</span></div><div class="sm-item-desc">SFDC-triggered, NLP classification, auto-reopen or close</div></div><span class="badge bpk">Phase 4</span></div>
         </div>
       </div>
     </div>
@@ -673,50 +585,50 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg2);color:
 </div>
 
 <script>
-function nav(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  document.getElementById('nav-' + page).classList.add('active');
-  window.location.hash = page;
-  window.scrollTo(0, 0);
-}
-
-if (window.location.hash) {
-  const h = window.location.hash.replace('#','');
-  const validPages = ['overview','agents','reports','metrics','sitemap'];
-  if (validPages.includes(h)) nav(h);
-}
-
-const modals = {
-  res: { badge: ['System Outcome','badge-purple'], title: 'Faster Resolutions', body: 'AI-driven automation reduces time to resolve by front-loading context gathering, instantly surfacing relevant knowledge, and eliminating manual research cycles.', items: ['Triage Agent eliminates back-and-forth clarification rounds', 'Internal Help Agent removes manual KB search during live interactions', 'AI Resolution path eliminates queue wait time entirely for deflectable cases'] },
-  cost: { badge: ['System Outcome','badge-purple'], title: 'Lower Cost per Case', body: 'Deflection at scale, reduced handle time, and AI-assisted wrap-up compress cost per case without degrading service quality.', items: ['AI resolution deflects cases before any agent cost is incurred', 'Automated wrap-up reduces post-call handling time', 'KB growth compounds deflection rate over time', 'Scalable model avoids linear headcount growth with volume'] },
-  csat: { badge: ['System Outcome','badge-purple'], title: 'Higher CSAT', body: 'Consistency in case handling quality, faster resolutions, and AI-guided agents contribute to more predictable customer experiences.', items: ['Consistent agent guidance reduces outcome variability', 'QA Agent scales quality review beyond manual sampling limits', 'Wrap Up Agent ensures accurate root cause documentation', 'KB improvements reduce repeat contacts from the same issue type'] },
-  scale: { badge: ['System Outcome','badge-purple'], title: 'Scalable Support', body: 'The AI agent system improves over time without requiring linear headcount growth. As deflection increases and KB matures, the same or smaller team handles increasing volume at higher quality.', items: ['AI resolution capacity grows as deflection models improve', 'KB Creation Agent compounds knowledge coverage without SME bottleneck', 'RCA Agent proactively identifies elimination opportunities for repeat issue types', 'Closed-loop feedback means the system inherently improves each cycle'] },
-  triage: { badge: ['AI Agent 1 — Phase 1','badge-purple'], title: 'Triage Agent', body: 'Front door for every incoming case. Determines root cause early, collects the right details, and routes intelligently — reducing misroutes and minimizing time to first meaningful response.', items: ['Detects root cause and asks clarifying questions if needed', 'Determines whether AI can fully resolve or must route to a live agent', 'Collects targeted, relevant case details before routing', 'Assigns to the appropriate Core, Product, and Tier queue', 'GCC lever: Direct driver of FCR improvement and ~25% headcount reduction target'] },
-  iha: { badge: ['AI Agent 2 — Phase 2','badge-blue'], title: 'Internal Help Agent', body: 'Real-time advisor for live support agents. Eliminates the need to search knowledge bases manually during a case, surfacing the most relevant resolution paths instantly.', items: ['Recommends solutions using historical cases, policies, procedures, and KB', 'Surfaces the most relevant KB articles for the specific case context', 'Supports interactive search to explore alternative resolution paths', 'Impact: Reduces AHT by shortening research cycles', 'Impact: Accelerates onboarding — newer agents perform at a higher level faster'] },
-  wrapup: { badge: ['AI Agent 3 — Phase 3','badge-teal'], title: 'Wrap Up Agent', body: 'Creates consistent, efficient case closure and validates root cause accuracy. Eliminates variability in case documentation quality across all regions.', items: ['Reviews case and generates problem and resolution summary', 'Re-evaluates root cause accuracy against triage classification', 'Provides feedback to Triage Agent for continuous routing improvement', 'GCC impact: Eliminates manual wrap-up time as a headcount driver'] },
-  kb: { badge: ['AI Agent 4 — Phase 3','badge-amber'], title: 'KB Creation Agent', body: 'Builds new KB articles from cases that lacked sufficient knowledge coverage, ensuring the support content base grows organically with every case resolved.', items: ['Creates KB article shell from case summaries', 'Includes steps, context, and resolution details', 'Queues articles for SME review, update, and publish', 'Published articles are ingested by all other agents in the lifecycle', 'GCC impact: Builds a self-improving knowledge base without SME overhead'] },
-  qa: { badge: ['AI Agent 5 — Phase 3','badge-green'], title: 'QA Agent', body: 'Reviews and scores cases to maintain quality and identify emerging trends at a scale that manual sampling cannot achieve.', items: ['Scores cases against standardized quality rubrics', 'Flags cases needing manager review or agent coaching', 'Identifies trends impacting CSAT and resolution quality', 'GCC impact: Creates systematic quality signals to replace ad hoc QA sampling'] },
-  rca: { badge: ['AI Agent 6 — Phase 3','badge-coral'], title: 'Root Cause Analysis Agent', body: 'The intelligence layer that synthesizes data across the entire lifecycle to drive strategic deflection, product improvements, and process changes.', items: ['Monitors all cases across all queues, tiers, and regions', 'Analyzes triage classification accuracy and routing patterns', 'Identifies deflection, product enhancement, and process improvement opportunities', 'Generates weekly and monthly structured reports', 'GCC impact: Generates the data foundation for SLA predictability improvements'] },
-  'r-rca': { badge: ['Weekly + Monthly Report','badge-coral'], title: 'Root Cause Trends & Volume', body: 'Tracks shifts in the primary drivers of case volume over time. Enables proactive resource allocation and early identification of emerging issue types before they breach SLA thresholds.', items: ['Identify growing issue categories before they spike', 'Validate that product fixes or KB improvements are reducing specific root cause volumes', 'Feed into weekly operating review cadence for GCC leadership'] },
-  'r-defl': { badge: ['Weekly Report','badge-purple'], title: 'Deflection Opportunity Pipeline', body: 'Prioritized backlog of issue types with the highest deflection potential, ranked by volume, AI-resolvability, and KB coverage maturity.', items: ['Drive the AI/GenAI deflection roadmap with data-backed prioritization', 'Focus KB Creation and SME review effort on highest-impact areas', 'Track deflection rate improvement against the headcount reduction target'] },
-  'r-prod': { badge: ['Monthly Report','badge-amber'], title: 'Product Improvement Backlog', body: 'Aggregates support cases into structured product feedback, connecting recurring customer pain points to specific product areas with volume and severity context.', items: ['Provide Product teams with support-sourced signal for roadmap prioritization', 'Quantify the support cost of known product gaps in case and dollar terms', 'Track whether shipped product improvements are reducing case intake in target areas'] },
-  'r-train': { badge: ['Monthly Report','badge-blue'], title: 'Process & Training Recommendations', body: 'Surfaces agent capability gaps, process friction points, and knowledge coverage issues that coaching and training investments should address.', items: ['Inform QBR coaching agendas with data-backed skill gap signals', 'Prioritize KB updates and new article creation by actual agent demand patterns', 'Validate that training investments are moving quality and resolution metrics'] }
+const M = {
+  res:{b:['System Outcome','bp'],t:'Faster Resolutions',body:'AI-driven automation reduces time to resolve by front-loading context gathering, instantly surfacing relevant knowledge, and eliminating manual research cycles at every phase.',items:['Triage Agent eliminates clarification round-trips via smart conditional questioning','AI Recommendations Agent removes KB search time during live cases','AI Resolution path eliminates queue wait time entirely for deflectable cases','Closed Case Review Agent eliminates manual review of customer replies to closed cases']},
+  cost:{b:['System Outcome','bp'],t:'Lower Cost per Case',body:'Deflection at scale, reduced handle time, and AI-assisted wrap-up compress cost per case without degrading service quality.',items:['AI resolution deflects cases before any agent cost is incurred','Automated wrap-up reduces post-call handling time across all four regions','KB growth compounds deflection rate and reduces repeat contacts over time','Closed Case Review Agent removes manual triage of closed case follow-ups']},
+  csat:{b:['System Outcome','bp'],t:'Higher CSAT',body:'Consistency in case handling quality, faster resolutions, and AI-guided agents contribute to more predictable, higher-quality customer experiences.',items:['AI Recommendations Agent surfaces consistent, high-quality guidance to all agents','QA Agent scales quality review with multi-language support across GCC regions','Wrap Up Agent ensures accurate root cause documentation enabling better follow-through','Closed Case Review ensures no customer replies fall through the cracks on closed cases']},
+  scale:{b:['System Outcome','bp'],t:'Scalable Support',body:'The seven-agent system improves over time without linear headcount growth. Closed-loop learning means each agent gets more accurate with every cycle.',items:['AI resolution capacity grows as deflection models improve from case feedback','KB Creation Agent compounds knowledge coverage without SME overhead','RCA Agent proactively identifies issue categories ready for elimination','Closed Case Review Agent scales closed-case monitoring without additional headcount']},
+  triage:{b:['AI Agent 1 — Phase 1 — Updated','bp'],t:'Triage Agent',body:'Customer-facing agent operating within JAI. Conducts a dynamic digital interview, validates data in real-time, gates the hand-off until mandatory fields are collected, and creates the SFDC case record before a human agent joins.',items:['Maps customer input to Core > Product > Root Cause library via NLP','Triggers conditional question sets tailored to the specific root cause identified','Asks clarifying questions if initial input is too vague before proceeding','Validates data formats in real-time (ID length, endpoint URL format, field type)','Gates hand-off: mandatory fields must be collected before hand-off — preserves reporting data quality','Creates Salesforce case record in background upon Core/Product/Root Cause identification','Routes to correct Team and Tier based on root cause routing matrix','Provides full AI-customer transcript to live agent within Salesforce console on assignment','Analytics: drop-off tracking per question set + AI vs. agent root cause accuracy comparison'],req:'Requirements source: Case Submission and Triage — Functional Requirements sections 1–5'},
+  iha:{b:['AI Agent 2 — Phase 2 — Updated','bb'],t:'AI Recommendations Agent',body:'Embedded in Salesforce Service Cloud as a dedicated sidebar component. Surfaces real-time recommendations while agents are live on a case. Includes an explicit agent feedback loop that feeds continuous model retraining.',items:['Analyzes current case context in real-time within Salesforce (description, history, product, issue type)','Recommends solution text, KB articles, and next best actions — prioritizing recent successful resolutions','Configurable recency weighting mechanism on historical case data','Agents can review, edit, and one-click copy recommended text into case communication','Thumbs up/down + optional free-form comment feedback captured per recommendation','Feedback associated with specific recommendation and case for AI model training','Reports on volume of recommendations, adoption rate, accuracy, and AHT/FCR impact'],req:'Requirements source: AI Recommended Solutions — Functional Requirements sections 1–5'},
+  wrapup:{b:['AI Agent 3 — Phase 3','bt'],t:'Wrap Up Agent',body:'Creates consistent, efficient case closure and validates root cause accuracy. The closure workflow surfaces an option for agents to flag the case for KB article generation — bridging Phase 3 into the KB Creation pipeline.',items:['Generates structured problem and resolution summary for case record','Re-evaluates root cause accuracy against triage classification','Provides root cause corrections to Triage Agent for routing improvement','Closure workflow surfaces agent option to flag case for KB article generation (triggers Agent 4)']},
+  kb:{b:['AI Agent 4 — Phase 3 — Updated','ba'],t:'KB Creation Agent',body:'Activates ONLY when an agent explicitly flags a case for KB article generation at closure. Not a fully autonomous agent — all drafts are human-gated through a Salesforce Knowledge review queue.',items:['Triggered by explicit agent flag at case closure in Salesforce — not autonomous','Analyzes full case interaction: description, agent notes, solution, transcripts, email exchanges','Identifies core problem statement and effective solution(s) from the interaction','Generates draft formatted to pre-defined templates and style guidelines (problem/solution format, steps)','Draft auto-submitted to Salesforce Knowledge review queue with source case ID and flagging agent name','Reviewers can accept, reject, edit, or send back for revision','Structured feedback (Good draft / Needs major edits / Incorrect information / Formatting issues) captured for model retraining','Reports: draft volume, acceptance rate, avg editing time vs. manually created articles'],req:'Requirements source: KB Article Generation — Functional Requirements sections 1–6. Key correction: agent is human-gated, not autonomous.'},
+  qa:{b:['AI Agent 5 — Phase 3 — Updated','bg_'],t:'QA Agent',body:'Reviews and scores all case interactions against configurable rubrics across three dimensions: CX, solution effectiveness, and agent interaction quality. Supports multi-language processing for GCC global operations. QA lead overrides feed back into model retraining.',items:['Ingests all case interactions: chat transcripts, email threads, call recordings/transcripts','Evaluates CX: sentiment, tone, frustration signals, resolution satisfaction','Evaluates Solution: accuracy, completeness, adherence to documented processes','Evaluates Agent Quality: professionalism, empathy, clarity, script adherence, active listening','Supports multi-language processing across all GCC regions','Configurable scoring rubrics with weighted categories and pass/fail thresholds','Flags cases for human review based on configurable thresholds with specific reason surfaced','QA leads can override AI scores — overrides feed back into model retraining','Supports different QA rubric profiles per case type or agent role','Reports on AI accuracy in flagging cases and impact of AI-driven coaching on agent performance'],req:'Requirements source: QA of All Cases — Functional Requirements sections 1–6. Key additions: multi-language, rubric profiles per role, override retraining.'},
+  rca:{b:['AI Agent 6 — Phase 3','bc'],t:'RCA Agent',body:'Analyzes structured root cause data from Salesforce to evaluate volume and complexity, producing actionable recommendations for product/engineering teams and AI deflection prioritization.',items:['Ingests structured root cause data from SFDC instance','Captures and analyzes: case volume, avg time to resolve, avg agent hours, number of transfers/escalations, customer contacts per case','High volume + low complexity → AI deflection recommendations (chatbot, self-service KB, automated flows)','Low volume + high complexity → Product/Engineering recommendations (enhancements, bug fixes, feature improvements)','Configurable thresholds for low/high volume and low/high complexity classification','Monthly report includes supporting data (volume, ATT, agent hours) per recommendation','Allows drill-down into specific root causes to view underlying case details','Feedback from Product, Engineering, and Ops captured to refine model logic and weighting']},
+  ccr:{b:['AI Agent 7 — Phase 4 — New','bpk'],t:'Closed Case Review Agent',body:'New agent identified in the requirements document. Monitors Salesforce for "Closed - Customer Responded" status changes, classifies the customer reply, and takes autonomous action — with a 75% confidence threshold before flagging for manual review.',items:['Triggered by SFDC status change to "Closed - Customer Responded"','NLP analyzes sentiment and intent of the customer\'s last inbound email','Classifies as: Action Required (follow-up needed) or No Action Required (thank you/resolved)','Confidence threshold: below 75% → flag for manual human review to prevent errors','Action Required: change status to "Active in Support," reassign to previous owner, add case history comment','No Action Required: change status to "Closed," trigger automated no-reply email confirming closure and directing customer to open new case if needed','Logs every action taken on every case for audit and troubleshooting','Dashboard reports: cases processed, % correctly classified, cases flagged for manual review, false positive rate (re-opened then manually closed again)'],req:'Requirements source: AI Case Review for Closed Cases — Functional Requirements sections 1–5. This agent does not appear in the original lifecycle diagram and is a net-new addition.'}
+};
+const R = {
+  'r-rca':{b:['Weekly + Monthly Report','bc'],t:'Root Cause Trends & Volume',body:'Tracks shifts in primary case drivers over time. Enables proactive resource allocation and early identification of emerging issue types before they breach SLA thresholds. Includes volume, avg ATT, and agent hours per root cause.',items:['Identify growing issue categories before they spike or breach SLA','Validate that product fixes or KB improvements are reducing specific root cause volumes','Feed into weekly operating review cadence for GCC leadership','Supporting data: case volume, avg ATT, avg agent hours per root cause']},
+  'r-defl':{b:['Weekly Report','bp'],t:'Deflection Opportunity Pipeline',body:'Prioritized backlog of high-volume, low-complexity issue types with the strongest case for AI deflection. Primary input for chatbot, self-service, and automated resolution roadmap decisions.',items:['Drive the AI/GenAI deflection roadmap with data-backed prioritization','Focus KB Creation Agent and SME review effort on highest-impact gaps','Track deflection rate improvement over time against the headcount reduction target','Supports new chatbot use case identification and automated resolution flow design']},
+  'r-prod':{b:['Monthly Report','ba'],t:'Product Improvement Backlog',body:'Aggregates low-volume, high-complexity root causes into structured product feedback with volume, ATT, and agent hours to justify prioritization.',items:['Provide Product/Engineering teams with support-sourced signal for roadmap decisions','Quantify the support cost of known product gaps in case volume and agent hours','Track whether shipped product improvements reduce case intake in target areas','Clear distinction from deflection candidates: these are fix/build opportunities, not chatbot opportunities']},
+  'r-train':{b:['Monthly Report','bb'],t:'Process & Training Recommendations',body:'Surfaces agent capability gaps, process friction, and knowledge coverage issues derived from QA Agent scoring across all cases. Tied to specific case segments for coaching context.',items:['Inform QBR coaching agendas with data-backed skill gap signals per agent and team','Prioritize KB updates and new article creation by actual agent demand patterns','Validate that training investments are moving quality and resolution metrics','Improvement recommendations tied to specific cases for concrete coaching context']}
 };
 
-function openModal(key) {
-  const d = modals[key];
-  if (!d) return;
-  let html = `<span class="modal-badge ${d.badge[1]}">${d.badge[0]}</span><div class="modal-title">${d.title}</div><div class="modal-body" style="margin-top:6px">${d.body}</div>`;
-  if (d.items) {
-    html += `<div class="modal-section"><div class="modal-section-title">Key Points</div><ul class="modal-list">${d.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`;
-  }
-  document.getElementById('modal-body').innerHTML = html;
+function openModal(key){
+  const d=M[key]||R[key];
+  if(!d)return;
+  let h=`<span class="modal-badge ${d.b[1]}">${d.b[0]}</span><div class="modal-title">${d.t}</div><div class="modal-body" style="margin-top:6px">${d.body}</div>`;
+  if(d.items){h+=`<div class="modal-section"><div class="modal-section-title">Key Points</div><ul class="modal-list">${d.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`;}
+  if(d.req){h+=`<div class="req-note">&#9432; ${d.req}</div>`;}
+  document.getElementById('modal-body').innerHTML=h;
   document.getElementById('modal-wrap').classList.add('open');
 }
-function closeModal() { document.getElementById('modal-wrap').classList.remove('open'); }
-function handleWrapClick(e) { if (e.target === document.getElementById('modal-wrap')) closeModal(); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+function closeModal(){document.getElementById('modal-wrap').classList.remove('open');}
+function handleWrapClick(e){if(e.target===document.getElementById('modal-wrap'))closeModal();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+function nav(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('nav-'+p).classList.add('active');
+  window.location.hash=p;
+  window.scrollTo(0,0);
+}
+if(window.location.hash){
+  const h=window.location.hash.replace('#','');
+  if(['overview','agents','reports','metrics','sitemap'].includes(h))nav(h);
+}
 </script>
 </html>
