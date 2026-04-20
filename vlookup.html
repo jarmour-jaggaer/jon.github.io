@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -519,18 +519,18 @@
 
   <div class="header">
     <div class="badge">SAP Code Enrichment Tool</div>
-    <h1>VLOOKUP Automático<br>Informe 31 + Supplier Status</h1>
+    <h1>Automated VLOOKUP<br>Report 31 + Supplier Status</h1>
     <p class="subtitle">
-      Carga los dos archivos Excel. La herramienta cruzará el <strong>Código C2S</strong> del
-      Informe 31 con el Supplier Status y rellenará automáticamente la columna
-      <strong>¿Debe bajar a SAP?</strong> con el código SAP correspondiente.
+      Upload both Excel files. The tool will match the <strong>C2S Code</strong> from
+      Report 31 against the Supplier Status file and automatically populate the
+      <strong>Should it go to SAP?</strong> column with the corresponding SAP code.
     </p>
   </div>
 
   <div class="flow">
     <div class="flow-node">
-      <div class="node-label">Informe 31</div>
-      <div class="node-value">Código C2S</div>
+      <div class="node-label">Report 31</div>
+      <div class="node-value">C2S Code</div>
     </div>
     <div class="flow-arrow">→</div>
     <div class="flow-node">
@@ -539,8 +539,8 @@
     </div>
     <div class="flow-arrow">→</div>
     <div class="flow-node">
-      <div class="node-label">Resultado</div>
-      <div class="node-value">Código SAP</div>
+      <div class="node-label">Result</div>
+      <div class="node-value">SAP Code</div>
     </div>
   </div>
 
@@ -549,12 +549,316 @@
 
     <label class="upload-card" id="card-informe" for="file-informe">
       <input type="file" id="file-informe" accept=".xlsx,.xls">
-      <div class="card-tag">Archivo 1 &mdash; Input</div>
-      <div class="card-title">Informe 31</div>
-      <div class="card-desc">El reporte que será actualizado con los códigos SAP.</div>
+      <div class="card-tag">File 1 &mdash; Input</div>
+      <div class="card-title">Report 31</div>
+      <div class="card-desc">The report that will be updated with SAP codes.</div>
       <div class="card-cols">
-        <span class="col-chip key">Código C2S</span>
-        <span class="col-chip output">¿Debe bajar a SAP?</span>
+        <span class="col-chip key">C2S Code</span>
+        <span class="col-chip output">Should it go to SAP?</span>
+      </div>
+      <div class="upload-status">
+        <div class="status-dot"></div>
+        <span class="status-text" id="informe-status">Click to upload .xlsx file</span>
+      </div>
+    </label>
+
+    <label class="upload-card" id="card-supplier" for="file-supplier">
+      <input type="file" id="file-supplier" accept=".xlsx,.xls">
+      <div class="card-tag">File 2 &mdash; Lookup</div>
+      <div class="card-title">Supplier Status</div>
+      <div class="card-desc">The reference table containing SAP codes per supplier.</div>
+      <div class="card-cols">
+        <span class="col-chip key">C2S Code</span>
+        <span class="col-chip output">SAP Code</span>
+      </div>
+      <div class="upload-status">
+        <div class="status-dot"></div>
+        <span class="status-text" id="supplier-status">Click to upload .xlsx file</span>
+      </div>
+    </label>
+
+  </div>
+
+  <button class="run-btn" id="run-btn" disabled>
+    Run VLOOKUP &rarr; Generate Updated File
+  </button>
+
+  <!-- Log panel -->
+  <div class="log-panel" id="log-panel">
+    <div class="log-header">// Process Log</div>
+    <div id="log-lines"></div>
+    <div class="stats-bar" id="stats-bar" style="display:none"></div>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview-panel" id="preview-panel">
+    <div class="preview-header">
+      <span>Preview &mdash; Updated Report 31</span>
+      <span id="preview-count"></span>
+    </div>
+    <div class="preview-scroll">
+      <table id="preview-table"></table>
+    </div>
+  </div>
+
+  <!-- Download -->
+  <button class="download-btn" id="download-btn">
+    &#8595; Download Updated Report 31 (.xlsx)
+  </button>
+
+  <div class="footer">100% local processing &mdash; no data leaves your browser</div>
+
+</div>
+
+<script>
+  // State
+  let informeWB = null, informeData = null;
+  let supplierWB = null, supplierData = null;
+  let resultWB = null;
+
+  // Column name detection helpers
+  const normalize = s => String(s || '').trim().toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/[áà]/g, 'a').replace(/[éè]/g, 'e')
+    .replace(/[íì]/g, 'i').replace(/[óò]/g, 'o').replace(/[úù]/g, 'u')
+    .replace(/ñ/g, 'n');
+
+  function findCol(headers, patterns) {
+    for (const p of patterns) {
+      const n = normalize(p);
+      const found = headers.find(h => normalize(h) === n || normalize(h).includes(n));
+      if (found) return found;
+    }
+    // Fuzzy: any header containing any pattern word
+    for (const p of patterns) {
+      const words = normalize(p).split(' ').filter(w => w.length > 3);
+      const found = headers.find(h => words.every(w => normalize(h).includes(w)));
+      if (found) return found;
+    }
+    return null;
+  }
+
+  // File readers
+  function readExcel(file, callback) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array' });
+      callback(wb);
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function getSheetData(wb) {
+    const sheetName = wb.SheetNames[0];
+    const ws = wb.Sheets[sheetName];
+    return XLSX.utils.sheet_to_json(ws, { defval: null });
+  }
+
+  // UI helpers
+  function setLoaded(cardId, statusId, filename) {
+    document.getElementById(cardId).classList.add('loaded');
+    document.getElementById(statusId).textContent = filename;
+  }
+
+  function checkReady() {
+    document.getElementById('run-btn').disabled = !(informeWB && supplierWB);
+  }
+
+  function log(msg, type = '') {
+    const panel = document.getElementById('log-panel');
+    panel.classList.add('visible');
+    const lines = document.getElementById('log-lines');
+    const ts = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const div = document.createElement('div');
+    div.className = `log-line ${type}`;
+    div.innerHTML = `<span class="ts">${ts}</span><span class="msg">${msg}</span>`;
+    lines.appendChild(div);
+  }
+
+  // File input handlers
+  document.getElementById('file-informe').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    readExcel(file, wb => {
+      informeWB = wb;
+      informeData = getSheetData(wb);
+      setLoaded('card-informe', 'informe-status', file.name);
+      checkReady();
+    });
+  });
+
+  document.getElementById('file-supplier').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    readExcel(file, wb => {
+      supplierWB = wb;
+      supplierData = getSheetData(wb);
+      setLoaded('card-supplier', 'supplier-status', file.name);
+      checkReady();
+    });
+  });
+
+  // Main process
+  document.getElementById('run-btn').addEventListener('click', () => {
+    document.getElementById('log-lines').innerHTML = '';
+    document.getElementById('stats-bar').style.display = 'none';
+    document.getElementById('preview-panel').classList.remove('visible');
+    document.getElementById('download-btn').classList.remove('visible');
+
+    log('Starting VLOOKUP process...', 'info');
+
+    // Detect columns in Report 31
+    const infHeaders = Object.keys(informeData[0] || {});
+    log(`Report 31: ${informeData.length} rows, ${infHeaders.length} columns`);
+
+    const infC2sCol = findCol(infHeaders, ['Código C2S', 'Codigo C2S', 'C2S', 'codigo c2s']);
+    const infSapCol = findCol(infHeaders, ['¿Debe bajar a SAP?', 'Debe bajar a SAP', 'debe bajar', 'SAP destino']);
+
+    if (!infC2sCol) { log('ERROR: C2S Code column not found in Report 31.', 'err'); return; }
+    if (!infSapCol) { log('ERROR: "Should it go to SAP?" column not found in Report 31.', 'err'); return; }
+
+    log(`Key column (Report 31): "${infC2sCol}"`, 'ok');
+    log(`Target column (Report 31): "${infSapCol}"`, 'ok');
+
+    // Detect columns in Supplier Status
+    const supHeaders = Object.keys(supplierData[0] || {});
+    log(`Supplier Status: ${supplierData.length} rows, ${supHeaders.length} columns`);
+
+    const supC2sCol = findCol(supHeaders, ['Codigo C2S / C2S Code', 'Codigo C2S', 'C2S Code', 'codigo c2s', 'C2S']);
+    const supSapCol = findCol(supHeaders, ['Codigo SAP / SAP Code', 'Codigo SAP', 'SAP Code', 'codigo sap', 'SAP']);
+
+    if (!supC2sCol) { log('ERROR: C2S Code column not found in Supplier Status.', 'err'); return; }
+    if (!supSapCol) { log('ERROR: SAP Code column not found in Supplier Status.', 'err'); return; }
+
+    log(`Key column (Supplier Status): "${supC2sCol}"`, 'ok');
+    log(`Lookup column (Supplier Status): "${supSapCol}"`, 'ok');
+
+    // Build lookup map: C2S -> SAP
+    const lookupMap = new Map();
+    for (const row of supplierData) {
+      const c2s = row[supC2sCol];
+      const sap = row[supSapCol];
+      if (c2s != null && sap != null) {
+        lookupMap.set(String(c2s).trim(), String(sap).trim());
+      }
+    }
+    log(`Lookup map built: ${lookupMap.size} entries`, 'ok');
+
+    // Apply VLOOKUP to Report 31
+    let matched = 0, missing = 0, total = informeData.length;
+
+    const updatedData = informeData.map(row => {
+      const c2s = row[infC2sCol];
+      if (c2s == null) { missing++; return { ...row }; }
+      const key = String(c2s).trim();
+      const sap = lookupMap.get(key);
+      if (sap !== undefined) {
+        matched++;
+        return { ...row, [infSapCol]: sap };
+      } else {
+        missing++;
+        return { ...row, [infSapCol]: row[infSapCol] ?? '' };
+      }
+    });
+
+    log(`Result: ${matched} SAP codes assigned, ${missing} unmatched`, matched > 0 ? 'ok' : 'warn');
+
+    // Build new workbook preserving original structure
+    const newWB = XLSX.utils.book_new();
+    const origSheetName = informeWB.SheetNames[0];
+
+    // Get original worksheet to preserve formatting/structure
+    const newWS = XLSX.utils.json_to_sheet(updatedData, { header: infHeaders });
+
+    // Style the SAP column header
+    XLSX.utils.book_append_sheet(newWB, newWS, origSheetName);
+
+    // Copy remaining sheets if any
+    for (let i = 1; i < informeWB.SheetNames.length; i++) {
+      const sn = informeWB.SheetNames[i];
+      XLSX.utils.book_append_sheet(newWB, informeWB.Sheets[sn], sn);
+    }
+
+    resultWB = newWB;
+
+    // Stats bar
+    const statsBar = document.getElementById('stats-bar');
+    statsBar.style.display = 'flex';
+    statsBar.innerHTML = `
+      <div class="stat-pill blue">
+        <span>Total Rows</span>
+        <span class="stat-num">${total}</span>
+      </div>
+      <div class="stat-pill green">
+        <span>SAP Codes Assigned</span>
+        <span class="stat-num">${matched}</span>
+      </div>
+      <div class="stat-pill amber">
+        <span>No Match Found</span>
+        <span class="stat-num">${missing}</span>
+      </div>
+    `;
+
+    // Preview table
+    buildPreview(updatedData, infHeaders, infC2sCol, infSapCol, total);
+
+    // Show download
+    document.getElementById('download-btn').classList.add('visible');
+    log('File ready to download.', 'info');
+  });
+
+  function buildPreview(data, headers, c2sCol, sapCol, total) {
+    const panel = document.getElementById('preview-panel');
+    const countEl = document.getElementById('preview-count');
+    const table = document.getElementById('preview-table');
+
+    panel.classList.add('visible');
+    countEl.textContent = `${Math.min(data.length, 50)} of ${total} rows`;
+
+    // Build table
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    for (const h of headers) {
+      const th = document.createElement('th');
+      th.textContent = h;
+      headerRow.appendChild(th);
+    }
+    thead.appendChild(headerRow);
+
+    const tbody = document.createElement('tbody');
+    const previewRows = data.slice(0, 50);
+    for (const row of previewRows) {
+      const tr = document.createElement('tr');
+      for (const h of headers) {
+        const td = document.createElement('td');
+        const val = row[h];
+        td.textContent = val ?? '';
+        if (h === sapCol && val != null && val !== '') {
+          td.className = 'sap-new';
+        } else if (h === sapCol && (val == null || val === '')) {
+          td.className = 'sap-missing';
+        }
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+
+    table.innerHTML = '';
+    table.appendChild(thead);
+    table.appendChild(tbody);
+  }
+
+  // Download
+  document.getElementById('download-btn').addEventListener('click', () => {
+    if (!resultWB) return;
+    const now = new Date();
+    const ts = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+    XLSX.writeFile(resultWB, `Report_31_SAP_Updated_${ts}.xlsx`);
+  });
+</script>
+</body>
+</html>        <span class="col-chip output">¿Debe bajar a SAP?</span>
       </div>
       <div class="upload-status">
         <div class="status-dot"></div>
