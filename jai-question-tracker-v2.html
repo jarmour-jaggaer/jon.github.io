@@ -565,9 +565,19 @@ function switchTab(t) {
   document.getElementById('btn-repo').className   = 'tab ' + (t==='repo'   ? 'active' : 'inactive');
   if (t === 'repo') {
     if (sessionStorage.getItem('jai-repo-auth') === '1') {
+      // Already authenticated — skip gate and load data
       document.getElementById('repo-gate-wrap').style.display = 'none';
       document.getElementById('repo-content').style.display = 'block';
       loadAll();
+    } else {
+      // Show gate, hide content
+      document.getElementById('repo-gate-wrap').style.display = 'block';
+      document.getElementById('repo-content').style.display = 'none';
+      // Focus password field
+      setTimeout(() => {
+        const input = document.getElementById('repo-gate-input');
+        if (input) input.focus();
+      }, 100);
     }
   }
 }
