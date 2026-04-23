@@ -247,6 +247,7 @@
       <div class="sec-title">Submit a Question About JAI</div>
       <div class="sec-sub">All questions are compiled into a shared repository and assigned for response.</div>
       <div class="banner" id="submit-banner"></div>
+      <div class="banner" id="followup-banner" style="display:none;background:#f8f6ff;border-color:#c4aff5;color:#5300CE;"></div>
       <div class="card">
         <div class="grid-2">
           <div>
@@ -437,6 +438,40 @@ function genId() {
   return 'Q' + Date.now().toString(36).toUpperCase().slice(-4) +
     Math.random().toString(36).slice(2,5).toUpperCase();
 }
+
+function readUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('followup') === '1') {
+    // Switch to submit tab
+    switchTab('submit');
+
+    // Pre-fill question with follow-up context
+    const ctx = params.get('ctx') ? decodeURIComponent(params.get('ctx')) : '';
+    const orig = params.get('orig') ? decodeURIComponent(params.get('orig')) : '';
+    const refId = params.get('ref') ? decodeURIComponent(params.get('ref')) : '';
+
+    // Show follow-up banner
+    const banner = document.getElementById('followup-banner');
+    if (banner) {
+      banner.textContent = 'Follow-up to ' + refId + ' — original context is included below your question. You can remove it if not needed.';
+      banner.style.display = 'block';
+    }
+
+    // Pre-fill question field
+    const qField = document.getElementById('f-question');
+    if (qField) {
+      qField.value = ctx + orig;
+      qField.focus();
+      // Place cursor at start so they type before the context
+      qField.setSelectionRange(ctx.length, ctx.length);
+    }
+
+    // Clean the URL so refreshing does not re-trigger
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', readUrlParams);
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
