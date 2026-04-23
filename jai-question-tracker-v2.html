@@ -75,7 +75,6 @@
   .card-footer { display: flex; gap: 20px; font-size: 11px; color: var(--dim); flex-wrap: wrap; }
   .card-footer span b { color: var(--border2); font-weight: 400; }
 
-  /* Answer block */
   .answer-block {
     margin-top: 14px; padding: 14px 16px;
     background: #f8f6ff; border: 1px solid #e0d5f5;
@@ -86,21 +85,13 @@
     color: var(--accent); font-weight: 500; margin-bottom: 6px;
     display: flex; align-items: center; gap: 6px;
   }
-  .answer-label::before {
-    content: ''; display: inline-block; width: 7px; height: 7px;
-    border-radius: 50%; background: var(--accent);
-  }
-  .answer-text { font-size: 13px; color: #2d3348; line-height: 1.7; }
+  .answer-label::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .answer-text { font-size: 13px; color: #2d3348; line-height: 1.7; white-space: pre-wrap; }
 
   .awaiting { margin-top: 12px; display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--dim); }
   .awaiting::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--border2); }
 
-  /* Status auto-note */
-  .status-note {
-    margin-top: 10px; padding: 8px 12px; border-radius: 6px;
-    font-size: 11px; background: #f8f9fa; border: 1px solid var(--border);
-    color: var(--muted); display: flex; align-items: center; gap: 6px;
-  }
+  .status-note { margin-top: 10px; padding: 8px 12px; border-radius: 6px; font-size: 11px; background: #f8f9fa; border: 1px solid var(--border); color: var(--muted); display: flex; align-items: center; gap: 6px; }
   .status-note::before { content: 'ℹ'; font-size: 12px; }
 
   .edit-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); display: none; }
@@ -117,13 +108,9 @@
   .pu-Medium   { background: #fffbeb; color: #92400e; border-color: #fcd34d; }
   .pu-High     { background: #fff7ed; color: #9a3412; border-color: #fdba74; }
   .pu-Critical { background: #fef2f2; color: #991b1b; border-color: #fca5a5; }
-
-  /* Status pills — Open / Assigned / Complete */
   .ps-Open     { background: #fef2f2; color: #D22428; border-color: #fca5a5; }
   .ps-Assigned { background: #fffbeb; color: #92400e; border-color: #fcd34d; }
   .ps-Complete { background: #f0faf3; color: #166534; border-color: #86efac; }
-
-  /* Answer pills */
   .pa-answered   { background: #f8f6ff; color: #5300CE; border-color: #c4aff5; }
   .pa-unanswered { background: #f8f9fa; color: var(--dim); border-color: var(--border); }
 
@@ -256,7 +243,7 @@
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div class="sec-title">Question Repository</div>
         <div style="display:flex;gap:8px;">
-          <button class="btn-ghost sm" onclick="loadQuestions()">↻ Refresh</button>
+          <button class="btn-ghost sm" onclick="loadAll()">↻ Refresh</button>
           <button class="btn-ghost sm" onclick="exportCSV()">Export CSV</button>
         </div>
       </div>
@@ -266,7 +253,6 @@
         <span id="sync-label">Not loaded</span>
       </div>
 
-      <!-- Stats -->
       <div class="stats-row">
         <div class="stat-card" style="border-top:3px solid #5300CE;">
           <div class="stat-num" id="s-total" style="color:#1a1a2e;">0</div>
@@ -290,7 +276,6 @@
         </div>
       </div>
 
-      <!-- Filters -->
       <div class="grid-5">
         <div>
           <label class="lbl">Status</label>
@@ -340,7 +325,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwfABCyi0PCwBb4XxMTyIhq1khMe62jZDTvRoooFk4dzhQbQg3UM2MnoXPfdL98s_N_/exec';
 
-let qs = [], urgency = 'Medium', editId = null;
+let qs = [], assignees = [], urgency = 'Medium', editId = null;
 
 function genId() {
   return 'Q' + Date.now().toString(36).toUpperCase().slice(-4) +
@@ -363,10 +348,17 @@ async function apiPost(data) {
   return res.json();
 }
 
+async function loadAssignees() {
+  try {
+    const res = await fetch(API + '?type=assignees&t=' + Date.now());
+    const data = await res.json();
+    assignees = Array.isArray(data) ? data : [];
+  } catch(e) {
+    assignees = [];
+  }
+}
+
 async function loadQuestions() {
-  setSyncStatus('loading', 'Loading from Google Sheets...');
-  document.getElementById('repo-list').innerHTML =
-    '<div class="spinner-wrap"><div class="spinner"></div>Loading questions...</div>';
   try {
     const res = await fetch(API + '?t=' + Date.now());
     const data = await res.json();
@@ -381,6 +373,13 @@ async function loadQuestions() {
   }
 }
 
+async function loadAll() {
+  setSyncStatus('loading', 'Loading from Google Sheets...');
+  document.getElementById('repo-list').innerHTML =
+    '<div class="spinner-wrap"><div class="spinner"></div>Loading questions...</div>';
+  await Promise.all([loadQuestions(), loadAssignees()]);
+}
+
 function selUrg(btn) {
   document.querySelectorAll('.urg-btn').forEach(b => b.className = 'urg-btn');
   btn.className = 'urg-btn sel-' + btn.dataset.u;
@@ -392,7 +391,7 @@ function switchTab(t) {
   document.getElementById('tab-repo').style.display   = t==='repo'   ? 'block' : 'none';
   document.getElementById('btn-submit').className = 'tab ' + (t==='submit' ? 'active' : 'inactive');
   document.getElementById('btn-repo').className   = 'tab ' + (t==='repo'   ? 'active' : 'inactive');
-  if (t === 'repo') loadQuestions();
+  if (t === 'repo') loadAll();
 }
 
 async function submitQ() {
@@ -434,6 +433,15 @@ async function submitQ() {
 
 function updateCount() {
   document.getElementById('repo-count').textContent = qs.length;
+}
+
+function buildAssigneeOptions(currentAssignee) {
+  const opts = ['<option value="">Unassigned</option>'];
+  assignees.forEach(name => {
+    const selected = currentAssignee && currentAssignee.trim().toLowerCase() === name.trim().toLowerCase() ? 'selected' : '';
+    opts.push(`<option value="${esc(name)}" ${selected}>${esc(name)}</option>`);
+  });
+  return opts.join('');
 }
 
 function render() {
@@ -479,29 +487,23 @@ function render() {
     const hasAnswer = q.answer && q.answer.trim();
     const isEdit    = editId === q.id;
     const isComplete = q.status === 'Complete';
-
-    // Status pill
     const sPillClass = 'pill ps-' + q.status.replace(' ','');
 
-    // Answer pill
     const answerPill = hasAnswer
       ? `<span class="pill pa-answered">Answered</span>`
       : `<span class="pill pa-unanswered">Awaiting Answer</span>`;
 
-    // Answer block
     const answerBlock = hasAnswer
       ? `<div class="answer-block">
            <div class="answer-label">Answer</div>
            <div class="answer-text">${esc(q.answer)}</div>
          </div>`
-      : `<div class="awaiting">No answer yet — add one in the Google Sheet and refresh</div>`;
+      : `<div class="awaiting">No answer yet — add one in the Google Sheet or via email reply and refresh</div>`;
 
-    // Assignee footer
     const aHtml = q.assignee
       ? `<span><b>Assigned to:</b> <span style="color:#5300CE">${esc(q.assignee)}</span></span>` : '';
 
-    // Status auto-logic note in edit panel
-    const statusNote = `<div class="status-note">Status is set automatically: Open when unassigned, Assigned when an assignee is added, Complete when an answer is provided in the sheet.</div>`;
+    const assigneeDropdown = buildAssigneeOptions(q.assignee);
 
     return `
 <div class="card ${isComplete ? 'is-complete' : ''}" data-u="${q.urgency}" id="card-${q.id}">
@@ -526,11 +528,13 @@ function render() {
   </div>
   ${answerBlock}
   <div class="edit-panel ${isEdit ? 'open' : ''}" id="ep-${q.id}">
-    ${statusNote}
+    <div class="status-note">Status updates automatically: Open when unassigned, Assigned when someone is selected, Complete when an answer is provided.</div>
     <div class="grid-edit" style="margin-top:12px;">
       <div>
         <label class="lbl">Assign To</label>
-        <input type="text" id="ea-${q.id}" value="${esc(q.assignee||'')}" placeholder="Name or team — adding an assignee sets status to Assigned"/>
+        <select id="ea-${q.id}">
+          ${assigneeDropdown}
+        </select>
       </div>
     </div>
     <div class="btn-row">
@@ -550,7 +554,6 @@ async function saveEdit(id) {
   saveBtn.disabled = true; saveBtn.textContent = 'Saving...';
   try {
     await apiPost({ action:'update', id, assignee, updatedAt: new Date().toISOString() });
-    // Derive status client-side to reflect immediately
     const q = qs.find(q => q.id === id);
     let newStatus = 'Open';
     if (q && q.answer && q.answer.trim()) newStatus = 'Complete';
