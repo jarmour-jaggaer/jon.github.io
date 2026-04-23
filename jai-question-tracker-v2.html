@@ -439,34 +439,60 @@ function genId() {
     Math.random().toString(36).slice(2,5).toUpperCase();
 }
 
-function readUrlParams() {
+async function readUrlParams() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('followup') === '1') {
+    const refId = params.get('ref') ? decodeURIComponent(params.get('ref')) : '';
+
     // Switch to submit tab
     switchTab('submit');
 
-    // Pre-fill question with follow-up context
-    const ctx = params.get('ctx') ? decodeURIComponent(params.get('ctx')) : '';
-    const orig = params.get('orig') ? decodeURIComponent(params.get('orig')) : '';
-    const refId = params.get('ref') ? decodeURIComponent(params.get('ref')) : '';
-
-    // Show follow-up banner
+    // Show follow-up banner immediately
     const banner = document.getElementById('followup-banner');
     if (banner) {
-      banner.textContent = 'Follow-up to ' + refId + ' — original context is included below your question. You can remove it if not needed.';
+      banner.textContent = 'Loading follow-up context for ' + refId + '...';
       banner.style.display = 'block';
     }
 
-    // Pre-fill question field
-    const qField = document.getElementById('f-question');
-    if (qField) {
-      qField.value = ctx + orig;
-      qField.focus();
-      // Place cursor at start so they type before the context
-      qField.setSelectionRange(ctx.length, ctx.length);
+    // Fetch the original question from the sheet using the ID
+    try {
+      const res = await fetch(API + '?t=' + Date.now());
+      const data = await res.json();
+      const original = Array.isArray(data) ? data.find(q => q.id === refId) : null;
+
+      const qField = document.getElementById('f-question');
+      if (original && qField) {
+        const prefix = '[Follow-up to ' + refId + '] ';
+        const context = '
+
+--- Original Question ---
+' + original.question +
+                        '
+
+--- Original Answer ---
+' + (original.answer || 'Pending');
+        qField.value = prefix + context;
+        qField.focus();
+        qField.setSelectionRange(prefix.length, prefix.length);
+
+        if (banner) {
+          banner.textContent = 'Follow-up to ' + refId + ' — original context is pre-filled below. Type your follow-up question at the start, or remove the context if not needed.';
+        }
+      } else if (qField) {
+        qField.value = '[Follow-up to ' + refId + '] ';
+        qField.focus();
+        qField.setSelectionRange(qField.value.length, qField.value.length);
+        if (banner) {
+          banner.textContent = 'Follow-up to ' + refId + ' — please describe your follow-up question.';
+        }
+      }
+    } catch(e) {
+      const qField = document.getElementById('f-question');
+      if (qField) qField.value = '[Follow-up to ' + refId + '] ';
+      if (banner) banner.textContent = 'Follow-up to ' + refId + ' — please describe your follow-up question.';
     }
 
-    // Clean the URL so refreshing does not re-trigger
+    // Clean the URL
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 }
