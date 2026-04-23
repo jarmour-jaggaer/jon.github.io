@@ -463,14 +463,8 @@ async function readUrlParams() {
       const qField = document.getElementById('f-question');
       if (original && qField) {
         const prefix = '[Follow-up to ' + refId + '] ';
-        const context = '
-
---- Original Question ---
-' + original.question +
-                        '
-
---- Original Answer ---
-' + (original.answer || 'Pending');
+        const context = '\n\n--- Original Question ---\n' + original.question +
+                        '\n\n--- Original Answer ---\n' + (original.answer || 'Pending');
         qField.value = prefix + context;
         qField.focus();
         qField.setSelectionRange(prefix.length, prefix.length);
