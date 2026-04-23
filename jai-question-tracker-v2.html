@@ -456,6 +456,9 @@ function render() {
     return true;
   });
 
+  const urgencyOrder = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+  filtered.sort((a, b) => (urgencyOrder[a.urgency] ?? 4) - (urgencyOrder[b.urgency] ?? 4));
+
   document.getElementById('s-total').textContent    = qs.length;
   document.getElementById('s-open').textContent     = qs.filter(q => q.status === 'Open').length;
   document.getElementById('s-assigned').textContent = qs.filter(q => q.status === 'Assigned').length;
