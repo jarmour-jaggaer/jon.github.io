@@ -180,6 +180,45 @@
 
   .empty { text-align: center; color: var(--dim); padding: 60px 0; font-size: 13px; }
 
+  /* Assignee Manager Modal */
+  #assignee-modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    z-index: 500; align-items: center; justify-content: center;
+  }
+  #assignee-modal-overlay.open { display: flex; animation: fadeUp 0.2s ease; }
+  #assignee-modal {
+    background: #fff; border-radius: 12px; width: 100%; max-width: 520px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.16); overflow: hidden;
+    margin: 20px;
+  }
+  #assignee-modal-header {
+    background: #1a1a2e; padding: 18px 24px; display: flex;
+    justify-content: space-between; align-items: center;
+    border-bottom: 3px solid var(--red);
+  }
+  #assignee-modal-title {
+    font-family: var(--display); font-size: 16px; font-weight: 800;
+    color: #fff; letter-spacing: -0.01em;
+  }
+  #assignee-modal-close {
+    background: none; border: none; color: #8a94a8; font-size: 20px;
+    cursor: pointer; padding: 0; line-height: 1;
+  }
+  #assignee-modal-close:hover { color: #fff; }
+  #assignee-modal-body { padding: 24px; }
+  .assignee-row {
+    display: flex; align-items: center; gap: 10px; padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .assignee-row:last-child { border-bottom: none; }
+  .assignee-name { flex: 1; font-size: 13px; color: var(--text); font-weight: 500; }
+  .assignee-email { flex: 1; font-size: 12px; color: var(--muted); }
+  .btn-remove { background: transparent; color: var(--red); border: 1px solid #fca5a5; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-family: var(--font); font-size: 11px; transition: all 0.15s; flex-shrink: 0; }
+  .btn-remove:hover { background: #fef2f2; }
+  .add-assignee-form { margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--border); }
+  .add-assignee-form .grid-2 { margin-bottom: 10px; }
+  #assignee-list-empty { text-align: center; color: var(--dim); padding: 20px 0; font-size: 12px; }
+
   /* Needs reassignment */
   .card.needs-reassign {
     border: 2px solid var(--red) !important;
@@ -356,6 +395,7 @@
               <span id="notif-badge"></span>
             </button>
             <button class="btn-ghost sm" onclick="loadAll()">&#8635; Refresh</button>
+            <button class="btn-ghost sm" onclick="openAssigneeModal()">&#9881; Manage Assignees</button>
             <button class="btn-ghost sm" onclick="exportCSV()">Export CSV</button>
           </div>
           <!-- Notification panel -->
@@ -438,6 +478,44 @@
 
         <div id="repo-list"></div>
       </div><!-- end repo-content -->
+
+  <!-- Assignee Manager Modal -->
+  <div id="assignee-modal-overlay" onclick="closeAssigneeModalOnOverlay(event)">
+    <div id="assignee-modal">
+      <div id="assignee-modal-header">
+        <div id="assignee-modal-title">&#9881; Manage Assignees</div>
+        <button id="assignee-modal-close" onclick="closeAssigneeModal()">&#215;</button>
+      </div>
+      <div id="assignee-modal-body">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">
+          Assignees added here will appear immediately in the assignment dropdown and be saved to the backend sheet.
+        </div>
+
+        <!-- Current assignee list -->
+        <div id="assignee-list-wrap"></div>
+
+        <!-- Add new assignee form -->
+        <div class="add-assignee-form">
+          <label class="lbl">Add New Assignee</label>
+          <div class="grid-2">
+            <div>
+              <label class="lbl">Full Name</label>
+              <input type="text" id="new-assignee-name" placeholder="First Last"/>
+            </div>
+            <div>
+              <label class="lbl">Email Address</label>
+              <input type="email" id="new-assignee-email" placeholder="email@jaggaer.com"/>
+            </div>
+          </div>
+          <div class="err" id="err-assignee"></div>
+          <div class="btn-row" style="margin-top:8px;">
+            <button class="btn-ghost sm" onclick="closeAssigneeModal()">Close</button>
+            <button class="btn-primary sm" id="add-assignee-btn" onclick="addAssignee()">Add Assignee</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
     </div>
 
   </main>
@@ -857,6 +935,80 @@ async function delQ(id) {
     setSyncStatus('live', 'Deleted — ' + new Date().toLocaleTimeString());
   } catch(e) {
     alert('Delete failed. Please check your connection and try again.');
+  }
+}
+
+// ── ASSIGNEE MANAGER ──────────────────────────────────────────────────────
+function openAssigneeModal() {
+  renderAssigneeList();
+  document.getElementById('assignee-modal-overlay').classList.add('open');
+  document.getElementById('new-assignee-name').value = '';
+  document.getElementById('new-assignee-email').value = '';
+  document.getElementById('err-assignee').textContent = '';
+}
+
+function closeAssigneeModal() {
+  document.getElementById('assignee-modal-overlay').classList.remove('open');
+}
+
+function closeAssigneeModalOnOverlay(e) {
+  if (e.target === document.getElementById('assignee-modal-overlay')) closeAssigneeModal();
+}
+
+function renderAssigneeList() {
+  const wrap = document.getElementById('assignee-list-wrap');
+  if (!assignees.length) {
+    wrap.innerHTML = '<div id="assignee-list-empty">No assignees added yet.</div>';
+    return;
+  }
+  wrap.innerHTML = assignees.map((name, i) => `
+    <div class="assignee-row">
+      <div class="assignee-name">${esc(name)}</div>
+      <button class="btn-remove" onclick="removeAssignee(${i})">Remove</button>
+    </div>`).join('');
+}
+
+async function addAssignee() {
+  const name  = document.getElementById('new-assignee-name').value.trim();
+  const email = document.getElementById('new-assignee-email').value.trim();
+  const errEl = document.getElementById('err-assignee');
+  errEl.textContent = '';
+
+  if (!name)  { errEl.textContent = 'Name is required.'; return; }
+  if (!email) { errEl.textContent = 'Email is required.'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email address.'; return; }
+  if (assignees.some(a => a.trim().toLowerCase() === name.toLowerCase())) {
+    errEl.textContent = 'This name already exists in the assignee list.'; return;
+  }
+
+  const btn = document.getElementById('add-assignee-btn');
+  btn.disabled = true; btn.textContent = 'Adding...';
+
+  try {
+    await apiPost({ action: 'addAssignee', name, email });
+    assignees.push(name);
+    assignees.sort((a, b) => a.localeCompare(b));
+    document.getElementById('new-assignee-name').value = '';
+    document.getElementById('new-assignee-email').value = '';
+    renderAssigneeList();
+    setSyncStatus('live', 'Assignee added — ' + new Date().toLocaleTimeString());
+  } catch(e) {
+    errEl.textContent = 'Failed to save. Check your connection and try again.';
+  }
+
+  btn.disabled = false; btn.textContent = 'Add Assignee';
+}
+
+async function removeAssignee(index) {
+  const name = assignees[index];
+  if (!confirm(`Remove "${name}" from the assignee list? They will no longer appear in the assignment dropdown.`)) return;
+  try {
+    await apiPost({ action: 'removeAssignee', name });
+    assignees.splice(index, 1);
+    renderAssigneeList();
+    setSyncStatus('live', 'Assignee removed — ' + new Date().toLocaleTimeString());
+  } catch(e) {
+    alert('Failed to remove. Check your connection and try again.');
   }
 }
 
