@@ -180,6 +180,55 @@
 
   .empty { text-align: center; color: var(--dim); padding: 60px 0; font-size: 13px; }
 
+  /* Needs reassignment */
+  .card.needs-reassign {
+    border: 2px solid var(--red) !important;
+    box-shadow: 0 0 0 3px #D2242818 !important;
+  }
+  .reassign-banner {
+    background: #fef2f2; border: 1px solid #fca5a5; border-left: 3px solid var(--red);
+    border-radius: 6px; padding: 8px 12px; margin-bottom: 10px;
+    font-size: 11px; color: #991b1b; display: flex; align-items: center; gap: 6px;
+    font-weight: 500;
+  }
+  .reassign-banner::before { content: '!'; font-size: 12px; font-weight: 700; }
+
+  /* Notification bell */
+  #notif-btn {
+    position: relative; background: transparent; border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 16px;
+    transition: all 0.15s; line-height: 1;
+  }
+  #notif-btn:hover { border-color: var(--border2); background: var(--bg); }
+  #notif-badge {
+    position: absolute; top: -6px; right: -6px; background: var(--red); color: #fff;
+    border-radius: 999px; font-size: 10px; font-weight: 700; padding: 1px 5px;
+    font-family: var(--font); display: none; min-width: 16px; text-align: center;
+  }
+  #notif-panel {
+    display: none; position: absolute; top: 52px; right: 24px; z-index: 200;
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12); width: 380px; overflow: hidden;
+  }
+  #notif-panel.open { display: block; animation: fadeUp 0.2s ease; }
+  #notif-panel-header {
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  #notif-panel-title { font-family: var(--display); font-size: 13px; font-weight: 700; color: var(--text); }
+  #notif-panel-close { cursor: pointer; color: var(--dim); font-size: 16px; line-height: 1; background: none; border: none; padding: 0; }
+  #notif-panel-list { max-height: 320px; overflow-y: auto; }
+  .notif-item {
+    padding: 12px 18px; border-bottom: 1px solid var(--border); cursor: pointer;
+    transition: background 0.1s;
+  }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-item:hover { background: var(--bg); }
+  .notif-item-id { font-size: 10px; color: var(--dim); letter-spacing: 0.06em; margin-bottom: 3px; }
+  .notif-item-q { font-size: 12px; color: var(--text); line-height: 1.4; font-weight: 500; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .notif-item-note { font-size: 11px; color: #991b1b; }
+  .notif-empty { padding: 24px 18px; text-align: center; font-size: 12px; color: var(--dim); }
+
   @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
   .fade-up { animation: fadeUp 0.25s ease; }
 
@@ -299,11 +348,23 @@
 
       <!-- Repo Content -->
       <div id="repo-content" style="display:none;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;position:relative;">
           <div class="sec-title">Question Repository</div>
-          <div style="display:flex;gap:8px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button id="notif-btn" onclick="toggleNotifPanel()" title="Questions needing reassignment">
+              &#9888;
+              <span id="notif-badge"></span>
+            </button>
             <button class="btn-ghost sm" onclick="loadAll()">&#8635; Refresh</button>
             <button class="btn-ghost sm" onclick="exportCSV()">Export CSV</button>
+          </div>
+          <!-- Notification panel -->
+          <div id="notif-panel">
+            <div id="notif-panel-header">
+              <div id="notif-panel-title">Needs Reassignment</div>
+              <button id="notif-panel-close" onclick="toggleNotifPanel()">&#215;</button>
+            </div>
+            <div id="notif-panel-list"></div>
           </div>
         </div>
 
@@ -329,6 +390,10 @@
             <div class="stat-num" id="s-complete" style="color:#16a34a;">0</div>
             <div class="stat-lbl">COMPLETE</div>
           </div>
+          <div class="stat-card" style="border-top:3px solid #D22428;">
+            <div class="stat-num" id="s-returned" style="color:#D22428;">0</div>
+            <div class="stat-lbl">RETURNED</div>
+          </div>
           <div class="stat-card" style="border-top:3px solid #5300CE;">
             <div class="stat-num" id="s-answered" style="color:#5300CE;">0</div>
             <div class="stat-lbl">ANSWERED</div>
@@ -339,7 +404,7 @@
           <div>
             <label class="lbl">Status</label>
             <select id="f-status" onchange="render()">
-              <option>All</option><option>Open</option><option>Assigned</option><option>Complete</option>
+              <option>All</option><option>Open</option><option>Assigned</option><option>Complete</option><option>Returned</option>
             </select>
           </div>
           <div>
@@ -652,7 +717,9 @@ function render() {
   document.getElementById('s-assigned').textContent = qs.filter(q => q.status === 'Assigned').length;
   document.getElementById('s-complete').textContent = qs.filter(q => q.status === 'Complete').length;
   document.getElementById('s-answered').textContent = qs.filter(q => q.answer && q.answer.trim()).length;
+  document.getElementById('s-returned').textContent = qs.filter(q => q.status === 'Returned').length;
   updateCount();
+  updateNotifBadge();
 
   const el = document.getElementById('repo-list');
   if (!filtered.length) {
@@ -669,6 +736,7 @@ function render() {
     const isEdit     = editId === q.id;
     const isComplete = q.status === 'Complete';
     const sPillClass = 'pill ps-' + q.status.replace(' ','');
+    const isReturned = q.status === 'Returned';
 
     // Answer / estimated date pill
     let statusPill = '';
@@ -711,7 +779,7 @@ function render() {
       ? `<span><b>Notify:</b> <span style="color:#5300CE">${esc(q.submitterEmail)}</span></span>` : '';
 
     return `
-<div class="card ${isComplete ? 'is-complete' : ''}" data-u="${q.urgency}" id="card-${q.id}">
+<div class="card ${isComplete ? 'is-complete' : isReturned ? 'needs-reassign' : ''}" data-u="${q.urgency}" id="card-${q.id}">
   <div class="card-hdr">
     <div class="card-meta">
       <span style="font-size:11px;color:var(--dim);letter-spacing:.06em">${esc(q.id)}</span>
@@ -725,6 +793,7 @@ function render() {
       <button class="btn-del" onclick="delQ('${q.id}')">Del</button>
     </div>
   </div>
+  ${isReturned ? `<div class="reassign-banner">Returned for reassignment — please assign to a new team member</div>` : ''}
   <div class="card-body">${esc(q.question)}</div>
   <div class="card-footer">
     <span><b>From:</b> ${esc(q.name)}</span>
@@ -790,6 +859,60 @@ async function delQ(id) {
     alert('Delete failed. Please check your connection and try again.');
   }
 }
+
+function toggleNotifPanel() {
+  const panel = document.getElementById('notif-panel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    renderNotifPanel();
+  }
+}
+
+function updateNotifBadge() {
+  const returned = qs.filter(q => q.status === 'Returned');
+  const badge = document.getElementById('notif-badge');
+  if (returned.length > 0) {
+    badge.textContent = returned.length;
+    badge.style.display = 'block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function renderNotifPanel() {
+  const returned = qs.filter(q => q.status === 'Returned');
+  const list = document.getElementById('notif-panel-list');
+  if (returned.length === 0) {
+    list.innerHTML = '<div class="notif-empty">No questions need reassignment</div>';
+    return;
+  }
+  list.innerHTML = returned.map(q => `
+<div class="notif-item" onclick="scrollToCard('${q.id}')">
+  <div class="notif-item-id">${esc(q.id)} &nbsp;·&nbsp; ${esc(q.urgency)}</div>
+  <div class="notif-item-q">${esc(q.question)}</div>
+  <div class="notif-item-note">&#8617; Returned — click to scroll to card</div>
+</div>`).join('');
+}
+
+function scrollToCard(id) {
+  const card = document.getElementById('card-' + id);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.style.transition = 'box-shadow 0.3s';
+    card.style.boxShadow = '0 0 0 4px #D2242840';
+    setTimeout(() => { card.style.boxShadow = ''; }, 2000);
+  }
+  document.getElementById('notif-panel').classList.remove('open');
+}
+
+// Close notification panel when clicking outside
+document.addEventListener('click', (e) => {
+  const panel = document.getElementById('notif-panel');
+  const btn   = document.getElementById('notif-btn');
+  if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) {
+    panel.classList.remove('open');
+  }
+});
 
 function exportCSV() {
   const hdr = ['ID','Name','Department','Urgency','Question','Status','Assignee','Answer','InternalOnly','EstimatedDate','SubmitterEmail','Submitted'];
