@@ -46,7 +46,10 @@
   main { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
 
   .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 6px; display: block; }
+  .lbl-opt { font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .lbl-opt span { background: var(--bg); border: 1px solid var(--border); color: var(--dim); font-size: 9px; padding: 1px 7px; border-radius: 999px; letter-spacing: 0.06em; }
   .err { color: #c0392b; font-size: 11px; margin-top: 4px; }
+  .field-hint { font-size: 11px; color: var(--dim); margin-top: 5px; line-height: 1.5; }
 
   input, select, textarea {
     background: #fff; border: 1px solid var(--border); color: var(--text);
@@ -62,9 +65,29 @@
   textarea { resize: vertical; min-height: 110px; }
 
   .grid-2    { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3    { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
   .grid-5    { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 2fr; gap: 10px; margin-bottom: 18px; }
   .grid-edit { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
   .field { margin-bottom: 16px; }
+
+  /* Email opt-in section */
+  .email-optin {
+    background: #f8f6ff; border: 1px solid #e0d5f5; border-radius: 8px;
+    padding: 16px 18px; margin-bottom: 16px;
+  }
+  .email-optin-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 4px; cursor: pointer;
+  }
+  .email-optin-header input[type="checkbox"] {
+    width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent);
+    appearance: auto; -webkit-appearance: auto; flex-shrink: 0;
+  }
+  .email-optin-label {
+    font-size: 13px; color: var(--text); font-weight: 500; cursor: pointer;
+  }
+  .email-optin-sub { font-size: 11px; color: var(--muted); margin-left: 26px; margin-bottom: 12px; line-height: 1.5; }
+  .email-optin-field { display: none; margin-left: 26px; }
+  .email-optin-field.show { display: block; }
 
   .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: box-shadow 0.15s; }
   .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
@@ -163,7 +186,7 @@
 
   @media (max-width: 680px) {
     header { flex-direction: column; gap: 12px; align-items: flex-start; padding: 16px; }
-    .grid-2, .grid-5, .grid-edit { grid-template-columns: 1fr; }
+    .grid-2, .grid-3, .grid-5, .grid-edit { grid-template-columns: 1fr; }
     .stats-row { flex-wrap: wrap; }
     main { padding: 20px 14px; }
   }
@@ -218,6 +241,7 @@
             <div class="err" id="err-dept"></div>
           </div>
         </div>
+
         <div class="field">
           <label class="lbl">Urgency</label>
           <div class="urg-group">
@@ -227,11 +251,29 @@
             <button class="urg-btn" data-u="Critical" onclick="selUrg(this)">Critical</button>
           </div>
         </div>
+
         <div class="field">
           <label class="lbl">Your Question</label>
           <textarea id="f-question" placeholder="Describe your question about JAI in detail..."></textarea>
           <div class="err" id="err-q"></div>
         </div>
+
+        <!-- Email opt-in -->
+        <div class="email-optin">
+          <div class="email-optin-header" onclick="toggleEmailOptin()">
+            <input type="checkbox" id="email-optin-check" onclick="event.stopPropagation(); toggleEmailOptin()"/>
+            <label class="email-optin-label" for="email-optin-check">Notify me when my question is answered</label>
+          </div>
+          <div class="email-optin-sub">
+            Optional — enter your email address and we will send you a notification as soon as your question receives a response.
+          </div>
+          <div class="email-optin-field" id="email-optin-field">
+            <label class="lbl-opt">Email Address <span>OPTIONAL</span></label>
+            <input type="email" id="f-email" placeholder="you@jaggaer.com"/>
+            <div class="err" id="err-email"></div>
+          </div>
+        </div>
+
         <div class="btn-row">
           <button class="btn-primary" id="submit-btn" onclick="submitQ()">Submit Question →</button>
         </div>
@@ -339,6 +381,14 @@ function setSyncStatus(state, msg) {
   document.getElementById('sync-label').textContent = msg;
 }
 
+function toggleEmailOptin() {
+  const check = document.getElementById('email-optin-check');
+  const field = document.getElementById('email-optin-field');
+  check.checked = !check.checked;
+  field.classList.toggle('show', check.checked);
+  if (!check.checked) document.getElementById('f-email').value = '';
+}
+
 async function apiPost(data) {
   const res = await fetch(API, {
     method: 'POST',
@@ -353,9 +403,7 @@ async function loadAssignees() {
     const res = await fetch(API + '?type=assignees&t=' + Date.now());
     const data = await res.json();
     assignees = Array.isArray(data) ? data : [];
-  } catch(e) {
-    assignees = [];
-  }
+  } catch(e) { assignees = []; }
 }
 
 async function loadQuestions() {
@@ -398,11 +446,22 @@ async function submitQ() {
   const name     = document.getElementById('f-name').value.trim();
   const dept     = document.getElementById('f-dept').value;
   const question = document.getElementById('f-question').value.trim();
-  ['err-name','err-dept','err-q'].forEach(id => document.getElementById(id).textContent = '');
+  const wantsNotif = document.getElementById('email-optin-check').checked;
+  const emailVal = document.getElementById('f-email').value.trim();
+
+  ['err-name','err-dept','err-q','err-email'].forEach(id => document.getElementById(id).textContent = '');
   let ok = true;
   if (!name)     { document.getElementById('err-name').textContent = 'Required'; ok = false; }
   if (!dept)     { document.getElementById('err-dept').textContent = 'Required'; ok = false; }
   if (!question) { document.getElementById('err-q').textContent   = 'Required'; ok = false; }
+  if (wantsNotif && !emailVal) {
+    document.getElementById('err-email').textContent = 'Please enter your email address to receive notifications';
+    ok = false;
+  }
+  if (wantsNotif && emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+    document.getElementById('err-email').textContent = 'Please enter a valid email address';
+    ok = false;
+  }
   if (!ok) return;
 
   const btn = document.getElementById('submit-btn');
@@ -412,18 +471,27 @@ async function submitQ() {
 
   try {
     await apiPost({
-      action:'submit', id:genId(), name, dept, urgency, question,
+      action: 'submit', id: genId(), name, dept, urgency, question,
+      submitterEmail: wantsNotif ? emailVal : '',
       submittedAt: new Date().toISOString(), updatedAt: new Date().toISOString()
     });
+
     document.getElementById('f-name').value = '';
     document.getElementById('f-dept').value = '';
     document.getElementById('f-question').value = '';
+    document.getElementById('f-email').value = '';
+    document.getElementById('email-optin-check').checked = false;
+    document.getElementById('email-optin-field').classList.remove('show');
     document.querySelectorAll('.urg-btn').forEach(b => b.className = 'urg-btn');
     document.querySelector('.urg-btn[data-u="Medium"]').className = 'urg-btn sel-Medium';
     urgency = 'Medium';
-    banner.textContent = '✓ Question submitted successfully. It is now live in the shared repository.';
+
+    const notifMsg = wantsNotif
+      ? ' We will email you at ' + emailVal + ' when your question is answered.'
+      : '';
+    banner.textContent = '✓ Question submitted successfully. It is now live in the shared repository.' + notifMsg;
     banner.className = 'banner success show';
-    setTimeout(() => banner.classList.remove('show'), 5000);
+    setTimeout(() => banner.classList.remove('show'), 6000);
   } catch(e) {
     banner.textContent = '✗ Submission failed. Please check your connection and try again.';
     banner.className = 'banner error show';
@@ -483,9 +551,9 @@ function render() {
   }
 
   el.innerHTML = filtered.map(q => {
-    const date      = new Date(q.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    const hasAnswer = q.answer && q.answer.trim();
-    const isEdit    = editId === q.id;
+    const date       = new Date(q.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const hasAnswer  = q.answer && q.answer.trim();
+    const isEdit     = editId === q.id;
     const isComplete = q.status === 'Complete';
     const sPillClass = 'pill ps-' + q.status.replace(' ','');
 
@@ -503,7 +571,8 @@ function render() {
     const aHtml = q.assignee
       ? `<span><b>Assigned to:</b> <span style="color:#5300CE">${esc(q.assignee)}</span></span>` : '';
 
-    const assigneeDropdown = buildAssigneeOptions(q.assignee);
+    const notifHtml = q.submitterEmail
+      ? `<span><b>Notify:</b> <span style="color:#5300CE">${esc(q.submitterEmail)}</span></span>` : '';
 
     return `
 <div class="card ${isComplete ? 'is-complete' : ''}" data-u="${q.urgency}" id="card-${q.id}">
@@ -525,6 +594,7 @@ function render() {
     <span><b>Dept:</b> ${esc(q.dept)}</span>
     <span><b>Submitted:</b> ${date}</span>
     ${aHtml}
+    ${notifHtml}
   </div>
   ${answerBlock}
   <div class="edit-panel ${isEdit ? 'open' : ''}" id="ep-${q.id}">
@@ -533,7 +603,7 @@ function render() {
       <div>
         <label class="lbl">Assign To</label>
         <select id="ea-${q.id}">
-          ${assigneeDropdown}
+          ${buildAssigneeOptions(q.assignee)}
         </select>
       </div>
     </div>
@@ -580,12 +650,13 @@ async function delQ(id) {
 }
 
 function exportCSV() {
-  const hdr = ['ID','Name','Department','Urgency','Question','Status','Assignee','Answer','Submitted'];
+  const hdr = ['ID','Name','Department','Urgency','Question','Status','Assignee','Answer','SubmitterEmail','Submitted'];
   const rows = qs.map(q => [
     q.id, q.name, q.dept, q.urgency,
     '"' + (q.question||'').replace(/"/g,'""') + '"',
     q.status, q.assignee||'',
     '"' + (q.answer||'').replace(/"/g,'""') + '"',
+    q.submitterEmail||'',
     new Date(q.submittedAt).toLocaleDateString()
   ]);
   const csv = [hdr.join(','), ...rows.map(r => r.join(','))].join('\n');
