@@ -1,566 +1,432 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>JAI Q&A Tracker — JAGGAER</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #090f1a;
-    --surface: #0f172a;
-    --surface2: #0a1120;
-    --border: #1e293b;
-    --border2: #334155;
-    --text: #e2e8f0;
-    --text-muted: #64748b;
-    --text-dim: #475569;
-    --accent: #7c3aed;
-    --accent-hover: #6d28d9;
-    --font-mono: 'DM Mono', 'Fira Mono', 'Consolas', monospace;
-    --font-display: 'Syne', sans-serif;
-  }
-  html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--font-mono); font-size: 14px; line-height: 1.6; }
-  ::selection { background: #7c3aed33; }
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--surface); }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+import { useState, useEffect } from "react";
 
-  /* Layout */
-  #app { min-height: 100vh; display: flex; flex-direction: column; }
-  header {
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    padding: 18px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
-  }
-  .logo-title { font-family: var(--font-display); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; color: #f8fafc; }
-  .logo-title span { color: var(--accent); }
-  .logo-sub { font-size: 10px; color: var(--text-dim); letter-spacing: 0.1em; margin-top: 1px; }
-  .tab-group { display: flex; gap: 6px; }
-  .tab-btn {
-    padding: 7px 18px; border-radius: 6px; border: 1px solid transparent;
-    font-family: var(--font-mono); font-size: 11px; cursor: pointer;
-    letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500;
-    transition: all 0.15s;
-  }
-  .tab-btn.active { background: var(--border); border-color: var(--border2); color: var(--text); }
-  .tab-btn.inactive { background: transparent; color: var(--text-dim); }
-  .tab-btn.inactive:hover { color: #94a3b8; }
-  main { flex: 1; max-width: 900px; width: 100%; margin: 0 auto; padding: 32px 24px; }
+const STORAGE_KEY = "jai-questions-v2";
 
-  /* Forms */
-  .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-muted); margin-bottom: 6px; display: block; }
-  input, select, textarea {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: var(--font-mono);
-    border-radius: 6px;
-    padding: 9px 13px;
-    width: 100%;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    -webkit-appearance: none;
-  }
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px #7c3aed22;
-  }
-  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
-  select option { background: var(--surface); color: var(--text); }
-  textarea { resize: vertical; min-height: 110px; }
-  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .field { margin-bottom: 16px; }
-  .err { color: #f87171; font-size: 11px; margin-top: 4px; }
+const DEPARTMENTS = [
+  "Global Customer Care","Product","Engineering","Sales","Pre-Sales",
+  "Marketing","Finance","HR","IT","Legal","Professional Services","Training","Other"
+];
+const URGENCY_LEVELS = ["Low","Medium","High","Critical"];
+const STATUS_OPTIONS = ["Open","In Progress","Complete"];
 
-  /* Urgency selector */
-  .urgency-group { display: flex; gap: 8px; flex-wrap: wrap; }
-  .urgency-btn {
-    padding: 7px 16px; border-radius: 6px; border: 1px solid var(--border);
-    background: transparent; color: var(--text-dim);
-    font-family: var(--font-mono); font-size: 12px; cursor: pointer;
-    transition: all 0.15s;
-  }
-  .urgency-btn[data-level="Low"].selected    { background: #1a2a1a; color: #4ade80; border-color: #166534; }
-  .urgency-btn[data-level="Medium"].selected { background: #2a2200; color: #facc15; border-color: #854d0e; }
-  .urgency-btn[data-level="High"].selected   { background: #2a1200; color: #fb923c; border-color: #9a3412; }
-  .urgency-btn[data-level="Critical"].selected { background: #2a0000; color: #f87171; border-color: #991b1b; }
+const C = {
+  bg:        "#f4f5f7",
+  surface:   "#ffffff",
+  border:    "#e2e5ea",
+  border2:   "#c8cdd6",
+  text:      "#1a1a2e",
+  muted:     "#5a6478",
+  dim:       "#8a94a8",
+  accent:    "#5300CE",
+  accentHov: "#4200a8",
+  red:       "#D22428",
+};
 
-  /* Buttons */
-  .btn {
-    padding: 9px 20px; border-radius: 6px; border: none;
-    font-family: var(--font-mono); font-size: 13px; cursor: pointer;
-    transition: all 0.15s; font-weight: 500; letter-spacing: 0.03em;
-  }
-  .btn-primary { background: var(--accent); color: white; }
-  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
-  .btn-ghost { background: transparent; color: #94a3b8; border: 1px solid var(--border) !important; }
-  .btn-ghost:hover { border-color: var(--border2) !important; color: var(--text); }
-  .btn-sm { padding: 4px 10px; font-size: 11px; }
-  .btn-danger { background: transparent; color: #f87171; border: 1px solid #991b1b !important; }
-  .btn-danger:hover { background: #2a0000; }
-  .btn-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
-
-  /* Cards */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 10px;
-    transition: border-color 0.15s;
-  }
-  .card:hover { border-color: var(--border2); }
-  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-  .card-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .card-actions { display: flex; gap: 6px; }
-  .card-body { font-size: 13px; color: #f1f5f9; line-height: 1.65; margin-bottom: 12px; }
-  .card-footer { display: flex; gap: 20px; font-size: 11px; color: var(--text-dim); flex-wrap: wrap; }
-  .card-footer span span { color: var(--border2); }
-
-  /* Edit panel */
-  .edit-panel {
-    margin-top: 14px; padding-top: 14px;
-    border-top: 1px solid var(--border);
-    display: none;
-  }
-  .edit-panel.open { display: block; animation: fadeIn 0.2s ease; }
-  .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-
-  /* Pills */
-  .pill {
-    display: inline-block; padding: 2px 10px; border-radius: 999px;
-    font-size: 11px; font-weight: 500; letter-spacing: 0.05em; border: 1px solid;
-  }
-  .pill-u-Low      { background: #1a2a1a; color: #4ade80; border-color: #166534; }
-  .pill-u-Medium   { background: #2a2200; color: #facc15; border-color: #854d0e; }
-  .pill-u-High     { background: #2a1200; color: #fb923c; border-color: #9a3412; }
-  .pill-u-Critical { background: #2a0000; color: #f87171; border-color: #991b1b; }
-  .pill-s-Open       { background: #1e293b; color: #94a3b8; border-color: #334155; }
-  .pill-s-InProgress { background: #1e1a2e; color: #a78bfa; border-color: #5b21b6; }
-  .pill-s-Complete   { background: #0f2a1a; color: #4ade80; border-color: #166534; }
-
-  /* Stats */
-  .stats-row { display: flex; gap: 10px; margin-bottom: 22px; }
-  .stat-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 12px 18px; text-align: center; flex: 1;
-  }
-  .stat-num { font-family: var(--font-display); font-size: 26px; font-weight: 800; color: #f8fafc; }
-  .stat-label { font-size: 10px; color: var(--text-dim); letter-spacing: 0.09em; margin-top: 1px; }
-  .stat-card.s-Open       { border-color: #334155; }
-  .stat-card.s-Open .stat-num { color: #94a3b8; }
-  .stat-card.s-InProgress { border-color: #5b21b6; }
-  .stat-card.s-InProgress .stat-num { color: #a78bfa; }
-  .stat-card.s-Complete   { border-color: #166534; }
-  .stat-card.s-Complete .stat-num { color: #4ade80; }
-
-  /* Filters */
-  .filter-row { display: grid; grid-template-columns: 1fr 1fr 1fr 2fr; gap: 10px; margin-bottom: 18px; }
-
-  /* Section header */
-  .section-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
-  .section-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 24px; }
-
-  /* Success banner */
-  .success-banner {
-    background: #0f2a1a; border: 1px solid #166534; color: #4ade80;
-    padding: 12px 16px; border-radius: 8px; font-size: 13px;
-    margin-bottom: 18px; display: none;
-  }
-  .success-banner.show { display: block; animation: fadeIn 0.3s ease; }
-
-  /* Empty state */
-  .empty { text-align: center; color: #334155; padding: 60px 0; font-size: 13px; }
-
-  /* Export */
-  .export-btn { float: right; }
-
-  /* Border-left accent on cards */
-  .card[data-urgency="Low"]      { border-left: 3px solid #166534; }
-  .card[data-urgency="Medium"]   { border-left: 3px solid #854d0e; }
-  .card[data-urgency="High"]     { border-left: 3px solid #9a3412; }
-  .card[data-urgency="Critical"] { border-left: 3px solid #991b1b; }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  .fade-in { animation: fadeIn 0.25s ease; }
-
-  @media (max-width: 640px) {
-    header { flex-direction: column; gap: 12px; align-items: flex-start; padding: 16px; }
-    .field-row, .filter-row, .edit-grid { grid-template-columns: 1fr; }
-    .stats-row { flex-wrap: wrap; }
-    main { padding: 20px 14px; }
-  }
-</style>
-</head>
-<body>
-<div id="app">
-  <header>
-    <div>
-      <div class="logo-title">JAI <span>//</span> Q&amp;A TRACKER</div>
-      <div class="logo-sub">JAGGAER AI — QUESTION INTAKE &amp; REPOSITORY</div>
-    </div>
-    <div class="tab-group">
-      <button class="tab-btn active" id="tab-submit-btn" onclick="switchTab('submit')">Submit Question</button>
-      <button class="tab-btn inactive" id="tab-repo-btn" onclick="switchTab('repo')">Repository (<span id="repo-count">0</span>)</button>
-    </div>
-  </header>
-
-  <main>
-    <!-- SUBMIT TAB -->
-    <div id="tab-submit" class="fade-in">
-      <div class="section-title">Submit a Question About JAI</div>
-      <div class="section-sub">All questions are compiled into a shared repository and assigned for response.</div>
-
-      <div class="success-banner" id="success-msg">
-        ✓ Question submitted successfully. Switch to the Repository tab to track its status.
-      </div>
-
-      <div class="card">
-        <div class="field-row">
-          <div>
-            <label class="label">Your Name</label>
-            <input type="text" id="f-name" placeholder="First Last" />
-            <div class="err" id="err-name"></div>
-          </div>
-          <div>
-            <label class="label">Department</label>
-            <select id="f-dept">
-              <option value="">Select department</option>
-              <option>Global Customer Care</option>
-              <option>Product</option>
-              <option>Engineering</option>
-              <option>Sales</option>
-             <option>Pre-Sales</option>
-              <option>Marketing</option>
-              <option>Finance</option>
-              <option>HR</option>
-              <option>IT</option>
-              <option>Legal</option>
-              <option>Professional Services</option>
-             <option>Training</option>
-              <option>Other</option>
-            </select>
-            <div class="err" id="err-dept"></div>
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="label">Urgency</label>
-          <div class="urgency-group">
-            <button class="urgency-btn" data-level="Low" onclick="selectUrgency(this)">Low</button>
-            <button class="urgency-btn selected" data-level="Medium" onclick="selectUrgency(this)">Medium</button>
-            <button class="urgency-btn" data-level="High" onclick="selectUrgency(this)">High</button>
-            <button class="urgency-btn" data-level="Critical" onclick="selectUrgency(this)">Critical</button>
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="label">Your Question</label>
-          <textarea id="f-question" placeholder="Describe your question about JAI in detail..."></textarea>
-          <div class="err" id="err-q"></div>
-        </div>
-
-        <div class="btn-row">
-          <button class="btn btn-primary" onclick="submitQuestion()">Submit Question →</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- REPOSITORY TAB -->
-    <div id="tab-repo" style="display:none;" class="fade-in">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <div>
-          <div class="section-title">Question Repository</div>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button>
-      </div>
-
-      <!-- Stats -->
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-num" id="stat-total">0</div>
-          <div class="stat-label">TOTAL</div>
-        </div>
-        <div class="stat-card s-Open">
-          <div class="stat-num" id="stat-open">0</div>
-          <div class="stat-label">OPEN</div>
-        </div>
-        <div class="stat-card s-InProgress">
-          <div class="stat-num" id="stat-inprogress">0</div>
-          <div class="stat-label">IN PROGRESS</div>
-        </div>
-        <div class="stat-card s-Complete">
-          <div class="stat-num" id="stat-complete">0</div>
-          <div class="stat-label">COMPLETE</div>
-        </div>
-      </div>
-
-      <!-- Filters -->
-      <div class="filter-row">
-        <div>
-          <label class="label">Status</label>
-          <select id="filter-status" onchange="renderRepo()">
-            <option>All</option>
-            <option>Open</option>
-            <option>In Progress</option>
-            <option>Complete</option>
-          </select>
-        </div>
-        <div>
-          <label class="label">Urgency</label>
-          <select id="filter-urgency" onchange="renderRepo()">
-            <option>All</option>
-            <option>Low</option>
-            <option>Medium</option>
-            <option>High</option>
-            <option>Critical</option>
-          </select>
-        </div>
-        <div>
-          <label class="label">Department</label>
-          <select id="filter-dept" onchange="renderRepo()">
-            <option>All</option>
-            <option>Global Customer Care</option>
-            <option>Product</option>
-            <option>Engineering</option>
-            <option>Sales</option>
-            <option>Marketing</option>
-            <option>Finance</option>
-            <option>HR</option>
-            <option>IT</option>
-            <option>Legal</option>
-            <option>Professional Services</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div>
-          <label class="label">Search</label>
-          <input type="text" id="filter-search" placeholder="Search questions or names..." oninput="renderRepo()" />
-        </div>
-      </div>
-
-      <!-- Cards -->
-      <div id="repo-list"></div>
-    </div>
-  </main>
-</div>
-
-<script>
-const STORAGE_KEY = 'jai-questions-v1';
-let questions = [];
-let selectedUrgency = 'Medium';
-let editingId = null;
-
-function loadData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    questions = raw ? JSON.parse(raw) : [];
-  } catch { questions = []; }
-}
-
-function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(questions));
-}
+const URGENCY = {
+  Low:      { bg:"#f0faf3", text:"#166534", border:"#86efac" },
+  Medium:   { bg:"#fffbeb", text:"#92400e", border:"#fcd34d" },
+  High:     { bg:"#fff7ed", text:"#9a3412", border:"#fdba74" },
+  Critical: { bg:"#fef2f2", text:"#991b1b", border:"#fca5a5" },
+};
+const STATUS = {
+  "Open":        { bg:"#fef2f2", text:"#D22428",  border:"#fca5a5" },
+  "In Progress": { bg:"#ede8fa", text:"#5300CE",  border:"#c4aff5" },
+  "Complete":    { bg:"#f0faf3", text:"#166534",  border:"#86efac" },
+};
 
 function genId() {
-  return 'Q' + Date.now().toString(36).toUpperCase().slice(-4) +
-         Math.random().toString(36).slice(2,5).toUpperCase();
+  return "Q" + Date.now().toString(36).toUpperCase().slice(-4) +
+    Math.random().toString(36).slice(2,5).toUpperCase();
 }
 
-function selectUrgency(btn) {
-  document.querySelectorAll('.urgency-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedUrgency = btn.dataset.level;
-}
+const pill = (cfg, label) => (
+  <span style={{
+    display:"inline-block", padding:"2px 10px", borderRadius:999,
+    fontSize:11, fontWeight:500, letterSpacing:"0.05em",
+    border:`1px solid ${cfg.border}`, background:cfg.bg, color:cfg.text,
+  }}>{label}</span>
+);
 
-function switchTab(t) {
-  document.getElementById('tab-submit').style.display = t === 'submit' ? 'block' : 'none';
-  document.getElementById('tab-repo').style.display   = t === 'repo'   ? 'block' : 'none';
-  document.getElementById('tab-submit-btn').className = 'tab-btn ' + (t === 'submit' ? 'active' : 'inactive');
-  document.getElementById('tab-repo-btn').className   = 'tab-btn ' + (t === 'repo'   ? 'active' : 'inactive');
-  if (t === 'repo') { renderRepo(); }
-}
+export default function App() {
+  const [tab, setTab] = useState("submit");
+  const [questions, setQuestions] = useState([]);
+  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({ name:"", dept:"", urgency:"Medium", question:"" });
+  const [errors, setErrors] = useState({});
+  const [filters, setFilters] = useState({ status:"All", urgency:"All", dept:"All", search:"" });
+  const [editingId, setEditingId] = useState(null);
 
-function submitQuestion() {
-  const name = document.getElementById('f-name').value.trim();
-  const dept = document.getElementById('f-dept').value;
-  const question = document.getElementById('f-question').value.trim();
-  let valid = true;
+  useEffect(() => { load(); }, []);
 
-  document.getElementById('err-name').textContent = '';
-  document.getElementById('err-dept').textContent = '';
-  document.getElementById('err-q').textContent = '';
+  async function load() {
+    try {
+      const r = await window.storage.get(STORAGE_KEY, true);
+      if (r?.value) setQuestions(JSON.parse(r.value));
+    } catch { setQuestions([]); }
+  }
 
-  if (!name)     { document.getElementById('err-name').textContent = 'Required'; valid = false; }
-  if (!dept)     { document.getElementById('err-dept').textContent = 'Required'; valid = false; }
-  if (!question) { document.getElementById('err-q').textContent = 'Required'; valid = false; }
-  if (!valid) return;
+  async function save(updated) {
+    try { await window.storage.set(STORAGE_KEY, JSON.stringify(updated), true); }
+    catch(e) { console.error(e); }
+    setQuestions(updated);
+  }
 
-  const q = {
-    id: genId(),
-    name, dept,
-    urgency: selectedUrgency,
-    question,
-    status: 'Open',
-    assignee: '',
-    submittedAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-  questions.unshift(q);
-  saveData();
-  updateRepoCount();
+  function validate() {
+    const e = {};
+    if (!form.name.trim()) e.name = "Required";
+    if (!form.dept) e.dept = "Required";
+    if (!form.question.trim()) e.question = "Required";
+    setErrors(e);
+    return !Object.keys(e).length;
+  }
 
-  document.getElementById('f-name').value = '';
-  document.getElementById('f-dept').value = '';
-  document.getElementById('f-question').value = '';
-  document.querySelectorAll('.urgency-btn').forEach(b => b.classList.remove('selected'));
-  document.querySelector('.urgency-btn[data-level="Medium"]').classList.add('selected');
-  selectedUrgency = 'Medium';
+  async function handleSubmit() {
+    if (!validate()) return;
+    const q = { id:genId(), ...form, status:"Open", assignee:"",
+      submittedAt:new Date().toISOString(), updatedAt:new Date().toISOString() };
+    await save([q, ...questions]);
+    setForm({ name:"", dept:"", urgency:"Medium", question:"" });
+    setErrors({});
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 4000);
+  }
 
-  const banner = document.getElementById('success-msg');
-  banner.classList.add('show');
-  setTimeout(() => banner.classList.remove('show'), 4500);
-}
+  async function updateQ(id, changes) {
+    await save(questions.map(q => q.id === id
+      ? { ...q, ...changes, updatedAt:new Date().toISOString() } : q));
+    setEditingId(null);
+  }
 
-function updateRepoCount() {
-  document.getElementById('repo-count').textContent = questions.length;
-}
-
-function statusClass(s) {
-  return 'pill pill-s-' + s.replace(' ', '');
-}
-
-function renderRepo() {
-  const fs = document.getElementById('filter-status').value;
-  const fu = document.getElementById('filter-urgency').value;
-  const fd = document.getElementById('filter-dept').value;
-  const fq = document.getElementById('filter-search').value.toLowerCase();
+  async function deleteQ(id) {
+    if (!confirm("Delete this question?")) return;
+    await save(questions.filter(q => q.id !== id));
+  }
 
   const filtered = questions.filter(q => {
-    if (fs !== 'All' && q.status !== fs) return false;
-    if (fu !== 'All' && q.urgency !== fu) return false;
-    if (fd !== 'All' && q.dept !== fd) return false;
-    if (fq && !q.question.toLowerCase().includes(fq) && !q.name.toLowerCase().includes(fq)) return false;
+    if (filters.status !== "All" && q.status !== filters.status) return false;
+    if (filters.urgency !== "All" && q.urgency !== filters.urgency) return false;
+    if (filters.dept !== "All" && q.dept !== filters.dept) return false;
+    if (filters.search) {
+      const s = filters.search.toLowerCase();
+      if (!q.question.toLowerCase().includes(s) && !q.name.toLowerCase().includes(s)) return false;
+    }
     return true;
   });
 
-  // Stats
-  document.getElementById('stat-total').textContent = questions.length;
-  document.getElementById('stat-open').textContent = questions.filter(q => q.status === 'Open').length;
-  document.getElementById('stat-inprogress').textContent = questions.filter(q => q.status === 'In Progress').length;
-  document.getElementById('stat-complete').textContent = questions.filter(q => q.status === 'Complete').length;
-  updateRepoCount();
+  const counts = { total: questions.length };
+  STATUS_OPTIONS.forEach(s => counts[s] = questions.filter(q => q.status === s).length);
 
-  const container = document.getElementById('repo-list');
-  if (filtered.length === 0) {
-    container.innerHTML = '<div class="empty">' +
-      (questions.length === 0 ? 'No questions submitted yet. Share the Submit tab with your org.' : 'No results match your filters.') +
-      '</div>';
-    return;
-  }
+  const F = { fontFamily:"'DM Mono','Fira Mono','Consolas',monospace" };
+  const FD = { fontFamily:"'Syne',sans-serif" };
 
-  container.innerHTML = filtered.map(q => {
-    const date = new Date(q.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    const assigneeHtml = q.assignee
-      ? `<span><span>Assigned to:</span> <span style="color:#a78bfa">${escHtml(q.assignee)}</span></span>`
-      : '';
-    const isEditing = editingId === q.id;
-    return `
-<div class="card" data-urgency="${q.urgency}" id="card-${q.id}">
-  <div class="card-header">
-    <div class="card-meta">
-      <span style="font-size:11px;color:var(--text-dim);letter-spacing:.06em">${q.id}</span>
-      <span class="pill pill-u-${q.urgency}">${q.urgency}</span>
-      <span class="${statusClass(q.status)}">${q.status}</span>
-    </div>
-    <div class="card-actions">
-      <button class="btn btn-ghost btn-sm" onclick="toggleEdit('${q.id}')">${isEditing ? 'Cancel' : 'Edit'}</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteQuestion('${q.id}')">Del</button>
-    </div>
-  </div>
-  <div class="card-body">${escHtml(q.question)}</div>
-  <div class="card-footer">
-    <span><span>From:</span> ${escHtml(q.name)}</span>
-    <span><span>Dept:</span> ${escHtml(q.dept)}</span>
-    <span><span>Submitted:</span> ${date}</span>
-    ${assigneeHtml}
-  </div>
-  <div class="edit-panel ${isEditing ? 'open' : ''}" id="edit-${q.id}">
-    <div class="edit-grid">
-      <div>
-        <label class="label">Status</label>
-        <select id="edit-status-${q.id}">
-          <option ${q.status==='Open'?'selected':''}>Open</option>
-          <option ${q.status==='In Progress'?'selected':''}>In Progress</option>
-          <option ${q.status==='Complete'?'selected':''}>Complete</option>
-        </select>
+  return (
+    <div style={{ minHeight:"100vh", background:C.bg, color:C.text, ...F }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
+        * { box-sizing:border-box; }
+        input,select,textarea {
+          background:#fff; border:1px solid #e2e5ea; color:#1a1a2e;
+          font-family:'DM Mono','Fira Mono',monospace; border-radius:6px;
+          padding:9px 13px; width:100%; font-size:13px; outline:none;
+          transition:border-color .15s,box-shadow .15s; appearance:none;
+        }
+        input:focus,select:focus,textarea:focus {
+          border-color:#5300CE; box-shadow:0 0 0 3px #5300ce18;
+        }
+        textarea { resize:vertical; min-height:110px; }
+        select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a94a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+          background-repeat:no-repeat; background-position:right 12px center; padding-right:32px; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+        .fade-up { animation:fadeUp .25s ease; }
+      `}</style>
+
+      {/* Header */}
+      <div style={{
+        background:"#fff", borderBottom:`3px solid ${C.red}`,
+        boxShadow:"0 1px 4px rgba(0,0,0,0.08)",
+        padding:"18px 32px", display:"flex", alignItems:"center",
+        justifyContent:"space-between", position:"sticky", top:0, zIndex:100,
+      }}>
+        <div>
+          <div style={{ ...FD, fontSize:20, fontWeight:800, letterSpacing:"-0.02em", color:C.text }}>
+            JAI <span style={{ color:C.red }}>//</span> Q&amp;A TRACKER
+          </div>
+          <div style={{ fontSize:10, color:C.dim, letterSpacing:"0.1em", marginTop:1 }}>
+            JAGGAER AI — QUESTION INTAKE &amp; REPOSITORY
+          </div>
+        </div>
+        <div style={{ display:"flex", gap:6 }}>
+          {["submit","repo"].map(t => (
+            <button key={t} onClick={() => setTab(t)} style={{
+              padding:"7px 18px", borderRadius:6, cursor:"pointer",
+              fontFamily:F.fontFamily, fontSize:11, letterSpacing:"0.06em",
+              textTransform:"uppercase", fontWeight:500, transition:"all .15s",
+              background: tab===t ? "#ede8fa" : "transparent",
+              border: tab===t ? "1px solid #c4aff5" : "1px solid transparent",
+              color: tab===t ? C.accent : C.dim,
+            }}>
+              {t === "submit" ? "Submit Question" : `Repository (${questions.length})`}
+            </button>
+          ))}
+        </div>
       </div>
-      <div>
-        <label class="label">Assign To</label>
-        <input type="text" id="edit-assignee-${q.id}" value="${escHtml(q.assignee)}" placeholder="Name or team" />
+
+      <div style={{ maxWidth:900, margin:"0 auto", padding:"32px 24px" }}>
+
+        {/* SUBMIT TAB */}
+        {tab === "submit" && (
+          <div className="fade-up">
+            <div style={{ ...FD, fontSize:18, fontWeight:700, color:C.text, marginBottom:4 }}>
+              Submit a Question About JAI
+            </div>
+            <div style={{ fontSize:12, color:C.muted, marginBottom:24 }}>
+              All questions are compiled into a shared repository and assigned for response.
+            </div>
+
+            {submitted && (
+              <div style={{
+                background:"#f0faf3", border:"1px solid #86efac", color:"#166534",
+                padding:"12px 16px", borderRadius:8, fontSize:13, marginBottom:18,
+              }}>
+                ✓ Question submitted. Switch to the Repository tab to track its status.
+              </div>
+            )}
+
+            <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, padding:24, boxShadow:"0 1px 3px rgba(0,0,0,0.05)" }}>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:16 }}>
+                <div>
+                  <Label>Your Name</Label>
+                  <input value={form.name} onChange={e => setForm({...form,name:e.target.value})} placeholder="First Last" />
+                  {errors.name && <Err>{errors.name}</Err>}
+                </div>
+                <div>
+                  <Label>Department</Label>
+                  <select value={form.dept} onChange={e => setForm({...form,dept:e.target.value})}>
+                    <option value="">Select department</option>
+                    {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
+                  </select>
+                  {errors.dept && <Err>{errors.dept}</Err>}
+                </div>
+              </div>
+
+              <div style={{ marginBottom:16 }}>
+                <Label>Urgency</Label>
+                <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                  {URGENCY_LEVELS.map(u => {
+                    const sel = form.urgency === u;
+                    const cfg = URGENCY[u];
+                    return (
+                      <button key={u} onClick={() => setForm({...form,urgency:u})} style={{
+                        padding:"7px 16px", borderRadius:6, cursor:"pointer",
+                        fontFamily:F.fontFamily, fontSize:12, transition:"all .15s",
+                        background: sel ? cfg.bg : "#fff",
+                        border: `1px solid ${sel ? cfg.border : C.border}`,
+                        color: sel ? cfg.text : C.dim,
+                        fontWeight: sel ? 500 : 400,
+                      }}>{u}</button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div style={{ marginBottom:20 }}>
+                <Label>Your Question</Label>
+                <textarea value={form.question} onChange={e => setForm({...form,question:e.target.value})}
+                  placeholder="Describe your question about JAI in detail..." />
+                {errors.question && <Err>{errors.question}</Err>}
+              </div>
+
+              <div style={{ display:"flex", justifyContent:"flex-end" }}>
+                <button onClick={handleSubmit} style={{
+                  background:C.accent, color:"#fff", border:"none",
+                  padding:"10px 22px", borderRadius:6, cursor:"pointer",
+                  fontFamily:F.fontFamily, fontSize:13, fontWeight:500,
+                  letterSpacing:"0.03em", transition:"all .15s",
+                }}>Submit Question →</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* REPOSITORY TAB */}
+        {tab === "repo" && (
+          <div className="fade-up">
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+              <div style={{ ...FD, fontSize:18, fontWeight:700, color:C.text }}>Question Repository</div>
+              <GhostBtn onClick={() => exportCSV(questions)}>Export CSV</GhostBtn>
+            </div>
+
+            {/* Stats */}
+            <div style={{ display:"flex", gap:10, marginBottom:22 }}>
+              <StatCard label="TOTAL" value={counts.total} color={C.text} topColor={C.accent} />
+              <StatCard label="OPEN" value={counts["Open"]} color={C.red} topColor={C.red} />
+              <StatCard label="IN PROGRESS" value={counts["In Progress"]} color={C.accent} topColor={C.accent} />
+              <StatCard label="COMPLETE" value="#16a34a" color="#16a34a" topColor="#16a34a"
+                value2={counts["Complete"]} />
+            </div>
+
+            {/* Filters */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 2fr", gap:10, marginBottom:18 }}>
+              {[
+                { label:"Status", key:"status", opts:["All",...STATUS_OPTIONS] },
+                { label:"Urgency", key:"urgency", opts:["All",...URGENCY_LEVELS] },
+                { label:"Department", key:"dept", opts:["All",...DEPARTMENTS] },
+              ].map(({label,key,opts}) => (
+                <div key={key}>
+                  <Label>{label}</Label>
+                  <select value={filters[key]} onChange={e => setFilters({...filters,[key]:e.target.value})}>
+                    {opts.map(o => <option key={o}>{o}</option>)}
+                  </select>
+                </div>
+              ))}
+              <div>
+                <Label>Search</Label>
+                <input value={filters.search} onChange={e => setFilters({...filters,search:e.target.value})}
+                  placeholder="Search questions or names..." />
+              </div>
+            </div>
+
+            {/* Cards */}
+            {filtered.length === 0 ? (
+              <div style={{ textAlign:"center", color:C.dim, padding:"60px 0", fontSize:13 }}>
+                {questions.length === 0
+                  ? "No questions submitted yet. Share the Submit tab with your org."
+                  : "No results match your filters."}
+              </div>
+            ) : filtered.map(q => (
+              <QuestionCard key={q.id} q={q}
+                editing={editingId === q.id}
+                onEdit={() => setEditingId(editingId === q.id ? null : q.id)}
+                onSave={changes => updateQ(q.id, changes)}
+                onDelete={() => deleteQ(q.id)}
+                F={F} C={C}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-ghost btn-sm" onclick="toggleEdit('${q.id}')">Cancel</button>
-      <button class="btn btn-primary btn-sm" onclick="saveEdit('${q.id}')">Save Changes</button>
-    </div>
-  </div>
-</div>`;
-  }).join('');
-}
-
-function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function toggleEdit(id) {
-  if (editingId === id) { editingId = null; } else { editingId = id; }
-  renderRepo();
-}
-
-function saveEdit(id) {
-  const status = document.getElementById('edit-status-' + id).value;
-  const assignee = document.getElementById('edit-assignee-' + id).value.trim();
-  questions = questions.map(q =>
-    q.id === id ? { ...q, status, assignee, updatedAt: new Date().toISOString() } : q
   );
-  saveData();
-  editingId = null;
-  renderRepo();
 }
 
-function deleteQuestion(id) {
-  if (!confirm('Delete this question? This cannot be undone.')) return;
-  questions = questions.filter(q => q.id !== id);
-  saveData();
-  renderRepo();
+function StatCard({ label, value, value2, color, topColor }) {
+  const FD = { fontFamily:"'Syne',sans-serif" };
+  const F = { fontFamily:"'DM Mono','Fira Mono',monospace" };
+  const displayVal = value2 !== undefined ? value2 : value;
+  const displayColor = value2 !== undefined ? value : color;
+  return (
+    <div style={{
+      background:"#fff", border:`1px solid #e2e5ea`, borderTop:`3px solid ${topColor}`,
+      borderRadius:8, padding:"12px 18px", textAlign:"center", flex:1,
+      boxShadow:"0 1px 3px rgba(0,0,0,0.05)",
+    }}>
+      <div style={{ ...FD, fontSize:26, fontWeight:800, color: displayColor }}>{displayVal}</div>
+      <div style={{ ...F, fontSize:10, color:"#8a94a8", letterSpacing:"0.09em", marginTop:1 }}>{label}</div>
+    </div>
+  );
 }
 
-function exportCSV() {
-  const headers = ['ID','Name','Department','Urgency','Status','Assignee','Question','Submitted'];
+function QuestionCard({ q, editing, onEdit, onSave, onDelete, F, C }) {
+  const [local, setLocal] = useState({ status:q.status, assignee:q.assignee||"" });
+  useEffect(() => setLocal({ status:q.status, assignee:q.assignee||"" }), [q]);
+
+  const FD = { fontFamily:"'Syne',sans-serif" };
+  const uc = URGENCY[q.urgency];
+  const sc = STATUS[q.status];
+  const date = new Date(q.submittedAt).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+  const urgencyBorderColors = { Low:"#86efac", Medium:"#fcd34d", High:"#fdba74", Critical:"#D22428" };
+
+  return (
+    <div style={{
+      background:"#fff", border:`1px solid ${C.border}`,
+      borderLeft:`3px solid ${urgencyBorderColors[q.urgency]}`,
+      borderRadius:10, padding:20, marginBottom:10,
+      boxShadow:"0 1px 3px rgba(0,0,0,0.05)", transition:"box-shadow .15s",
+    }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
+        <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
+          <span style={{ fontSize:11, color:C.dim, letterSpacing:"0.06em" }}>{q.id}</span>
+          {pill(uc, q.urgency)}
+          {pill(sc, q.status)}
+        </div>
+        <div style={{ display:"flex", gap:6 }}>
+          <GhostBtn onClick={onEdit} sm>{editing ? "Cancel" : "Edit"}</GhostBtn>
+          <button onClick={onDelete} style={{
+            padding:"4px 10px", borderRadius:6, cursor:"pointer", fontSize:11,
+            fontFamily:F.fontFamily, background:"transparent",
+            color:C.red, border:`1px solid #fca5a5`,
+            transition:"all .15s",
+          }}>Del</button>
+        </div>
+      </div>
+
+      <div style={{ fontSize:13, color:"#2d3348", lineHeight:1.65, marginBottom:12 }}>{q.question}</div>
+
+      <div style={{ display:"flex", gap:20, fontSize:11, color:C.dim, flexWrap:"wrap" }}>
+        <span><span style={{ color:C.border2 }}>From:</span> {q.name}</span>
+        <span><span style={{ color:C.border2 }}>Dept:</span> {q.dept}</span>
+        <span><span style={{ color:C.border2 }}>Submitted:</span> {date}</span>
+        {q.assignee && <span><span style={{ color:C.border2 }}>Assigned to:</span> <span style={{ color:C.accent }}>{q.assignee}</span></span>}
+      </div>
+
+      {editing && (
+        <div style={{ marginTop:14, paddingTop:14, borderTop:`1px solid ${C.border}` }}>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
+            <div>
+              <Label>Status</Label>
+              <select value={local.status} onChange={e => setLocal({...local,status:e.target.value})}>
+                {STATUS_OPTIONS.map(s => <option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <Label>Assign To</Label>
+              <input value={local.assignee} onChange={e => setLocal({...local,assignee:e.target.value})}
+                placeholder="Name or team" />
+            </div>
+          </div>
+          <div style={{ display:"flex", justifyContent:"flex-end", gap:8 }}>
+            <GhostBtn onClick={onEdit}>Cancel</GhostBtn>
+            <button onClick={() => onSave(local)} style={{
+              background:C.accent, color:"#fff", border:"none",
+              padding:"7px 16px", borderRadius:6, cursor:"pointer",
+              fontFamily:"'DM Mono',monospace", fontSize:12, fontWeight:500,
+            }}>Save Changes</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Label({ children }) {
+  return <div style={{ fontSize:10, textTransform:"uppercase", letterSpacing:"0.09em",
+    color:"#5a6478", marginBottom:6 }}>{children}</div>;
+}
+function Err({ children }) {
+  return <div style={{ color:"#c0392b", fontSize:11, marginTop:4 }}>{children}</div>;
+}
+function GhostBtn({ children, onClick, sm }) {
+  return (
+    <button onClick={onClick} style={{
+      padding: sm ? "4px 10px" : "7px 16px",
+      borderRadius:6, cursor:"pointer", fontSize: sm ? 11 : 12,
+      fontFamily:"'DM Mono',monospace", background:"transparent",
+      color:"#5a6478", border:"1px solid #e2e5ea", transition:"all .15s",
+    }}>{children}</button>
+  );
+}
+
+function exportCSV(questions) {
+  const headers = ["ID","Name","Department","Urgency","Status","Assignee","Question","Submitted"];
   const rows = questions.map(q => [
-    q.id, q.name, q.dept, q.urgency, q.status, q.assignee || '',
-    '"' + (q.question || '').replace(/"/g, '""') + '"',
+    q.id, q.name, q.dept, q.urgency, q.status, q.assignee||"",
+    '"' + (q.question||"").replace(/"/g,'""') + '"',
     new Date(q.submittedAt).toLocaleDateString()
   ]);
-  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
+  const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'jai-questions-' + new Date().toISOString().slice(0,10) + '.csv';
+  const a = document.createElement("a");
+  a.href = url; a.download = "jai-questions-" + new Date().toISOString().slice(0,10) + ".csv";
   a.click(); URL.revokeObjectURL(url);
 }
-
-// Init
-loadData();
-updateRepoCount();
-</script>
-</body>
-</html>
