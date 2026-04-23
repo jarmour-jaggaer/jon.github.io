@@ -260,8 +260,8 @@
 
         <!-- Email opt-in -->
         <div class="email-optin">
-          <div class="email-optin-header" onclick="toggleEmailOptin()">
-            <input type="checkbox" id="email-optin-check" onclick="event.stopPropagation(); toggleEmailOptin()"/>
+          <div class="email-optin-header">
+            <input type="checkbox" id="email-optin-check" onchange="toggleEmailOptin()"/>
             <label class="email-optin-label" for="email-optin-check">Notify me when my question is answered</label>
           </div>
           <div class="email-optin-sub">
@@ -384,7 +384,6 @@ function setSyncStatus(state, msg) {
 function toggleEmailOptin() {
   const check = document.getElementById('email-optin-check');
   const field = document.getElementById('email-optin-field');
-  check.checked = !check.checked;
   field.classList.toggle('show', check.checked);
   if (!check.checked) document.getElementById('f-email').value = '';
 }
