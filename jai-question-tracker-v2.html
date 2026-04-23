@@ -18,6 +18,7 @@
     --accent: #5300CE;
     --accent-hov: #4200a8;
     --red: #D22428;
+    --green: #16a34a;
     --font: 'DM Mono', 'Fira Mono', 'Consolas', monospace;
     --display: 'Syne', sans-serif;
   }
@@ -61,10 +62,11 @@
   textarea { resize: vertical; min-height: 110px; }
 
   .grid-2    { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .grid-4    { display: grid; grid-template-columns: 1fr 1fr 1fr 2fr; gap: 10px; margin-bottom: 18px; }
+  .grid-5    { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 2fr; gap: 10px; margin-bottom: 18px; }
   .grid-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
   .field { margin-bottom: 16px; }
 
+  /* Question card */
   .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: box-shadow 0.15s; }
   .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
   .card-hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -73,6 +75,38 @@
   .card-body { font-size: 13px; color: #2d3348; line-height: 1.65; margin-bottom: 12px; }
   .card-footer { display: flex; gap: 20px; font-size: 11px; color: var(--dim); flex-wrap: wrap; }
   .card-footer span b { color: var(--border2); font-weight: 400; }
+
+  /* Answer block */
+  .answer-block {
+    margin-top: 14px; padding: 14px 16px;
+    background: #f8f6ff; border: 1px solid #e0d5f5;
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+  }
+  .answer-block .answer-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--accent); font-weight: 500; margin-bottom: 6px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .answer-block .answer-label::before {
+    content: ''; display: inline-block; width: 7px; height: 7px;
+    border-radius: 50%; background: var(--accent);
+  }
+  .answer-block .answer-text {
+    font-size: 13px; color: #2d3348; line-height: 1.7;
+  }
+
+  /* Awaiting answer indicator */
+  .awaiting {
+    margin-top: 12px; display: flex; align-items: center; gap: 7px;
+    font-size: 11px; color: var(--dim);
+  }
+  .awaiting::before {
+    content: ''; display: inline-block; width: 7px; height: 7px;
+    border-radius: 50%; background: var(--border2);
+  }
+
+  /* Edit panel */
   .edit-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); display: none; }
   .edit-panel.open { display: block; }
 
@@ -80,6 +114,9 @@
   .card[data-u="Medium"]   { border-left: 3px solid #fcd34d; }
   .card[data-u="High"]     { border-left: 3px solid #fdba74; }
   .card[data-u="Critical"] { border-left: 3px solid var(--red); }
+
+  /* Override border-left when card has answer (answered cards get accent border) */
+  .card.answered { border-left: 3px solid var(--accent) !important; }
 
   .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; border: 1px solid; }
   .pu-Low      { background: #f0faf3; color: #166534; border-color: #86efac; }
@@ -89,6 +126,8 @@
   .ps-Open       { background: #fef2f2; color: #D22428; border-color: #fca5a5; }
   .ps-InProgress { background: #ede8fa; color: #5300CE; border-color: #c4aff5; }
   .ps-Complete   { background: #f0faf3; color: #166534; border-color: #86efac; }
+  .pa-answered   { background: #f8f6ff; color: #5300CE; border-color: #c4aff5; }
+  .pa-unanswered { background: #f8f9fa; color: var(--dim); border-color: var(--border); }
 
   .urg-group { display: flex; gap: 8px; flex-wrap: wrap; }
   .urg-btn { padding: 7px 16px; border-radius: 6px; border: 1px solid var(--border); background: #fff; color: var(--dim); font-family: var(--font); font-size: 12px; cursor: pointer; transition: all 0.15s; }
@@ -121,27 +160,25 @@
   .banner.success { background: #f0faf3; border-color: #86efac; color: #166534; }
   .banner.error   { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
 
-  /* Loading spinner */
   .spinner-wrap { display: flex; align-items: center; gap: 10px; padding: 40px 0; justify-content: center; color: var(--muted); font-size: 13px; }
   .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Sync indicator */
   .sync-bar { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--dim); margin-bottom: 16px; }
-  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
-  .sync-dot.live { background: #16a34a; box-shadow: 0 0 0 2px #bbf7d0; }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); flex-shrink: 0; }
+  .sync-dot.live    { background: var(--green); box-shadow: 0 0 0 2px #bbf7d0; }
   .sync-dot.loading { background: var(--accent); animation: pulse 1s ease infinite; }
-  .sync-dot.error { background: var(--red); }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .sync-dot.error   { background: var(--red); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
   .empty { text-align: center; color: var(--dim); padding: 60px 0; font-size: 13px; }
 
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
   .fade-up { animation: fadeUp 0.25s ease; }
 
-  @media (max-width: 640px) {
+  @media (max-width: 680px) {
     header { flex-direction: column; gap: 12px; align-items: flex-start; padding: 16px; }
-    .grid-2, .grid-4, .grid-edit { grid-template-columns: 1fr; }
+    .grid-2, .grid-5, .grid-edit { grid-template-columns: 1fr; }
     .stats-row { flex-wrap: wrap; }
     main { padding: 20px 14px; }
   }
@@ -161,6 +198,7 @@
   </header>
 
   <main>
+
     <!-- SUBMIT TAB -->
     <div id="tab-submit" class="fade-up">
       <div class="sec-title">Submit a Question About JAI</div>
@@ -178,7 +216,6 @@
             <select id="f-dept">
               <option value="">Select department</option>
               <option>Global Customer Care</option>
-             <option>Customer Success Managers</option>
               <option>Product</option>
               <option>Engineering</option>
               <option>Sales</option>
@@ -225,12 +262,12 @@
         </div>
       </div>
 
-      <!-- Sync status -->
       <div class="sync-bar">
         <div class="sync-dot" id="sync-dot"></div>
         <span id="sync-label">Not loaded</span>
       </div>
 
+      <!-- Stats -->
       <div class="stats-row">
         <div class="stat-card" style="border-top:3px solid #5300CE;">
           <div class="stat-num" id="s-total" style="color:#1a1a2e;">0</div>
@@ -248,13 +285,24 @@
           <div class="stat-num" id="s-done" style="color:#16a34a;">0</div>
           <div class="stat-lbl">COMPLETE</div>
         </div>
+        <div class="stat-card" style="border-top:3px solid #5300CE;">
+          <div class="stat-num" id="s-answered" style="color:#5300CE;">0</div>
+          <div class="stat-lbl">ANSWERED</div>
+        </div>
       </div>
 
-      <div class="grid-4">
+      <!-- Filters -->
+      <div class="grid-5">
         <div>
           <label class="lbl">Status</label>
           <select id="f-status" onchange="render()">
             <option>All</option><option>Open</option><option>In Progress</option><option>Complete</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl">Answered</label>
+          <select id="f-answered" onchange="render()">
+            <option>All</option><option>Answered</option><option>Unanswered</option>
           </select>
         </div>
         <div>
@@ -275,12 +323,13 @@
         </div>
         <div>
           <label class="lbl">Search</label>
-          <input type="text" id="f-search" placeholder="Search questions or names..." oninput="render()"/>
+          <input type="text" id="f-search" placeholder="Search questions, answers, names..." oninput="render()"/>
         </div>
       </div>
 
       <div id="repo-list"></div>
     </div>
+
   </main>
 </div>
 
@@ -296,12 +345,9 @@ function genId() {
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 function setSyncStatus(state, msg) {
-  const dot = document.getElementById('sync-dot');
-  const lbl = document.getElementById('sync-label');
-  dot.className = 'sync-dot ' + state;
-  lbl.textContent = msg;
+  document.getElementById('sync-dot').className = 'sync-dot ' + state;
+  document.getElementById('sync-label').textContent = msg;
 }
 
 async function apiPost(data) {
@@ -315,7 +361,8 @@ async function apiPost(data) {
 
 async function loadQuestions() {
   setSyncStatus('loading', 'Loading from Google Sheets...');
-  document.getElementById('repo-list').innerHTML = '<div class="spinner-wrap"><div class="spinner"></div>Loading questions...</div>';
+  document.getElementById('repo-list').innerHTML =
+    '<div class="spinner-wrap"><div class="spinner"></div>Loading questions...</div>';
   try {
     const res = await fetch(API + '?t=' + Date.now());
     const data = await res.json();
@@ -324,8 +371,9 @@ async function loadQuestions() {
     render();
     setSyncStatus('live', 'Live — last synced ' + new Date().toLocaleTimeString());
   } catch(e) {
-    setSyncStatus('error', 'Connection error — check your network');
-    document.getElementById('repo-list').innerHTML = '<div class="empty">Could not load data. Check your network connection and try refreshing.</div>';
+    setSyncStatus('error', 'Connection error — check your network or re-deploy the Apps Script');
+    document.getElementById('repo-list').innerHTML =
+      '<div class="empty">Could not load data. Check your connection and try refreshing.</div>';
   }
 }
 
@@ -347,7 +395,6 @@ async function submitQ() {
   const name     = document.getElementById('f-name').value.trim();
   const dept     = document.getElementById('f-dept').value;
   const question = document.getElementById('f-question').value.trim();
-
   ['err-name','err-dept','err-q'].forEach(id => document.getElementById(id).textContent = '');
   let ok = true;
   if (!name)     { document.getElementById('err-name').textContent = 'Required'; ok = false; }
@@ -356,29 +403,21 @@ async function submitQ() {
   if (!ok) return;
 
   const btn = document.getElementById('submit-btn');
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
-
+  btn.disabled = true; btn.textContent = 'Submitting...';
   const banner = document.getElementById('submit-banner');
-  banner.className = 'banner';
-  banner.style.display = 'none';
+  banner.className = 'banner'; banner.style.display = 'none';
 
   try {
-    const q = {
-      action: 'submit',
-      id: genId(), name, dept, urgency, question,
-      submittedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    await apiPost(q);
-
+    await apiPost({
+      action:'submit', id:genId(), name, dept, urgency, question,
+      submittedAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+    });
     document.getElementById('f-name').value = '';
     document.getElementById('f-dept').value = '';
     document.getElementById('f-question').value = '';
     document.querySelectorAll('.urg-btn').forEach(b => b.className = 'urg-btn');
     document.querySelector('.urg-btn[data-u="Medium"]').className = 'urg-btn sel-Medium';
     urgency = 'Medium';
-
     banner.textContent = '✓ Question submitted successfully. It is now live in the shared repository.';
     banner.className = 'banner success show';
     setTimeout(() => banner.classList.remove('show'), 5000);
@@ -386,9 +425,7 @@ async function submitQ() {
     banner.textContent = '✗ Submission failed. Please check your connection and try again.';
     banner.className = 'banner error show';
   }
-
-  btn.disabled = false;
-  btn.textContent = 'Submit Question →';
+  btn.disabled = false; btn.textContent = 'Submit Question →';
 }
 
 function updateCount() {
@@ -397,22 +434,29 @@ function updateCount() {
 
 function render() {
   const fs = document.getElementById('f-status').value;
+  const fa = document.getElementById('f-answered').value;
   const fu = document.getElementById('f-urgency').value;
   const fd = document.getElementById('f-dept2').value;
   const fq = document.getElementById('f-search').value.toLowerCase();
 
   const filtered = qs.filter(q => {
     if (fs !== 'All' && q.status !== fs) return false;
+    if (fa === 'Answered'   && !q.answer) return false;
+    if (fa === 'Unanswered' &&  q.answer) return false;
     if (fu !== 'All' && q.urgency !== fu) return false;
     if (fd !== 'All' && q.dept !== fd) return false;
-    if (fq && !q.question.toLowerCase().includes(fq) && !q.name.toLowerCase().includes(fq)) return false;
+    if (fq) {
+      const hay = (q.question + ' ' + q.name + ' ' + (q.answer||'')).toLowerCase();
+      if (!hay.includes(fq)) return false;
+    }
     return true;
   });
 
-  document.getElementById('s-total').textContent = qs.length;
-  document.getElementById('s-open').textContent  = qs.filter(q => q.status === 'Open').length;
-  document.getElementById('s-prog').textContent  = qs.filter(q => q.status === 'In Progress').length;
-  document.getElementById('s-done').textContent  = qs.filter(q => q.status === 'Complete').length;
+  document.getElementById('s-total').textContent    = qs.length;
+  document.getElementById('s-open').textContent     = qs.filter(q => q.status === 'Open').length;
+  document.getElementById('s-prog').textContent     = qs.filter(q => q.status === 'In Progress').length;
+  document.getElementById('s-done').textContent     = qs.filter(q => q.status === 'Complete').length;
+  document.getElementById('s-answered').textContent = qs.filter(q => q.answer && q.answer.trim()).length;
   updateCount();
 
   const el = document.getElementById('repo-list');
@@ -424,18 +468,33 @@ function render() {
   }
 
   el.innerHTML = filtered.map(q => {
-    const date = new Date(q.submittedAt).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
-    const sClass = 'pill ps-' + q.status.replace(' ','');
-    const isEdit = editId === q.id;
+    const date     = new Date(q.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const sClass   = 'pill ps-' + q.status.replace(' ','');
+    const hasAnswer = q.answer && q.answer.trim();
+    const isEdit   = editId === q.id;
+
+    const answerPill = hasAnswer
+      ? `<span class="pill pa-answered">Answered</span>`
+      : `<span class="pill pa-unanswered">Awaiting Answer</span>`;
+
+    const answerBlock = hasAnswer
+      ? `<div class="answer-block">
+           <div class="answer-label">Answer</div>
+           <div class="answer-text">${esc(q.answer)}</div>
+         </div>`
+      : `<div class="awaiting">No answer yet — check back after refreshing</div>`;
+
     const aHtml = q.assignee
       ? `<span><b>Assigned to:</b> <span style="color:#5300CE">${esc(q.assignee)}</span></span>` : '';
+
     return `
-<div class="card" data-u="${q.urgency}" id="card-${q.id}">
+<div class="card ${hasAnswer ? 'answered' : ''}" data-u="${q.urgency}" id="card-${q.id}">
   <div class="card-hdr">
     <div class="card-meta">
       <span style="font-size:11px;color:var(--dim);letter-spacing:.06em">${esc(q.id)}</span>
       <span class="pill pu-${q.urgency}">${esc(q.urgency)}</span>
       <span class="${sClass}">${esc(q.status)}</span>
+      ${answerPill}
     </div>
     <div class="card-actions">
       <button class="btn-ghost sm" onclick="toggleEdit('${q.id}')">${isEdit ? 'Cancel' : 'Edit'}</button>
@@ -449,6 +508,7 @@ function render() {
     <span><b>Submitted:</b> ${date}</span>
     ${aHtml}
   </div>
+  ${answerBlock}
   <div class="edit-panel ${isEdit ? 'open' : ''}" id="ep-${q.id}">
     <div class="grid-edit">
       <div>
@@ -473,26 +533,20 @@ function render() {
   }).join('');
 }
 
-function toggleEdit(id) {
-  editId = (editId === id) ? null : id;
-  render();
-}
+function toggleEdit(id) { editId = (editId === id) ? null : id; render(); }
 
 async function saveEdit(id) {
   const status   = document.getElementById('es-' + id).value;
   const assignee = document.getElementById('ea-' + id).value.trim();
   const saveBtn  = document.getElementById('save-' + id);
-  saveBtn.disabled = true;
-  saveBtn.textContent = 'Saving...';
+  saveBtn.disabled = true; saveBtn.textContent = 'Saving...';
   try {
     await apiPost({ action:'update', id, status, assignee, updatedAt: new Date().toISOString() });
     qs = qs.map(q => q.id === id ? {...q, status, assignee} : q);
-    editId = null;
-    render();
+    editId = null; render();
     setSyncStatus('live', 'Saved — ' + new Date().toLocaleTimeString());
   } catch(e) {
-    saveBtn.disabled = false;
-    saveBtn.textContent = 'Save Changes';
+    saveBtn.disabled = false; saveBtn.textContent = 'Save Changes';
     alert('Save failed. Please check your connection and try again.');
   }
 }
@@ -502,8 +556,7 @@ async function delQ(id) {
   try {
     await apiPost({ action:'delete', id });
     qs = qs.filter(q => q.id !== id);
-    render();
-    updateCount();
+    render(); updateCount();
     setSyncStatus('live', 'Deleted — ' + new Date().toLocaleTimeString());
   } catch(e) {
     alert('Delete failed. Please check your connection and try again.');
@@ -511,16 +564,17 @@ async function delQ(id) {
 }
 
 function exportCSV() {
-  const hdr = ['ID','Name','Department','Urgency','Question','Status','Assignee','Submitted'];
+  const hdr = ['ID','Name','Department','Urgency','Question','Status','Assignee','Answer','Submitted'];
   const rows = qs.map(q => [
     q.id, q.name, q.dept, q.urgency,
     '"' + (q.question||'').replace(/"/g,'""') + '"',
     q.status, q.assignee||'',
+    '"' + (q.answer||'').replace(/"/g,'""') + '"',
     new Date(q.submittedAt).toLocaleDateString()
   ]);
   const csv = [hdr.join(','), ...rows.map(r => r.join(','))].join('\n');
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
   a.download = 'jai-questions-' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
 }
