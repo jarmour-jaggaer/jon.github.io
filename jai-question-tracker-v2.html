@@ -721,7 +721,7 @@ function render() {
       ${internalPill}
     </div>
     <div class="card-actions">
-      <button class="btn-ghost sm" onclick="toggleEdit('${q.id}')">${isEdit ? 'Cancel' : 'Edit'}</button>
+      <button class="btn-ghost sm" onclick="toggleEdit('${q.id}')">${isEdit ? 'Cancel' : 'Assign'}</button>
       <button class="btn-del" onclick="delQ('${q.id}')">Del</button>
     </div>
   </div>
@@ -736,12 +736,16 @@ function render() {
   ${contentBlock}
   <div class="edit-panel ${isEdit ? 'open' : ''}" id="ep-${q.id}">
     <div class="status-note">Status updates automatically: Open when unassigned, Assigned when someone is selected, Complete when an answer is provided.</div>
-    <div class="grid-edit" style="margin-top:12px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;margin-bottom:12px;">
       <div>
         <label class="lbl">Assign To</label>
         <select id="ea-${q.id}">
           ${buildAssigneeOptions(q.assignee)}
         </select>
+      </div>
+      <div>
+        <label class="lbl">Estimated Answer Date <span style="font-size:9px;background:var(--bg);border:1px solid var(--border);color:var(--dim);padding:1px 7px;border-radius:999px;letter-spacing:0.06em;margin-left:4px;">OPTIONAL</span></label>
+        <input type="date" id="ed-${q.id}" value="${q.estimatedDate ? q.estimatedDate.substring(0,10) : ''}"/>
       </div>
     </div>
     <div class="btn-row">
@@ -756,16 +760,17 @@ function render() {
 function toggleEdit(id) { editId = (editId === id) ? null : id; render(); }
 
 async function saveEdit(id) {
-  const assignee = document.getElementById('ea-' + id).value.trim();
-  const saveBtn  = document.getElementById('save-' + id);
+  const assignee      = document.getElementById('ea-' + id).value.trim();
+  const estimatedDate = document.getElementById('ed-' + id).value.trim();
+  const saveBtn       = document.getElementById('save-' + id);
   saveBtn.disabled = true; saveBtn.textContent = 'Saving...';
   try {
-    await apiPost({ action:'update', id, assignee, updatedAt: new Date().toISOString() });
+    await apiPost({ action:'update', id, assignee, estimatedDate, updatedAt: new Date().toISOString() });
     const q = qs.find(q => q.id === id);
     let newStatus = 'Open';
     if (q && q.answer && q.answer.trim()) newStatus = 'Complete';
     else if (assignee) newStatus = 'Assigned';
-    qs = qs.map(q => q.id === id ? {...q, assignee, status: newStatus} : q);
+    qs = qs.map(q => q.id === id ? {...q, assignee, estimatedDate, status: newStatus} : q);
     editId = null; render();
     setSyncStatus('live', 'Saved — ' + new Date().toLocaleTimeString());
   } catch(e) {
