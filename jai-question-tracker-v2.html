@@ -184,6 +184,41 @@
   @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
   .fade-up { animation: fadeUp 0.25s ease; }
 
+
+  /* Repo password gate */
+  #repo-gate {
+    background: #fff; border: 1px solid #e2e5ea; border-radius: 12px;
+    padding: 48px 36px; width: 100%; max-width: 400px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08); text-align: center;
+    margin: 40px auto;
+  }
+  #repo-gate-title {
+    font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800;
+    color: #1a1a2e; letter-spacing: -0.02em; margin-bottom: 4px;
+  }
+  #repo-gate-title span { color: #D22428; }
+  #repo-gate-sub {
+    font-size: 10px; color: #8a94a8; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 28px;
+  }
+  #repo-gate-input {
+    width: 100%; padding: 10px 14px; border: 1px solid #e2e5ea;
+    border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 14px;
+    color: #1a1a2e; outline: none; margin-bottom: 12px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    text-align: center; letter-spacing: 0.05em;
+    appearance: none; -webkit-appearance: none;
+  }
+  #repo-gate-input:focus { border-color: #5300CE; box-shadow: 0 0 0 3px #5300ce18; }
+  #repo-gate-btn {
+    width: 100%; padding: 11px; background: #5300CE; color: #fff;
+    border: none; border-radius: 6px; font-family: 'DM Mono', monospace;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: all 0.15s; letter-spacing: 0.03em;
+  }
+  #repo-gate-btn:hover { background: #4200a8; transform: translateY(-1px); box-shadow: 0 4px 12px #5300ce30; }
+  #repo-gate-err { color: #D22428; font-size: 11px; margin-top: 10px; min-height: 16px; }
+
   @media (max-width: 680px) {
     header { flex-direction: column; gap: 12px; align-items: flex-start; padding: 16px; }
     .grid-2, .grid-3, .grid-5, .grid-edit { grid-template-columns: 1fr; }
@@ -282,6 +317,20 @@
 
     <!-- REPOSITORY TAB -->
     <div id="tab-repo" style="display:none;" class="fade-up">
+
+      <!-- Repo Password Gate -->
+      <div id="repo-gate-wrap">
+        <div id="repo-gate">
+          <div id="repo-gate-title">JAI <span>//</span> Q&amp;A TRACKER</div>
+          <div id="repo-gate-sub">Repository access — enter password</div>
+          <input type="password" id="repo-gate-input" placeholder="Password" onkeydown="if(event.key==='Enter') checkRepoPass()"/>
+          <button id="repo-gate-btn" onclick="checkRepoPass()">Enter Repository →</button>
+          <div id="repo-gate-err"></div>
+        </div>
+      </div>
+
+      <!-- Repo Content (hidden until unlocked) -->
+      <div id="repo-content" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div class="sec-title">Question Repository</div>
         <div style="display:flex;gap:8px;">
@@ -359,6 +408,7 @@
       </div>
 
       <div id="repo-list"></div>
+      </div><!-- end repo-content -->
     </div>
 
   </main>
@@ -366,6 +416,20 @@
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwfABCyi0PCwBb4XxMTyIhq1khMe62jZDTvRoooFk4dzhQbQg3UM2MnoXPfdL98s_N_/exec';
+
+function checkRepoPass() {
+  const val = document.getElementById('repo-gate-input').value;
+  if (val === 'JAGGAER1Q&A') {
+    document.getElementById('repo-gate-wrap').style.display = 'none';
+    document.getElementById('repo-content').style.display = 'block';
+    sessionStorage.setItem('jai-repo-auth', '1');
+    loadAll();
+  } else {
+    document.getElementById('repo-gate-err').textContent = 'Incorrect password. Please try again.';
+    document.getElementById('repo-gate-input').value = '';
+    document.getElementById('repo-gate-input').focus();
+  }
+}
 
 let qs = [], assignees = [], urgency = 'Medium', editId = null;
 
@@ -438,7 +502,13 @@ function switchTab(t) {
   document.getElementById('tab-repo').style.display   = t==='repo'   ? 'block' : 'none';
   document.getElementById('btn-submit').className = 'tab ' + (t==='submit' ? 'active' : 'inactive');
   document.getElementById('btn-repo').className   = 'tab ' + (t==='repo'   ? 'active' : 'inactive');
-  if (t === 'repo') loadAll();
+  if (t === 'repo') {
+    if (sessionStorage.getItem('jai-repo-auth') === '1') {
+      document.getElementById('repo-gate-wrap').style.display = 'none';
+      document.getElementById('repo-content').style.display = 'block';
+      loadAll();
+    }
+  }
 }
 
 async function submitQ() {
