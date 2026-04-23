@@ -8,17 +8,9 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #f4f5f7;
-    --surface: #ffffff;
-    --border: #e2e5ea;
-    --border2: #c8cdd6;
-    --text: #1a1a2e;
-    --muted: #5a6478;
-    --dim: #8a94a8;
-    --accent: #5300CE;
-    --accent-hov: #4200a8;
-    --red: #D22428;
-    --green: #16a34a;
+    --bg: #f4f5f7; --surface: #ffffff; --border: #e2e5ea; --border2: #c8cdd6;
+    --text: #1a1a2e; --muted: #5a6478; --dim: #8a94a8;
+    --accent: #5300CE; --accent-hov: #4200a8; --red: #D22428; --green: #16a34a;
     --font: 'DM Mono', 'Fira Mono', 'Consolas', monospace;
     --display: 'Syne', sans-serif;
   }
@@ -28,18 +20,13 @@
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
-  header {
-    background: #fff; border-bottom: 3px solid var(--red);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    padding: 18px 32px; display: flex; align-items: center;
-    justify-content: space-between; position: sticky; top: 0; z-index: 100;
-  }
+  header { background: #fff; border-bottom: 3px solid var(--red); box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
   .logo-title { font-family: var(--display); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
   .logo-title span { color: var(--red); }
   .logo-sub { font-size: 10px; color: var(--dim); letter-spacing: 0.1em; margin-top: 2px; }
   .tabs { display: flex; gap: 6px; }
   .tab { padding: 7px 18px; border-radius: 6px; border: 1px solid transparent; font-family: var(--font); font-size: 11px; cursor: pointer; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; transition: all 0.15s; }
-  .tab.active  { background: #ede8fa; border-color: #c4aff5; color: var(--accent); }
+  .tab.active { background: #ede8fa; border-color: #c4aff5; color: var(--accent); }
   .tab.inactive { background: transparent; color: var(--dim); }
   .tab.inactive:hover { color: var(--muted); background: var(--bg); }
 
@@ -49,46 +36,40 @@
   .lbl-opt { font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
   .lbl-opt span { background: var(--bg); border: 1px solid var(--border); color: var(--dim); font-size: 9px; padding: 1px 7px; border-radius: 999px; letter-spacing: 0.06em; }
   .err { color: #c0392b; font-size: 11px; margin-top: 4px; }
-  .field-hint { font-size: 11px; color: var(--dim); margin-top: 5px; line-height: 1.5; }
 
-  input, select, textarea {
-    background: #fff; border: 1px solid var(--border); color: var(--text);
-    font-family: var(--font); border-radius: 6px; padding: 9px 13px;
-    width: 100%; font-size: 13px; outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s; appearance: none; -webkit-appearance: none;
-  }
+  input, select, textarea { background: #fff; border: 1px solid var(--border); color: var(--text); font-family: var(--font); border-radius: 6px; padding: 9px 13px; width: 100%; font-size: 13px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; appearance: none; -webkit-appearance: none; }
   input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px #5300ce18; }
-  select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a94a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
-  }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a94a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
   textarea { resize: vertical; min-height: 110px; }
 
-  .grid-2    { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .grid-3    { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .grid-5    { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 2fr; gap: 10px; margin-bottom: 18px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-5 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 2fr; gap: 10px; margin-bottom: 18px; }
   .grid-edit { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
   .field { margin-bottom: 16px; }
 
-  /* Email opt-in section */
-  .email-optin {
-    background: #f8f6ff; border: 1px solid #e0d5f5; border-radius: 8px;
-    padding: 16px 18px; margin-bottom: 16px;
-  }
-  .email-optin-header {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 4px; cursor: pointer;
-  }
-  .email-optin-header input[type="checkbox"] {
-    width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent);
-    appearance: auto; -webkit-appearance: auto; flex-shrink: 0;
-  }
-  .email-optin-label {
-    font-size: 13px; color: var(--text); font-weight: 500; cursor: pointer;
-  }
+  /* Email opt-in */
+  .email-optin { background: #f8f6ff; border: 1px solid #e0d5f5; border-radius: 8px; padding: 16px 18px; margin-bottom: 16px; }
+  .email-optin-header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .email-optin-header input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); appearance: auto; -webkit-appearance: auto; flex-shrink: 0; }
+  .email-optin-label { font-size: 13px; color: var(--text); font-weight: 500; cursor: pointer; }
   .email-optin-sub { font-size: 11px; color: var(--muted); margin-left: 26px; margin-bottom: 12px; line-height: 1.5; }
   .email-optin-field { display: none; margin-left: 26px; }
   .email-optin-field.show { display: block; }
 
+  /* Duplicate detection */
+  .dupe-panel { display: none; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 14px 16px; margin-top: 8px; }
+  .dupe-panel.show { display: block; animation: fadeUp 0.2s ease; }
+  .dupe-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em; color: #92400e; font-weight: 600; margin-bottom: 10px; }
+  .dupe-item { background: #fff; border: 1px solid #fcd34d; border-radius: 6px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s; }
+  .dupe-item:last-child { margin-bottom: 0; }
+  .dupe-item:hover { border-color: #f59e0b; }
+  .dupe-q { font-size: 12px; color: var(--text); line-height: 1.5; margin-bottom: 6px; font-weight: 500; }
+  .dupe-answer { font-size: 11px; color: #5a6478; line-height: 1.5; padding: 8px 10px; background: #f8f6ff; border-radius: 4px; border-left: 2px solid var(--accent); }
+  .dupe-no-answer { font-size: 11px; color: var(--dim); font-style: italic; }
+  .dupe-meta { font-size: 10px; color: var(--dim); margin-bottom: 4px; }
+  .dupe-expand { font-size: 10px; color: var(--accent); cursor: pointer; margin-top: 4px; display: inline-block; }
+
+  /* Cards */
   .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: box-shadow 0.15s; }
   .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
   .card-hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -98,52 +79,57 @@
   .card-footer { display: flex; gap: 20px; font-size: 11px; color: var(--dim); flex-wrap: wrap; }
   .card-footer span b { color: var(--border2); font-weight: 400; }
 
-  .answer-block {
-    margin-top: 14px; padding: 14px 16px;
-    background: #f8f6ff; border: 1px solid #e0d5f5;
-    border-left: 3px solid var(--accent); border-radius: 8px;
-  }
-  .answer-label {
-    font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em;
-    color: var(--accent); font-weight: 500; margin-bottom: 6px;
-    display: flex; align-items: center; gap: 6px;
-  }
+  /* Answer block */
+  .answer-block { margin-top: 14px; padding: 14px 16px; background: #f8f6ff; border: 1px solid #e0d5f5; border-left: 3px solid var(--accent); border-radius: 8px; }
+  .answer-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); font-weight: 500; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
   .answer-label::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
   .answer-text { font-size: 13px; color: #2d3348; line-height: 1.7; white-space: pre-wrap; }
+
+  /* Estimated date block */
+  .estimated-block { margin-top: 14px; padding: 14px 16px; background: #f8f6ff; border: 1px solid #e0d5f5; border-left: 3px solid var(--accent); border-radius: 8px; }
+  .estimated-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); font-weight: 500; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .estimated-label::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .estimated-date { font-size: 14px; color: #1a1a2e; font-weight: 700; margin-bottom: 4px; }
+  .estimated-sub { font-size: 11px; color: var(--muted); }
 
   .awaiting { margin-top: 12px; display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--dim); }
   .awaiting::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--border2); }
 
   .status-note { margin-top: 10px; padding: 8px 12px; border-radius: 6px; font-size: 11px; background: #f8f9fa; border: 1px solid var(--border); color: var(--muted); display: flex; align-items: center; gap: 6px; }
-  .status-note::before { content: 'ℹ'; font-size: 12px; }
+  .status-note::before { content: 'i'; font-size: 12px; }
 
   .edit-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); display: none; }
   .edit-panel.open { display: block; }
 
-  .card[data-u="Low"]      { border-left: 3px solid #86efac; }
-  .card[data-u="Medium"]   { border-left: 3px solid #fcd34d; }
-  .card[data-u="High"]     { border-left: 3px solid #fdba74; }
+  .card[data-u="Low"] { border-left: 3px solid #86efac; }
+  .card[data-u="Medium"] { border-left: 3px solid #fcd34d; }
+  .card[data-u="High"] { border-left: 3px solid #fdba74; }
   .card[data-u="Critical"] { border-left: 3px solid var(--red); }
   .card.is-complete { border-left: 3px solid var(--accent) !important; }
 
+  /* Pills */
   .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; border: 1px solid; }
-  .pu-Low      { background: #f0faf3; color: #166534; border-color: #86efac; }
-  .pu-Medium   { background: #fffbeb; color: #92400e; border-color: #fcd34d; }
-  .pu-High     { background: #fff7ed; color: #9a3412; border-color: #fdba74; }
+  .pu-Low { background: #f0faf3; color: #166534; border-color: #86efac; }
+  .pu-Medium { background: #fffbeb; color: #92400e; border-color: #fcd34d; }
+  .pu-High { background: #fff7ed; color: #9a3412; border-color: #fdba74; }
   .pu-Critical { background: #fef2f2; color: #991b1b; border-color: #fca5a5; }
-  .ps-Open     { background: #fef2f2; color: #D22428; border-color: #fca5a5; }
+  .ps-Open { background: #fef2f2; color: #D22428; border-color: #fca5a5; }
   .ps-Assigned { background: #fffbeb; color: #92400e; border-color: #fcd34d; }
   .ps-Complete { background: #f0faf3; color: #166534; border-color: #86efac; }
-  .pa-answered   { background: #f8f6ff; color: #5300CE; border-color: #c4aff5; }
+  .pa-answered { background: #f8f6ff; color: #5300CE; border-color: #c4aff5; }
   .pa-unanswered { background: #f8f9fa; color: var(--dim); border-color: var(--border); }
+  .pa-estimated { background: #f8f6ff; color: #5300CE; border-color: #c4aff5; }
+  .pi-internal { background: #fff8e6; color: #92400e; border-color: #f59e0b; }
 
+  /* Urgency buttons */
   .urg-group { display: flex; gap: 8px; flex-wrap: wrap; }
   .urg-btn { padding: 7px 16px; border-radius: 6px; border: 1px solid var(--border); background: #fff; color: var(--dim); font-family: var(--font); font-size: 12px; cursor: pointer; transition: all 0.15s; }
-  .urg-btn.sel-Low      { background: #f0faf3; color: #166534; border-color: #86efac; font-weight: 500; }
-  .urg-btn.sel-Medium   { background: #fffbeb; color: #92400e; border-color: #fcd34d; font-weight: 500; }
-  .urg-btn.sel-High     { background: #fff7ed; color: #9a3412; border-color: #fdba74; font-weight: 500; }
+  .urg-btn.sel-Low { background: #f0faf3; color: #166534; border-color: #86efac; font-weight: 500; }
+  .urg-btn.sel-Medium { background: #fffbeb; color: #92400e; border-color: #fcd34d; font-weight: 500; }
+  .urg-btn.sel-High { background: #fff7ed; color: #9a3412; border-color: #fdba74; font-weight: 500; }
   .urg-btn.sel-Critical { background: #fef2f2; color: #991b1b; border-color: #fca5a5; font-weight: 500; }
 
+  /* Buttons */
   .btn-primary { background: var(--accent); color: #fff; border: none; padding: 10px 22px; border-radius: 6px; cursor: pointer; font-family: var(--font); font-size: 13px; font-weight: 500; letter-spacing: 0.03em; transition: all 0.15s; }
   .btn-primary:hover { background: var(--accent-hov); transform: translateY(-1px); box-shadow: 0 4px 12px #5300ce30; }
   .btn-primary.sm { padding: 7px 16px; font-size: 12px; }
@@ -155,18 +141,20 @@
   .btn-del:hover { background: #fef2f2; }
   .btn-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 
+  /* Stats */
   .stats-row { display: flex; gap: 10px; margin-bottom: 22px; }
   .stat-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px 18px; text-align: center; flex: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
   .stat-num { font-family: var(--display); font-size: 26px; font-weight: 800; }
   .stat-lbl { font-size: 10px; color: var(--dim); letter-spacing: 0.09em; margin-top: 1px; }
 
   .sec-title { font-family: var(--display); font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .sec-sub   { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+  .sec-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
 
   .banner { padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 18px; display: none; border: 1px solid; }
   .banner.show { display: block; animation: fadeUp 0.3s ease; }
   .banner.success { background: #f0faf3; border-color: #86efac; color: #166534; }
-  .banner.error   { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+  .banner.error { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+  .banner.info { background: #f8f6ff; border-color: #c4aff5; color: #5300CE; }
 
   .spinner-wrap { display: flex; align-items: center; gap: 10px; padding: 40px 0; justify-content: center; color: var(--muted); font-size: 13px; }
   .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
@@ -174,54 +162,30 @@
 
   .sync-bar { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--dim); margin-bottom: 16px; }
   .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); flex-shrink: 0; }
-  .sync-dot.live    { background: var(--green); box-shadow: 0 0 0 2px #bbf7d0; }
+  .sync-dot.live { background: var(--green); box-shadow: 0 0 0 2px #bbf7d0; }
   .sync-dot.loading { background: var(--accent); animation: pulse 1s ease infinite; }
-  .sync-dot.error   { background: var(--red); }
+  .sync-dot.error { background: var(--red); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* Repo gate */
+  #repo-gate { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 48px 36px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); text-align: center; margin: 40px auto; }
+  #repo-gate-title { font-family: var(--display); font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; margin-bottom: 4px; }
+  #repo-gate-title span { color: var(--red); }
+  #repo-gate-sub { font-size: 10px; color: var(--dim); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 28px; }
+  #repo-gate-input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--font); font-size: 14px; color: var(--text); outline: none; margin-bottom: 12px; transition: border-color 0.15s, box-shadow 0.15s; text-align: center; letter-spacing: 0.05em; appearance: none; -webkit-appearance: none; }
+  #repo-gate-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px #5300ce18; }
+  #repo-gate-btn { width: 100%; padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: 6px; font-family: var(--font); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; letter-spacing: 0.03em; }
+  #repo-gate-btn:hover { background: var(--accent-hov); transform: translateY(-1px); box-shadow: 0 4px 12px #5300ce30; }
+  #repo-gate-err { color: var(--red); font-size: 11px; margin-top: 10px; min-height: 16px; }
 
   .empty { text-align: center; color: var(--dim); padding: 60px 0; font-size: 13px; }
 
   @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
   .fade-up { animation: fadeUp 0.25s ease; }
 
-
-  /* Repo password gate */
-  #repo-gate {
-    background: #fff; border: 1px solid #e2e5ea; border-radius: 12px;
-    padding: 48px 36px; width: 100%; max-width: 400px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08); text-align: center;
-    margin: 40px auto;
-  }
-  #repo-gate-title {
-    font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800;
-    color: #1a1a2e; letter-spacing: -0.02em; margin-bottom: 4px;
-  }
-  #repo-gate-title span { color: #D22428; }
-  #repo-gate-sub {
-    font-size: 10px; color: #8a94a8; letter-spacing: 0.1em;
-    text-transform: uppercase; margin-bottom: 28px;
-  }
-  #repo-gate-input {
-    width: 100%; padding: 10px 14px; border: 1px solid #e2e5ea;
-    border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 14px;
-    color: #1a1a2e; outline: none; margin-bottom: 12px;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    text-align: center; letter-spacing: 0.05em;
-    appearance: none; -webkit-appearance: none;
-  }
-  #repo-gate-input:focus { border-color: #5300CE; box-shadow: 0 0 0 3px #5300ce18; }
-  #repo-gate-btn {
-    width: 100%; padding: 11px; background: #5300CE; color: #fff;
-    border: none; border-radius: 6px; font-family: 'DM Mono', monospace;
-    font-size: 13px; font-weight: 500; cursor: pointer;
-    transition: all 0.15s; letter-spacing: 0.03em;
-  }
-  #repo-gate-btn:hover { background: #4200a8; transform: translateY(-1px); box-shadow: 0 4px 12px #5300ce30; }
-  #repo-gate-err { color: #D22428; font-size: 11px; margin-top: 10px; min-height: 16px; }
-
   @media (max-width: 680px) {
     header { flex-direction: column; gap: 12px; align-items: flex-start; padding: 16px; }
-    .grid-2, .grid-3, .grid-5, .grid-edit { grid-template-columns: 1fr; }
+    .grid-2, .grid-5, .grid-edit { grid-template-columns: 1fr; }
     .stats-row { flex-wrap: wrap; }
     main { padding: 20px 14px; }
   }
@@ -247,7 +211,7 @@
       <div class="sec-title">Submit a Question About JAI</div>
       <div class="sec-sub">All questions are compiled into a shared repository and assigned for response.</div>
       <div class="banner" id="submit-banner"></div>
-      <div class="banner" id="followup-banner" style="display:none;background:#f8f6ff;border-color:#c4aff5;color:#5300CE;"></div>
+      <div class="banner info" id="followup-banner"></div>
       <div class="card">
         <div class="grid-2">
           <div>
@@ -290,8 +254,13 @@
 
         <div class="field">
           <label class="lbl">Your Question</label>
-          <textarea id="f-question" placeholder="Describe your question about JAI in detail..."></textarea>
+          <textarea id="f-question" placeholder="Describe your question about JAI in detail..." oninput="checkDuplicates()"></textarea>
           <div class="err" id="err-q"></div>
+          <!-- Duplicate detection panel -->
+          <div class="dupe-panel" id="dupe-panel">
+            <div class="dupe-title">&#9888; Similar questions already exist — check if your question has been answered</div>
+            <div id="dupe-list"></div>
+          </div>
         </div>
 
         <!-- Email opt-in -->
@@ -300,9 +269,7 @@
             <input type="checkbox" id="email-optin-check" onchange="toggleEmailOptin()"/>
             <label class="email-optin-label" for="email-optin-check">Notify me when my question is answered</label>
           </div>
-          <div class="email-optin-sub">
-            Optional — enter your email address and we will send you a notification as soon as your question receives a response.
-          </div>
+          <div class="email-optin-sub">Optional — enter your email address and we will send you a notification as soon as your question receives a response.</div>
           <div class="email-optin-field" id="email-optin-field">
             <label class="lbl-opt">Email Address <span>OPTIONAL</span></label>
             <input type="email" id="f-email" placeholder="you@jaggaer.com"/>
@@ -330,85 +297,81 @@
         </div>
       </div>
 
-      <!-- Repo Content (hidden until unlocked) -->
+      <!-- Repo Content -->
       <div id="repo-content" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div class="sec-title">Question Repository</div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn-ghost sm" onclick="loadAll()">↻ Refresh</button>
-          <button class="btn-ghost sm" onclick="exportCSV()">Export CSV</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div class="sec-title">Question Repository</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-ghost sm" onclick="loadAll()">&#8635; Refresh</button>
+            <button class="btn-ghost sm" onclick="exportCSV()">Export CSV</button>
+          </div>
         </div>
-      </div>
 
-      <div class="sync-bar">
-        <div class="sync-dot" id="sync-dot"></div>
-        <span id="sync-label">Not loaded</span>
-      </div>
+        <div class="sync-bar">
+          <div class="sync-dot" id="sync-dot"></div>
+          <span id="sync-label">Not loaded</span>
+        </div>
 
-      <div class="stats-row">
-        <div class="stat-card" style="border-top:3px solid #5300CE;">
-          <div class="stat-num" id="s-total" style="color:#1a1a2e;">0</div>
-          <div class="stat-lbl">TOTAL</div>
+        <div class="stats-row">
+          <div class="stat-card" style="border-top:3px solid #5300CE;">
+            <div class="stat-num" id="s-total" style="color:#1a1a2e;">0</div>
+            <div class="stat-lbl">TOTAL</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #D22428;">
+            <div class="stat-num" id="s-open" style="color:#D22428;">0</div>
+            <div class="stat-lbl">OPEN</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #f59e0b;">
+            <div class="stat-num" id="s-assigned" style="color:#92400e;">0</div>
+            <div class="stat-lbl">ASSIGNED</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #16a34a;">
+            <div class="stat-num" id="s-complete" style="color:#16a34a;">0</div>
+            <div class="stat-lbl">COMPLETE</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #5300CE;">
+            <div class="stat-num" id="s-answered" style="color:#5300CE;">0</div>
+            <div class="stat-lbl">ANSWERED</div>
+          </div>
         </div>
-        <div class="stat-card" style="border-top:3px solid #D22428;">
-          <div class="stat-num" id="s-open" style="color:#D22428;">0</div>
-          <div class="stat-lbl">OPEN</div>
-        </div>
-        <div class="stat-card" style="border-top:3px solid #f59e0b;">
-          <div class="stat-num" id="s-assigned" style="color:#92400e;">0</div>
-          <div class="stat-lbl">ASSIGNED</div>
-        </div>
-        <div class="stat-card" style="border-top:3px solid #16a34a;">
-          <div class="stat-num" id="s-complete" style="color:#16a34a;">0</div>
-          <div class="stat-lbl">COMPLETE</div>
-        </div>
-        <div class="stat-card" style="border-top:3px solid #5300CE;">
-          <div class="stat-num" id="s-answered" style="color:#5300CE;">0</div>
-          <div class="stat-lbl">ANSWERED</div>
-        </div>
-      </div>
 
-      <div class="grid-5">
-        <div>
-          <label class="lbl">Status</label>
-          <select id="f-status" onchange="render()">
-            <option>All</option>
-            <option>Open</option>
-            <option>Assigned</option>
-            <option>Complete</option>
-          </select>
+        <div class="grid-5">
+          <div>
+            <label class="lbl">Status</label>
+            <select id="f-status" onchange="render()">
+              <option>All</option><option>Open</option><option>Assigned</option><option>Complete</option>
+            </select>
+          </div>
+          <div>
+            <label class="lbl">Answered</label>
+            <select id="f-answered" onchange="render()">
+              <option>All</option><option>Answered</option><option>Unanswered</option>
+            </select>
+          </div>
+          <div>
+            <label class="lbl">Urgency</label>
+            <select id="f-urgency" onchange="render()">
+              <option>All</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
+            </select>
+          </div>
+          <div>
+            <label class="lbl">Department</label>
+            <select id="f-dept2" onchange="render()">
+              <option>All</option>
+              <option>Global Customer Care</option><option>Customer Success Managers</option>
+              <option>Product</option><option>Engineering</option>
+              <option>Sales</option><option>Pre-Sales</option><option>Marketing</option>
+              <option>Finance</option><option>HR</option><option>IT</option><option>Legal</option>
+              <option>Professional Services</option><option>Training</option><option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="lbl">Search</label>
+            <input type="text" id="f-search" placeholder="Search questions, answers, names..." oninput="render()"/>
+          </div>
         </div>
-        <div>
-          <label class="lbl">Answered</label>
-          <select id="f-answered" onchange="render()">
-            <option>All</option><option>Answered</option><option>Unanswered</option>
-          </select>
-        </div>
-        <div>
-          <label class="lbl">Urgency</label>
-          <select id="f-urgency" onchange="render()">
-            <option>All</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
-          </select>
-        </div>
-        <div>
-          <label class="lbl">Department</label>
-          <select id="f-dept2" onchange="render()">
-            <option>All</option>
-            <option>Global Customer Care</option>
-            <option>Customer Success Managers</option>
-            <option>Product</option><option>Engineering</option>
-            <option>Sales</option><option>Pre-Sales</option><option>Marketing</option>
-            <option>Finance</option><option>HR</option><option>IT</option><option>Legal</option>
-            <option>Professional Services</option><option>Training</option><option>Other</option>
-          </select>
-        </div>
-        <div>
-          <label class="lbl">Search</label>
-          <input type="text" id="f-search" placeholder="Search questions, answers, names..." oninput="render()"/>
-        </div>
-      </div>
 
-      <div id="repo-list"></div>
+        <div id="repo-list"></div>
       </div><!-- end repo-content -->
     </div>
 
@@ -418,6 +381,72 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwfABCyi0PCwBb4XxMTyIhq1khMe62jZDTvRoooFk4dzhQbQg3UM2MnoXPfdL98s_N_/exec';
 
+let qs = [], assignees = [], urgency = 'Medium', editId = null;
+let dupeTimer = null;
+
+function genId() {
+  return 'Q' + Date.now().toString(36).toUpperCase().slice(-4) +
+    Math.random().toString(36).slice(2,5).toUpperCase();
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function setSyncStatus(state, msg) {
+  document.getElementById('sync-dot').className = 'sync-dot ' + state;
+  document.getElementById('sync-label').textContent = msg;
+}
+
+// --- DUPLICATE DETECTION ---
+function checkDuplicates() {
+  clearTimeout(dupeTimer);
+  dupeTimer = setTimeout(() => {
+    const query = document.getElementById('f-question').value.trim().toLowerCase();
+    const panel = document.getElementById('dupe-panel');
+    const list  = document.getElementById('dupe-list');
+
+    if (query.length < 10 || qs.length === 0) {
+      panel.classList.remove('show');
+      return;
+    }
+
+    // Extract keywords — words longer than 3 chars, ignore common words
+    const stopWords = new Set(['what','when','where','which','with','that','this','from','have','does','will','should','would','could','about','into','your','their','there','these','those']);
+    const keywords = query.split(/\s+/).filter(w => w.length > 3 && !stopWords.has(w));
+    if (keywords.length === 0) { panel.classList.remove('show'); return; }
+
+    // Score each question
+    const scored = qs.map(q => {
+      const qText = q.question.toLowerCase();
+      let score = 0;
+      keywords.forEach(kw => { if (qText.includes(kw)) score++; });
+      return { ...q, score };
+    }).filter(q => q.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+
+    if (scored.length === 0) {
+      panel.classList.remove('show');
+      return;
+    }
+
+    list.innerHTML = scored.map(q => {
+      const hasAnswer = q.answer && q.answer.trim();
+      const answerHtml = hasAnswer
+        ? `<div class="dupe-answer"><strong>Answer:</strong> ${esc(q.answer.substring(0, 200))}${q.answer.length > 200 ? '...' : ''}</div>`
+        : `<div class="dupe-no-answer">No answer yet — ${q.status}</div>`;
+      return `
+<div class="dupe-item">
+  <div class="dupe-meta">${esc(q.id)} &nbsp;·&nbsp; ${esc(q.urgency)} &nbsp;·&nbsp; ${esc(q.status)}</div>
+  <div class="dupe-q">${esc(q.question)}</div>
+  ${answerHtml}
+</div>`;
+    }).join('');
+
+    panel.classList.add('show');
+  }, 400);
+}
+
+// --- PASSWORD GATE ---
 function checkRepoPass() {
   const val = document.getElementById('repo-gate-input').value;
   if (val === 'JAGGAER1Q&A') {
@@ -430,81 +459,6 @@ function checkRepoPass() {
     document.getElementById('repo-gate-input').value = '';
     document.getElementById('repo-gate-input').focus();
   }
-}
-
-let qs = [], assignees = [], urgency = 'Medium', editId = null;
-
-function genId() {
-  return 'Q' + Date.now().toString(36).toUpperCase().slice(-4) +
-    Math.random().toString(36).slice(2,5).toUpperCase();
-}
-
-async function readUrlParams() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('followup') === '1') {
-    const refId = params.get('ref') ? decodeURIComponent(params.get('ref')) : '';
-
-    // Switch to submit tab
-    switchTab('submit');
-
-    // Show follow-up banner immediately
-    const banner = document.getElementById('followup-banner');
-    if (banner) {
-      banner.textContent = 'Loading follow-up context for ' + refId + '...';
-      banner.style.display = 'block';
-    }
-
-    // Fetch the original question from the sheet using the ID
-    try {
-      const res = await fetch(API + '?t=' + Date.now());
-      const data = await res.json();
-      const original = Array.isArray(data) ? data.find(q => q.id === refId) : null;
-
-      const qField = document.getElementById('f-question');
-      if (original && qField) {
-        const prefix = '[Follow-up to ' + refId + '] ';
-        const context = '\n\n--- Original Question ---\n' + original.question +
-                        '\n\n--- Original Answer ---\n' + (original.answer || 'Pending');
-        qField.value = prefix + context;
-        qField.focus();
-        qField.setSelectionRange(prefix.length, prefix.length);
-
-        if (banner) {
-          banner.textContent = 'Follow-up to ' + refId + ' — original context is pre-filled below. Type your follow-up question at the start, or remove the context if not needed.';
-        }
-      } else if (qField) {
-        qField.value = '[Follow-up to ' + refId + '] ';
-        qField.focus();
-        qField.setSelectionRange(qField.value.length, qField.value.length);
-        if (banner) {
-          banner.textContent = 'Follow-up to ' + refId + ' — please describe your follow-up question.';
-        }
-      }
-    } catch(e) {
-      const qField = document.getElementById('f-question');
-      if (qField) qField.value = '[Follow-up to ' + refId + '] ';
-      if (banner) banner.textContent = 'Follow-up to ' + refId + ' — please describe your follow-up question.';
-    }
-
-    // Clean the URL
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-}
-
-window.addEventListener('DOMContentLoaded', readUrlParams);
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function setSyncStatus(state, msg) {
-  document.getElementById('sync-dot').className = 'sync-dot ' + state;
-  document.getElementById('sync-label').textContent = msg;
-}
-
-function toggleEmailOptin() {
-  const check = document.getElementById('email-optin-check');
-  const field = document.getElementById('email-optin-field');
-  field.classList.toggle('show', check.checked);
-  if (!check.checked) document.getElementById('f-email').value = '';
 }
 
 async function apiPost(data) {
@@ -546,10 +500,27 @@ async function loadAll() {
   await Promise.all([loadQuestions(), loadAssignees()]);
 }
 
+// Load questions silently on page load for duplicate detection
+async function loadQuestionsBackground() {
+  try {
+    const res = await fetch(API + '?t=' + Date.now());
+    const data = await res.json();
+    qs = Array.isArray(data) ? data.filter(q => q.id) : [];
+    updateCount();
+  } catch(e) {}
+}
+
 function selUrg(btn) {
   document.querySelectorAll('.urg-btn').forEach(b => b.className = 'urg-btn');
   btn.className = 'urg-btn sel-' + btn.dataset.u;
   urgency = btn.dataset.u;
+}
+
+function toggleEmailOptin() {
+  const check = document.getElementById('email-optin-check');
+  const field = document.getElementById('email-optin-field');
+  field.classList.toggle('show', check.checked);
+  if (!check.checked) document.getElementById('f-email').value = '';
 }
 
 function switchTab(t) {
@@ -559,15 +530,12 @@ function switchTab(t) {
   document.getElementById('btn-repo').className   = 'tab ' + (t==='repo'   ? 'active' : 'inactive');
   if (t === 'repo') {
     if (sessionStorage.getItem('jai-repo-auth') === '1') {
-      // Already authenticated — skip gate and load data
       document.getElementById('repo-gate-wrap').style.display = 'none';
       document.getElementById('repo-content').style.display = 'block';
       loadAll();
     } else {
-      // Show gate, hide content
       document.getElementById('repo-gate-wrap').style.display = 'block';
       document.getElementById('repo-content').style.display = 'none';
-      // Focus password field
       setTimeout(() => {
         const input = document.getElementById('repo-gate-input');
         if (input) input.focus();
@@ -616,13 +584,12 @@ async function submitQ() {
     document.getElementById('f-email').value = '';
     document.getElementById('email-optin-check').checked = false;
     document.getElementById('email-optin-field').classList.remove('show');
+    document.getElementById('dupe-panel').classList.remove('show');
     document.querySelectorAll('.urg-btn').forEach(b => b.className = 'urg-btn');
     document.querySelector('.urg-btn[data-u="Medium"]').className = 'urg-btn sel-Medium';
     urgency = 'Medium';
 
-    const notifMsg = wantsNotif
-      ? ' We will email you at ' + emailVal + ' when your question is answered.'
-      : '';
+    const notifMsg = wantsNotif ? ' We will email you at ' + emailVal + ' when your question is answered.' : '';
     banner.textContent = '✓ Question submitted successfully. It is now live in the shared repository.' + notifMsg;
     banner.className = 'banner success show';
     setTimeout(() => banner.classList.remove('show'), 6000);
@@ -644,6 +611,17 @@ function buildAssigneeOptions(currentAssignee) {
     opts.push(`<option value="${esc(name)}" ${selected}>${esc(name)}</option>`);
   });
   return opts.join('');
+}
+
+function formatEstimatedDate(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (!isNaN(d)) {
+      return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+  } catch(e) {}
+  return dateStr;
 }
 
 function render() {
@@ -687,24 +665,48 @@ function render() {
   el.innerHTML = filtered.map(q => {
     const date       = new Date(q.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
     const hasAnswer  = q.answer && q.answer.trim();
+    const hasEstDate = q.estimatedDate && q.estimatedDate.trim();
     const isEdit     = editId === q.id;
     const isComplete = q.status === 'Complete';
     const sPillClass = 'pill ps-' + q.status.replace(' ','');
 
-    const answerPill = hasAnswer
-      ? `<span class="pill pa-answered">Answered</span>`
-      : `<span class="pill pa-unanswered">Awaiting Answer</span>`;
+    // Answer / estimated date pill
+    let statusPill = '';
+    if (hasAnswer) {
+      statusPill = `<span class="pill pa-answered">Answered</span>`;
+    } else if (hasEstDate) {
+      statusPill = `<span class="pill pa-estimated">Est. ${esc(formatEstimatedDate(q.estimatedDate))}</span>`;
+    } else {
+      statusPill = `<span class="pill pa-unanswered">Awaiting Answer</span>`;
+    }
 
-    const answerBlock = hasAnswer
-      ? `<div class="answer-block">
-           <div class="answer-label">Answer</div>
-           <div class="answer-text">${esc(q.answer)}</div>
-         </div>`
-      : `<div class="awaiting">No answer yet — add one in the Google Sheet or via email reply and refresh</div>`;
+    // Internal only badge
+    const internalPill = q.internalOnly
+      ? `<span class="pill pi-internal">Internal Only</span>`
+      : '';
+
+    // Answer / estimated / awaiting block
+    let contentBlock = '';
+    if (hasAnswer) {
+      contentBlock = `<div class="answer-block">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">${esc(q.answer)}</div>
+        ${q.internalOnly ? `<div style="margin-top:10px;padding:8px 12px;background:#fff8e6;border:1px solid #f59e0b;border-radius:6px;font-size:11px;color:#92400e;font-weight:500;">
+          &#9888; Internal Use Only — Do not share with external clients or customers
+        </div>` : ''}
+      </div>`;
+    } else if (hasEstDate) {
+      contentBlock = `<div class="estimated-block">
+        <div class="estimated-label">Estimated Response Date</div>
+        <div class="estimated-date">${esc(formatEstimatedDate(q.estimatedDate))}</div>
+        <div class="estimated-sub">An answer is expected by this date. You will be notified when it is available.</div>
+      </div>`;
+    } else {
+      contentBlock = `<div class="awaiting">No answer yet — add one in the Google Sheet or via email reply and refresh</div>`;
+    }
 
     const aHtml = q.assignee
       ? `<span><b>Assigned to:</b> <span style="color:#5300CE">${esc(q.assignee)}</span></span>` : '';
-
     const notifHtml = q.submitterEmail
       ? `<span><b>Notify:</b> <span style="color:#5300CE">${esc(q.submitterEmail)}</span></span>` : '';
 
@@ -715,7 +717,8 @@ function render() {
       <span style="font-size:11px;color:var(--dim);letter-spacing:.06em">${esc(q.id)}</span>
       <span class="pill pu-${q.urgency}">${esc(q.urgency)}</span>
       <span class="${sPillClass}">${esc(q.status)}</span>
-      ${answerPill}
+      ${statusPill}
+      ${internalPill}
     </div>
     <div class="card-actions">
       <button class="btn-ghost sm" onclick="toggleEdit('${q.id}')">${isEdit ? 'Cancel' : 'Edit'}</button>
@@ -730,7 +733,7 @@ function render() {
     ${aHtml}
     ${notifHtml}
   </div>
-  ${answerBlock}
+  ${contentBlock}
   <div class="edit-panel ${isEdit ? 'open' : ''}" id="ep-${q.id}">
     <div class="status-note">Status updates automatically: Open when unassigned, Assigned when someone is selected, Complete when an answer is provided.</div>
     <div class="grid-edit" style="margin-top:12px;">
@@ -784,12 +787,14 @@ async function delQ(id) {
 }
 
 function exportCSV() {
-  const hdr = ['ID','Name','Department','Urgency','Question','Status','Assignee','Answer','SubmitterEmail','Submitted'];
+  const hdr = ['ID','Name','Department','Urgency','Question','Status','Assignee','Answer','InternalOnly','EstimatedDate','SubmitterEmail','Submitted'];
   const rows = qs.map(q => [
     q.id, q.name, q.dept, q.urgency,
     '"' + (q.question||'').replace(/"/g,'""') + '"',
     q.status, q.assignee||'',
     '"' + (q.answer||'').replace(/"/g,'""') + '"',
+    q.internalOnly ? 'Yes' : 'No',
+    q.estimatedDate||'',
     q.submitterEmail||'',
     new Date(q.submittedAt).toLocaleDateString()
   ]);
@@ -799,6 +804,45 @@ function exportCSV() {
   a.download = 'jai-questions-' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
 }
+
+async function readUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('followup') === '1') {
+    const refId = params.get('ref') ? decodeURIComponent(params.get('ref')) : '';
+    switchTab('submit');
+    const banner = document.getElementById('followup-banner');
+    if (banner) { banner.textContent = 'Loading follow-up context for ' + refId + '...'; banner.classList.add('show'); }
+    try {
+      const res = await fetch(API + '?t=' + Date.now());
+      const data = await res.json();
+      const original = Array.isArray(data) ? data.find(q => q.id === refId) : null;
+      const qField = document.getElementById('f-question');
+      if (original && qField) {
+        const prefix = '[Follow-up to ' + refId + '] ';
+        const context = '\n\n--- Original Question ---\n' + original.question +
+                        '\n\n--- Original Answer ---\n' + (original.answer || 'Pending');
+        qField.value = prefix + context;
+        qField.focus();
+        qField.setSelectionRange(prefix.length, prefix.length);
+        if (banner) banner.textContent = 'Follow-up to ' + refId + ' — original context is pre-filled below. Type your follow-up question at the start, or remove the context if not needed.';
+      } else if (qField) {
+        qField.value = '[Follow-up to ' + refId + '] ';
+        qField.focus();
+        if (banner) banner.textContent = 'Follow-up to ' + refId + ' — please describe your follow-up question.';
+      }
+    } catch(e) {
+      const qField = document.getElementById('f-question');
+      if (qField) qField.value = '[Follow-up to ' + refId + '] ';
+      if (banner) banner.textContent = 'Follow-up to ' + refId + ' — please describe your follow-up question.';
+    }
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadQuestionsBackground();
+  readUrlParams();
+});
 </script>
 </body>
 </html>
