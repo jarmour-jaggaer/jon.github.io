@@ -63,10 +63,9 @@
 
   .grid-2    { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
   .grid-5    { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 2fr; gap: 10px; margin-bottom: 18px; }
-  .grid-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .grid-edit { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
   .field { margin-bottom: 16px; }
 
-  /* Question card */
   .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: box-shadow 0.15s; }
   .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
   .card-hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -80,33 +79,30 @@
   .answer-block {
     margin-top: 14px; padding: 14px 16px;
     background: #f8f6ff; border: 1px solid #e0d5f5;
-    border-left: 3px solid var(--accent);
-    border-radius: 8px;
+    border-left: 3px solid var(--accent); border-radius: 8px;
   }
-  .answer-block .answer-label {
+  .answer-label {
     font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em;
-    color: var(--accent); font-weight: 500; margin-bottom: 6px; display: flex;
-    align-items: center; gap: 6px;
+    color: var(--accent); font-weight: 500; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
   }
-  .answer-block .answer-label::before {
+  .answer-label::before {
     content: ''; display: inline-block; width: 7px; height: 7px;
     border-radius: 50%; background: var(--accent);
   }
-  .answer-block .answer-text {
-    font-size: 13px; color: #2d3348; line-height: 1.7;
-  }
+  .answer-text { font-size: 13px; color: #2d3348; line-height: 1.7; }
 
-  /* Awaiting answer indicator */
-  .awaiting {
-    margin-top: 12px; display: flex; align-items: center; gap: 7px;
-    font-size: 11px; color: var(--dim);
-  }
-  .awaiting::before {
-    content: ''; display: inline-block; width: 7px; height: 7px;
-    border-radius: 50%; background: var(--border2);
-  }
+  .awaiting { margin-top: 12px; display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--dim); }
+  .awaiting::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--border2); }
 
-  /* Edit panel */
+  /* Status auto-note */
+  .status-note {
+    margin-top: 10px; padding: 8px 12px; border-radius: 6px;
+    font-size: 11px; background: #f8f9fa; border: 1px solid var(--border);
+    color: var(--muted); display: flex; align-items: center; gap: 6px;
+  }
+  .status-note::before { content: 'ℹ'; font-size: 12px; }
+
   .edit-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); display: none; }
   .edit-panel.open { display: block; }
 
@@ -114,18 +110,20 @@
   .card[data-u="Medium"]   { border-left: 3px solid #fcd34d; }
   .card[data-u="High"]     { border-left: 3px solid #fdba74; }
   .card[data-u="Critical"] { border-left: 3px solid var(--red); }
-
-  /* Override border-left when card has answer (answered cards get accent border) */
-  .card.answered { border-left: 3px solid var(--accent) !important; }
+  .card.is-complete { border-left: 3px solid var(--accent) !important; }
 
   .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; border: 1px solid; }
   .pu-Low      { background: #f0faf3; color: #166534; border-color: #86efac; }
   .pu-Medium   { background: #fffbeb; color: #92400e; border-color: #fcd34d; }
   .pu-High     { background: #fff7ed; color: #9a3412; border-color: #fdba74; }
   .pu-Critical { background: #fef2f2; color: #991b1b; border-color: #fca5a5; }
-  .ps-Open       { background: #fef2f2; color: #D22428; border-color: #fca5a5; }
-  .ps-InProgress { background: #ede8fa; color: #5300CE; border-color: #c4aff5; }
-  .ps-Complete   { background: #f0faf3; color: #166534; border-color: #86efac; }
+
+  /* Status pills — Open / Assigned / Complete */
+  .ps-Open     { background: #fef2f2; color: #D22428; border-color: #fca5a5; }
+  .ps-Assigned { background: #fffbeb; color: #92400e; border-color: #fcd34d; }
+  .ps-Complete { background: #f0faf3; color: #166534; border-color: #86efac; }
+
+  /* Answer pills */
   .pa-answered   { background: #f8f6ff; color: #5300CE; border-color: #c4aff5; }
   .pa-unanswered { background: #f8f9fa; color: var(--dim); border-color: var(--border); }
 
@@ -216,7 +214,7 @@
             <select id="f-dept">
               <option value="">Select department</option>
               <option>Global Customer Care</option>
-             <option>Customer Success Managers</option>
+              <option>Customer Success Managers</option>
               <option>Product</option>
               <option>Engineering</option>
               <option>Sales</option>
@@ -278,12 +276,12 @@
           <div class="stat-num" id="s-open" style="color:#D22428;">0</div>
           <div class="stat-lbl">OPEN</div>
         </div>
-        <div class="stat-card" style="border-top:3px solid #5300CE;">
-          <div class="stat-num" id="s-prog" style="color:#5300CE;">0</div>
-          <div class="stat-lbl">IN PROGRESS</div>
+        <div class="stat-card" style="border-top:3px solid #f59e0b;">
+          <div class="stat-num" id="s-assigned" style="color:#92400e;">0</div>
+          <div class="stat-lbl">ASSIGNED</div>
         </div>
         <div class="stat-card" style="border-top:3px solid #16a34a;">
-          <div class="stat-num" id="s-done" style="color:#16a34a;">0</div>
+          <div class="stat-num" id="s-complete" style="color:#16a34a;">0</div>
           <div class="stat-lbl">COMPLETE</div>
         </div>
         <div class="stat-card" style="border-top:3px solid #5300CE;">
@@ -297,7 +295,10 @@
         <div>
           <label class="lbl">Status</label>
           <select id="f-status" onchange="render()">
-            <option>All</option><option>Open</option><option>In Progress</option><option>Complete</option>
+            <option>All</option>
+            <option>Open</option>
+            <option>Assigned</option>
+            <option>Complete</option>
           </select>
         </div>
         <div>
@@ -316,7 +317,9 @@
           <label class="lbl">Department</label>
           <select id="f-dept2" onchange="render()">
             <option>All</option>
-            <option>Global Customer Care</option><option>Product</option><option>Engineering</option>
+            <option>Global Customer Care</option>
+            <option>Customer Success Managers</option>
+            <option>Product</option><option>Engineering</option>
             <option>Sales</option><option>Pre-Sales</option><option>Marketing</option>
             <option>Finance</option><option>HR</option><option>IT</option><option>Legal</option>
             <option>Professional Services</option><option>Training</option><option>Other</option>
@@ -442,8 +445,8 @@ function render() {
 
   const filtered = qs.filter(q => {
     if (fs !== 'All' && q.status !== fs) return false;
-    if (fa === 'Answered'   && !q.answer) return false;
-    if (fa === 'Unanswered' &&  q.answer) return false;
+    if (fa === 'Answered'   && !(q.answer && q.answer.trim())) return false;
+    if (fa === 'Unanswered' &&   q.answer && q.answer.trim())  return false;
     if (fu !== 'All' && q.urgency !== fu) return false;
     if (fd !== 'All' && q.dept !== fd) return false;
     if (fq) {
@@ -455,8 +458,8 @@ function render() {
 
   document.getElementById('s-total').textContent    = qs.length;
   document.getElementById('s-open').textContent     = qs.filter(q => q.status === 'Open').length;
-  document.getElementById('s-prog').textContent     = qs.filter(q => q.status === 'In Progress').length;
-  document.getElementById('s-done').textContent     = qs.filter(q => q.status === 'Complete').length;
+  document.getElementById('s-assigned').textContent = qs.filter(q => q.status === 'Assigned').length;
+  document.getElementById('s-complete').textContent = qs.filter(q => q.status === 'Complete').length;
   document.getElementById('s-answered').textContent = qs.filter(q => q.answer && q.answer.trim()).length;
   updateCount();
 
@@ -469,32 +472,41 @@ function render() {
   }
 
   el.innerHTML = filtered.map(q => {
-    const date     = new Date(q.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    const sClass   = 'pill ps-' + q.status.replace(' ','');
+    const date      = new Date(q.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
     const hasAnswer = q.answer && q.answer.trim();
-    const isEdit   = editId === q.id;
+    const isEdit    = editId === q.id;
+    const isComplete = q.status === 'Complete';
 
+    // Status pill
+    const sPillClass = 'pill ps-' + q.status.replace(' ','');
+
+    // Answer pill
     const answerPill = hasAnswer
       ? `<span class="pill pa-answered">Answered</span>`
       : `<span class="pill pa-unanswered">Awaiting Answer</span>`;
 
+    // Answer block
     const answerBlock = hasAnswer
       ? `<div class="answer-block">
            <div class="answer-label">Answer</div>
            <div class="answer-text">${esc(q.answer)}</div>
          </div>`
-      : `<div class="awaiting">No answer yet — check back after refreshing</div>`;
+      : `<div class="awaiting">No answer yet — add one in the Google Sheet and refresh</div>`;
 
+    // Assignee footer
     const aHtml = q.assignee
       ? `<span><b>Assigned to:</b> <span style="color:#5300CE">${esc(q.assignee)}</span></span>` : '';
 
+    // Status auto-logic note in edit panel
+    const statusNote = `<div class="status-note">Status is set automatically: Open when unassigned, Assigned when an assignee is added, Complete when an answer is provided in the sheet.</div>`;
+
     return `
-<div class="card ${hasAnswer ? 'answered' : ''}" data-u="${q.urgency}" id="card-${q.id}">
+<div class="card ${isComplete ? 'is-complete' : ''}" data-u="${q.urgency}" id="card-${q.id}">
   <div class="card-hdr">
     <div class="card-meta">
       <span style="font-size:11px;color:var(--dim);letter-spacing:.06em">${esc(q.id)}</span>
       <span class="pill pu-${q.urgency}">${esc(q.urgency)}</span>
-      <span class="${sClass}">${esc(q.status)}</span>
+      <span class="${sPillClass}">${esc(q.status)}</span>
       ${answerPill}
     </div>
     <div class="card-actions">
@@ -511,18 +523,11 @@ function render() {
   </div>
   ${answerBlock}
   <div class="edit-panel ${isEdit ? 'open' : ''}" id="ep-${q.id}">
-    <div class="grid-edit">
-      <div>
-        <label class="lbl">Status</label>
-        <select id="es-${q.id}">
-          <option ${q.status==='Open'?'selected':''}>Open</option>
-          <option ${q.status==='In Progress'?'selected':''}>In Progress</option>
-          <option ${q.status==='Complete'?'selected':''}>Complete</option>
-        </select>
-      </div>
+    ${statusNote}
+    <div class="grid-edit" style="margin-top:12px;">
       <div>
         <label class="lbl">Assign To</label>
-        <input type="text" id="ea-${q.id}" value="${esc(q.assignee||'')}" placeholder="Name or team"/>
+        <input type="text" id="ea-${q.id}" value="${esc(q.assignee||'')}" placeholder="Name or team — adding an assignee sets status to Assigned"/>
       </div>
     </div>
     <div class="btn-row">
@@ -537,13 +542,17 @@ function render() {
 function toggleEdit(id) { editId = (editId === id) ? null : id; render(); }
 
 async function saveEdit(id) {
-  const status   = document.getElementById('es-' + id).value;
   const assignee = document.getElementById('ea-' + id).value.trim();
   const saveBtn  = document.getElementById('save-' + id);
   saveBtn.disabled = true; saveBtn.textContent = 'Saving...';
   try {
-    await apiPost({ action:'update', id, status, assignee, updatedAt: new Date().toISOString() });
-    qs = qs.map(q => q.id === id ? {...q, status, assignee} : q);
+    await apiPost({ action:'update', id, assignee, updatedAt: new Date().toISOString() });
+    // Derive status client-side to reflect immediately
+    const q = qs.find(q => q.id === id);
+    let newStatus = 'Open';
+    if (q && q.answer && q.answer.trim()) newStatus = 'Complete';
+    else if (assignee) newStatus = 'Assigned';
+    qs = qs.map(q => q.id === id ? {...q, assignee, status: newStatus} : q);
     editId = null; render();
     setSyncStatus('live', 'Saved — ' + new Date().toLocaleTimeString());
   } catch(e) {
