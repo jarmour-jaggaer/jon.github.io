@@ -271,6 +271,58 @@
   @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
   .fade-up { animation: fadeUp 0.25s ease; }
 
+  /* Internal Only toggle in edit panel */
+  .internal-toggle { display:flex; align-items:center; gap:10px; padding:10px 14px; background:#fff8e6; border:1px solid #f59e0b; border-radius:6px; margin-bottom:10px; }
+  .internal-toggle input[type="checkbox"] { width:16px; height:16px; cursor:pointer; accent-color:#92400e; appearance:auto; -webkit-appearance:auto; flex-shrink:0; }
+  .internal-toggle-label { font-size:12px; color:#92400e; font-weight:600; cursor:pointer; }
+  .internal-toggle-sub { font-size:11px; color:#b45309; margin-top:2px; }
+
+  /* FAQ Modal */
+  #faq-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:500; align-items:center; justify-content:center; }
+  #faq-modal-overlay.open { display:flex; animation:fadeUp 0.2s ease; }
+  #faq-modal { background:#fff; border-radius:12px; width:100%; max-width:580px; max-height:80vh; display:flex; flex-direction:column; box-shadow:0 8px 40px rgba(0,0,0,0.16); overflow:hidden; margin:20px; }
+  #faq-modal-header { background:#1a1a2e; padding:18px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid var(--red); flex-shrink:0; }
+  #faq-modal-title { font-family:var(--display); font-size:16px; font-weight:800; color:#fff; letter-spacing:-0.01em; }
+  #faq-modal-close { background:none; border:none; color:#8a94a8; font-size:20px; cursor:pointer; padding:0; line-height:1; }
+  #faq-modal-close:hover { color:#fff; }
+  #faq-modal-body { padding:20px; overflow-y:auto; flex:1; }
+  .faq-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); }
+  .faq-item:last-child { border-bottom:none; }
+  .faq-icon { font-size:20px; flex-shrink:0; }
+  .faq-title { flex:1; font-size:13px; color:var(--text); font-weight:500; }
+  .faq-date { font-size:11px; color:var(--dim); flex-shrink:0; }
+  .faq-actions { display:flex; gap:6px; flex-shrink:0; }
+  .btn-download { background:var(--accent); color:#fff; border:none; padding:5px 12px; border-radius:5px; font-family:var(--font); font-size:11px; font-weight:500; cursor:pointer; transition:all 0.15s; }
+  .btn-download:hover { background:var(--accent-hov); }
+  .btn-faq-del { background:transparent; color:var(--red); border:1px solid #fca5a5; padding:4px 8px; border-radius:5px; cursor:pointer; font-family:var(--font); font-size:11px; }
+  .btn-faq-del:hover { background:#fef2f2; }
+  #faq-empty { text-align:center; color:var(--dim); padding:32px 0; font-size:12px; }
+
+  /* FAQ upload form */
+  .faq-upload-form { margin-top:16px; padding-top:16px; border-top:2px solid var(--border); }
+  .upload-drop-zone { border:2px dashed var(--border); border-radius:8px; padding:24px; text-align:center; cursor:pointer; transition:all 0.15s; background:#fff; }
+  .upload-drop-zone:hover, .upload-drop-zone.drag-over { border-color:var(--accent); background:#f3e8ff; }
+  .upload-drop-zone-text { font-size:13px; color:var(--muted); margin-bottom:6px; }
+  .upload-drop-zone-sub { font-size:11px; color:var(--dim); }
+  #faq-file-input { display:none; }
+  .upload-progress { margin-top:10px; font-size:12px; color:var(--muted); min-height:18px; }
+
+  /* Documents page (submitter side) */
+  #tab-docs { display:none; }
+  .doc-card { background:#fff; border:1px solid var(--border); border-radius:8px; padding:14px 18px; margin-bottom:8px; display:flex; align-items:center; gap:14px; box-shadow:0 1px 3px rgba(0,0,0,0.04); transition:box-shadow 0.15s; }
+  .doc-card:hover { box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+  .doc-card-icon { font-size:24px; flex-shrink:0; }
+  .doc-card-info { flex:1; }
+  .doc-card-title { font-size:13px; font-weight:500; color:var(--text); margin-bottom:2px; }
+  .doc-card-meta { font-size:11px; color:var(--dim); }
+
+  /* FAQ dupe matches */
+  .dupe-faq-item { background:#fff; border:1px solid #c4aff5; border-radius:6px; padding:12px 14px; margin-bottom:8px; }
+  .dupe-faq-item:last-child { margin-bottom:0; }
+  .dupe-faq-title { font-size:12px; color:var(--accent); font-weight:600; margin-bottom:4px; }
+  .dupe-faq-excerpt { font-size:11px; color:#5a6478; line-height:1.5; }
+  .dupe-section-label { font-size:10px; text-transform:uppercase; letter-spacing:0.09em; color:#92400e; font-weight:600; margin:10px 0 6px; }
+
   @media (max-width: 680px) {
     header { flex-direction: column; gap: 12px; align-items: flex-start; padding: 16px; }
     .grid-2, .grid-5, .grid-edit { grid-template-columns: 1fr; }
@@ -288,6 +340,7 @@
     </div>
     <div class="tabs">
       <button class="tab active" id="btn-submit" onclick="switchTab('submit')">Submit Question</button>
+      <button class="tab inactive" id="btn-docs" onclick="switchTab('docs')">Documents</button>
       <button class="tab inactive" id="btn-repo" onclick="switchTab('repo')">Repository (<span id="repo-count">0</span>)</button>
     </div>
   </header>
@@ -371,6 +424,15 @@
       </div>
     </div>
 
+    <!-- DOCUMENTS TAB -->
+    <div id="tab-docs" class="fade-up">
+      <div class="sec-title">Reference Documents</div>
+      <div class="sec-sub">Download FAQ documents and reference materials uploaded by the JAI team.</div>
+      <div id="docs-list">
+        <div class="spinner-wrap"><div class="spinner"></div>Loading documents...</div>
+      </div>
+    </div>
+
     <!-- REPOSITORY TAB -->
     <div id="tab-repo" style="display:none;" class="fade-up">
 
@@ -396,6 +458,7 @@
             </button>
             <button class="btn-ghost sm" onclick="loadAll()">&#8635; Refresh</button>
             <button class="btn-ghost sm" onclick="openAssigneeModal()">&#9881; Manage Assignees</button>
+            <button class="btn-ghost sm" onclick="openFaqModal()">&#128196; Manage FAQs</button>
             <button class="btn-ghost sm" onclick="exportCSV()">Export CSV</button>
           </div>
           <!-- Notification panel -->
@@ -478,6 +541,40 @@
 
         <div id="repo-list"></div>
       </div><!-- end repo-content -->
+
+  <!-- FAQ Manager Modal -->
+  <div id="faq-modal-overlay" onclick="closeFaqModalOnOverlay(event)">
+    <div id="faq-modal">
+      <div id="faq-modal-header">
+        <div id="faq-modal-title">&#128196; Manage FAQ Documents</div>
+        <button id="faq-modal-close" onclick="closeFaqModal()">&#215;</button>
+      </div>
+      <div id="faq-modal-body">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px;">
+          Uploaded documents are accessible to all users from the Documents tab. Text content is indexed for duplicate question detection.
+        </div>
+        <div id="faq-list-wrap"></div>
+        <div class="faq-upload-form">
+          <label class="lbl">Upload New Document</label>
+          <div class="upload-drop-zone" id="faq-drop-zone" onclick="document.getElementById('faq-file-input').click()" ondragover="faqDragOver(event)" ondragleave="faqDragLeave(event)" ondrop="faqDrop(event)">
+            <div class="upload-drop-zone-text">&#128196; Click to browse or drag and drop</div>
+            <div class="upload-drop-zone-sub">Supports PDF and DOCX files up to 4MB</div>
+          </div>
+          <input type="file" id="faq-file-input" accept=".pdf,.docx" onchange="faqFileSelected(event)"/>
+          <div class="upload-progress" id="faq-upload-progress"></div>
+          <div class="err" id="err-faq"></div>
+          <div style="margin-top:8px;">
+            <label class="lbl">Document Title</label>
+            <input type="text" id="faq-title-input" placeholder="e.g. JAI Capabilities Overview"/>
+          </div>
+          <div class="btn-row" style="margin-top:8px;">
+            <button class="btn-ghost sm" onclick="closeFaqModal()">Close</button>
+            <button class="btn-primary sm" id="faq-upload-btn" onclick="uploadFaq()">Upload Document</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Assignee Manager Modal -->
   <div id="assignee-modal-overlay" onclick="closeAssigneeModalOnOverlay(event)">
@@ -567,24 +664,62 @@ function checkDuplicates() {
       .sort((a, b) => b.score - a.score)
       .slice(0, 3);
 
-    if (scored.length === 0) {
+    // Also search FAQs
+    const faqScored = faqs.map(f => {
+      const haystack = (f.title + ' ' + (f.textContent || '')).toLowerCase();
+      let score = 0;
+      keywords.forEach(kw => { if (haystack.includes(kw)) score++; });
+      return { ...f, score };
+    }).filter(f => f.score > 0).sort((a,b) => b.score - a.score).slice(0, 2);
+
+    if (scored.length === 0 && faqScored.length === 0) {
       panel.classList.remove('show');
       return;
     }
 
-    list.innerHTML = scored.map(q => {
-      const hasAnswer = q.answer && q.answer.trim();
-      const answerHtml = hasAnswer
-        ? `<div class="dupe-answer"><strong>Answer:</strong> ${esc(q.answer.substring(0, 200))}${q.answer.length > 200 ? '...' : ''}</div>`
-        : `<div class="dupe-no-answer">No answer yet — ${q.status}</div>`;
-      return `
+    let html = '';
+
+    if (scored.length > 0) {
+      html += `<div class="dupe-section-label">From the Q&A Repository</div>`;
+      html += scored.map(q => {
+        const hasAnswer = q.answer && q.answer.trim();
+        const answerHtml = hasAnswer
+          ? `<div class="dupe-answer"><strong>Answer:</strong> ${esc(q.answer.substring(0, 200))}${q.answer.length > 200 ? '...' : ''}</div>`
+          : `<div class="dupe-no-answer">No answer yet — ${q.status}</div>`;
+        return `
 <div class="dupe-item">
   <div class="dupe-meta">${esc(q.id)} &nbsp;·&nbsp; ${esc(q.urgency)} &nbsp;·&nbsp; ${esc(q.status)}</div>
   <div class="dupe-q">${esc(q.question)}</div>
   ${answerHtml}
 </div>`;
-    }).join('');
+      }).join('');
+    }
 
+    if (faqScored.length > 0) {
+      html += `<div class="dupe-section-label">From FAQ Documents</div>`;
+      html += faqScored.map(f => {
+        // Find a relevant excerpt around the first keyword match
+        const textLower = (f.textContent || '').toLowerCase();
+        let excerpt = '';
+        for (const kw of keywords) {
+          const idx = textLower.indexOf(kw);
+          if (idx !== -1) {
+            const start = Math.max(0, idx - 60);
+            const end = Math.min((f.textContent || '').length, idx + 140);
+            excerpt = (start > 0 ? '...' : '') + (f.textContent || '').substring(start, end) + (end < (f.textContent||'').length ? '...' : '');
+            break;
+          }
+        }
+        return `
+<div class="dupe-faq-item">
+  <div class="dupe-faq-title">&#128196; ${esc(f.title)}</div>
+  ${excerpt ? `<div class="dupe-faq-excerpt">${esc(excerpt)}</div>` : ''}
+  <div style="margin-top:6px;"><button class="btn-ghost sm" onclick="switchTab('docs')">View Documents Tab &#8599;</button></div>
+</div>`;
+      }).join('');
+    }
+
+    list.innerHTML = html;
     panel.classList.add('show');
   }, 400);
 }
@@ -640,15 +775,20 @@ async function loadAll() {
   setSyncStatus('loading', 'Loading from Google Sheets...');
   document.getElementById('repo-list').innerHTML =
     '<div class="spinner-wrap"><div class="spinner"></div>Loading questions...</div>';
-  await Promise.all([loadQuestions(), loadAssignees()]);
+  await Promise.all([loadQuestions(), loadAssignees(), loadFaqs()]);
 }
 
 // Load questions silently on page load for duplicate detection
 async function loadQuestionsBackground() {
   try {
-    const res = await fetch(API + '?t=' + Date.now());
-    const data = await res.json();
-    qs = Array.isArray(data) ? data.filter(q => q.id) : [];
+    const [qRes, fRes] = await Promise.all([
+      fetch(API + '?t=' + Date.now()),
+      fetch(API + '?type=faqs&t=' + Date.now())
+    ]);
+    const qData = await qRes.json();
+    const fData = await fRes.json();
+    qs = Array.isArray(qData) ? qData.filter(q => q.id) : [];
+    faqs = Array.isArray(fData) ? fData : [];
     updateCount();
   } catch(e) {}
 }
@@ -668,9 +808,12 @@ function toggleEmailOptin() {
 
 function switchTab(t) {
   document.getElementById('tab-submit').style.display = t==='submit' ? 'block' : 'none';
+  document.getElementById('tab-docs').style.display   = t==='docs'   ? 'block' : 'none';
   document.getElementById('tab-repo').style.display   = t==='repo'   ? 'block' : 'none';
   document.getElementById('btn-submit').className = 'tab ' + (t==='submit' ? 'active' : 'inactive');
+  document.getElementById('btn-docs').className   = 'tab ' + (t==='docs'   ? 'active' : 'inactive');
   document.getElementById('btn-repo').className   = 'tab ' + (t==='repo'   ? 'active' : 'inactive');
+  if (t === 'docs') { loadDocsTab(); }
   if (t === 'repo') {
     if (sessionStorage.getItem('jai-repo-auth') === '1') {
       document.getElementById('repo-gate-wrap').style.display = 'none';
@@ -895,6 +1038,13 @@ function render() {
         <input type="date" id="ed-${q.id}" value="${q.estimatedDate ? q.estimatedDate.substring(0,10) : ''}"/>
       </div>
     </div>
+    <div class="internal-toggle">
+      <input type="checkbox" id="ei-${q.id}" ${q.internalOnly ? 'checked' : ''} onchange="setInternalOnly('${q.id}', this.checked)"/>
+      <div>
+        <div class="internal-toggle-label">&#9888; Mark as Internal Only</div>
+        <div class="internal-toggle-sub">Submitter will be warned not to share this answer with external clients or customers</div>
+      </div>
+    </div>
     <div class="btn-row">
       <button class="btn-ghost sm" onclick="toggleEdit('${q.id}')">Cancel</button>
       <button class="btn-primary sm" id="save-${q.id}" onclick="saveEdit('${q.id}')">Save Changes</button>
@@ -1009,6 +1159,195 @@ async function removeAssignee(index) {
     setSyncStatus('live', 'Assignee removed — ' + new Date().toLocaleTimeString());
   } catch(e) {
     alert('Failed to remove. Check your connection and try again.');
+  }
+}
+
+// ── INTERNAL ONLY TOGGLE ──────────────────────────────────────────────────
+async function setInternalOnly(id, checked) {
+  try {
+    await apiPost({ action: 'setInternalOnly', id, internalOnly: checked ? 'Yes' : '' });
+    qs = qs.map(q => q.id === id ? { ...q, internalOnly: checked } : q);
+    render();
+    setSyncStatus('live', 'Internal Only ' + (checked ? 'set' : 'cleared') + ' — ' + new Date().toLocaleTimeString());
+  } catch(e) {
+    alert('Failed to update Internal Only flag. Check your connection and try again.');
+    // Revert checkbox
+    const cb = document.getElementById('ei-' + id);
+    if (cb) cb.checked = !checked;
+  }
+}
+
+// ── FAQ SYSTEM ─────────────────────────────────────────────────────────────
+let faqs = [];
+let pendingFaqFile = null;
+
+async function loadFaqs() {
+  try {
+    const res = await fetch(API + '?type=faqs&t=' + Date.now());
+    const data = await res.json();
+    faqs = Array.isArray(data) ? data : [];
+  } catch(e) { faqs = []; }
+}
+
+async function loadDocsTab() {
+  const el = document.getElementById('docs-list');
+  if (faqs.length === 0) await loadFaqs();
+  if (faqs.length === 0) {
+    el.innerHTML = '<div class="empty">No documents have been uploaded yet. Check back soon.</div>';
+    return;
+  }
+  el.innerHTML = faqs.map(f => `
+<div class="doc-card">
+  <div class="doc-card-icon">${f.fileType === 'application/pdf' ? '📄' : '📝'}</div>
+  <div class="doc-card-info">
+    <div class="doc-card-title">${esc(f.title)}</div>
+    <div class="doc-card-meta">${esc(f.fileName)} &nbsp;·&nbsp; Uploaded ${new Date(f.uploadedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+  </div>
+  <button class="btn-download" onclick="downloadFaq('${f.id}')">&#8595; Download</button>
+</div>`).join('');
+}
+
+function openFaqModal() {
+  renderFaqList();
+  document.getElementById('faq-modal-overlay').classList.add('open');
+  document.getElementById('faq-title-input').value = '';
+  document.getElementById('faq-upload-progress').textContent = '';
+  document.getElementById('err-faq').textContent = '';
+  pendingFaqFile = null;
+}
+
+function closeFaqModal() {
+  document.getElementById('faq-modal-overlay').classList.remove('open');
+}
+
+function closeFaqModalOnOverlay(e) {
+  if (e.target === document.getElementById('faq-modal-overlay')) closeFaqModal();
+}
+
+function renderFaqList() {
+  const wrap = document.getElementById('faq-list-wrap');
+  if (!faqs.length) {
+    wrap.innerHTML = '<div id="faq-empty">No documents uploaded yet.</div>';
+    return;
+  }
+  wrap.innerHTML = faqs.map((f, i) => `
+<div class="faq-item">
+  <div class="faq-icon">${f.fileType === 'application/pdf' ? '📄' : '📝'}</div>
+  <div class="faq-title">${esc(f.title)} <span style="font-size:10px;color:var(--dim);">(${esc(f.fileName)})</span></div>
+  <div class="faq-date">${new Date(f.uploadedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+  <div class="faq-actions">
+    <button class="btn-download" onclick="downloadFaq('${f.id}')">&#8595;</button>
+    <button class="btn-faq-del" onclick="deleteFaq('${f.id}')">&#215;</button>
+  </div>
+</div>`).join('');
+}
+
+function faqDragOver(e) { e.preventDefault(); document.getElementById('faq-drop-zone').classList.add('drag-over'); }
+function faqDragLeave(e) { document.getElementById('faq-drop-zone').classList.remove('drag-over'); }
+function faqDrop(e) {
+  e.preventDefault();
+  document.getElementById('faq-drop-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) setFaqFile(file);
+}
+function faqFileSelected(e) {
+  const file = e.target.files[0];
+  if (file) setFaqFile(file);
+}
+function setFaqFile(file) {
+  const allowed = ['application/pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+  if (!allowed.includes(file.type)) {
+    document.getElementById('err-faq').textContent = 'Only PDF and DOCX files are supported.';
+    return;
+  }
+  if (file.size > 4 * 1024 * 1024) {
+    document.getElementById('err-faq').textContent = 'File must be under 4MB.';
+    return;
+  }
+  pendingFaqFile = file;
+  document.getElementById('err-faq').textContent = '';
+  document.getElementById('faq-upload-progress').textContent = '✓ File selected: ' + file.name;
+  if (!document.getElementById('faq-title-input').value.trim()) {
+    document.getElementById('faq-title-input').value = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g,' ');
+  }
+}
+
+async function uploadFaq() {
+  const title = document.getElementById('faq-title-input').value.trim();
+  const errEl = document.getElementById('err-faq');
+  errEl.textContent = '';
+  if (!pendingFaqFile) { errEl.textContent = 'Please select a file first.'; return; }
+  if (!title) { errEl.textContent = 'Please enter a title for this document.'; return; }
+
+  const btn = document.getElementById('faq-upload-btn');
+  btn.disabled = true; btn.textContent = 'Uploading...';
+  document.getElementById('faq-upload-progress').textContent = 'Reading file...';
+
+  try {
+    // Read file as base64
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(pendingFaqFile);
+    });
+
+    document.getElementById('faq-upload-progress').textContent = 'Uploading to backend...';
+
+    // Extract text for search indexing (PDF: send raw, DOCX: send raw — Apps Script handles extraction)
+    const faqId = 'F' + Date.now().toString(36).toUpperCase().slice(-5) + Math.random().toString(36).slice(2,5).toUpperCase();
+
+    await apiPost({
+      action: 'uploadFaq',
+      id: faqId,
+      title,
+      fileName: pendingFaqFile.name,
+      fileType: pendingFaqFile.type,
+      fileData: base64,
+      uploadedAt: new Date().toISOString()
+    });
+
+    // Reload FAQ list
+    await loadFaqs();
+    renderFaqList();
+
+    // Reset form
+    pendingFaqFile = null;
+    document.getElementById('faq-title-input').value = '';
+    document.getElementById('faq-upload-progress').textContent = '✓ Document uploaded successfully.';
+    document.getElementById('faq-file-input').value = '';
+    setSyncStatus('live', 'FAQ uploaded — ' + new Date().toLocaleTimeString());
+  } catch(e) {
+    errEl.textContent = 'Upload failed. File may be too large for the backend. Try a smaller file or contact Jon.';
+    document.getElementById('faq-upload-progress').textContent = '';
+  }
+  btn.disabled = false; btn.textContent = 'Upload Document';
+}
+
+function downloadFaq(id) {
+  const faq = faqs.find(f => f.id === id);
+  if (!faq || !faq.fileData) { alert('File data not available. Try refreshing.'); return; }
+  const byteChars = atob(faq.fileData);
+  const bytes = new Uint8Array(byteChars.length);
+  for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
+  const blob = new Blob([bytes], { type: faq.fileType });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = faq.fileName;
+  a.click();
+}
+
+async function deleteFaq(id) {
+  const faq = faqs.find(f => f.id === id);
+  if (!faq) return;
+  if (!confirm('Delete "' + faq.title + '"? This cannot be undone.')) return;
+  try {
+    await apiPost({ action: 'deleteFaq', id });
+    faqs = faqs.filter(f => f.id !== id);
+    renderFaqList();
+    setSyncStatus('live', 'FAQ deleted — ' + new Date().toLocaleTimeString());
+  } catch(e) {
+    alert('Delete failed. Check your connection and try again.');
   }
 }
 
