@@ -527,6 +527,7 @@
               <span id="notif-badge"></span>
             </button>
             <button class="btn-ghost sm toggle-answered-btn" id="toggle-answered-btn" onclick="toggleHideAnswered()">Hide Answered</button>
+            <button class="btn-ghost sm" id="bulk-mode-btn" onclick="toggleBulkMode()">&#9745; Bulk Assign</button>
             <button class="btn-ghost sm" onclick="hardRefresh()">&#8635; Refresh</button>
             <button class="btn-ghost sm" onclick="openAssigneeModal()">&#9881; Manage Assignees</button>
             <button class="btn-ghost sm" onclick="openFaqModal()">&#128196; Manage FAQs</button>
@@ -1870,9 +1871,13 @@ async function removeTag(index) {
 function toggleBulkMode() {
   bulkMode = !bulkMode;
   if (!bulkMode) clearBulkSelection();
-  document.querySelectorAll('.card-checkbox-wrap').forEach(el => {
-    el.closest('.card').classList.toggle('bulk-mode-card', bulkMode);
-  });
+  const btn = document.getElementById('bulk-mode-btn');
+  if (btn) {
+    btn.textContent = bulkMode ? '✕ Exit Bulk Mode' : '☑ Bulk Assign';
+    btn.style.background = bulkMode ? '#ede8fa' : '';
+    btn.style.borderColor = bulkMode ? '#c4aff5' : '';
+    btn.style.color = bulkMode ? 'var(--accent)' : '';
+  }
   document.getElementById('repo-list').classList.toggle('bulk-mode', bulkMode);
   render();
 }
