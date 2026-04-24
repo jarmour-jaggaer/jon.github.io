@@ -344,6 +344,22 @@
   }
   .section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
 
+  /* Header dropdown buttons */
+  .hdr-icon-btn { width:32px;height:32px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:var(--font);transition:background 0.15s; }
+  .hdr-icon-btn:hover { background:var(--bg); }
+  .hdr-text-btn { display:flex;align-items:center;gap:5px;padding:0 12px;height:32px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-family:var(--font);font-size:12px;color:var(--text);font-weight:500;transition:background 0.15s; }
+  .hdr-text-btn:hover { background:var(--bg); }
+  .hdr-text-btn.active { background:#ede8fa;border-color:#c4aff5;color:var(--accent); }
+  .hdr-action-btn { display:flex;align-items:center;gap:5px;padding:0 14px;height:32px;border:none;border-radius:6px;background:var(--accent);cursor:pointer;font-family:var(--font);font-size:12px;color:#fff;font-weight:500;transition:background 0.15s; }
+  .hdr-action-btn:hover { background:var(--accent-hov); }
+  .hdr-caret { font-size:9px; }
+  .hdr-dropdown-menu { position:absolute;top:38px;right:0;width:210px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px;z-index:400;box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+  .hdr-menu-label { padding:4px 10px 4px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);font-weight:600; }
+  .hdr-menu-item { display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;font-size:13px;color:var(--text);cursor:pointer;transition:background 0.1s; }
+  .hdr-menu-item:hover { background:var(--bg); }
+  .hdr-menu-icon { font-size:14px;flex-shrink:0;width:18px;text-align:center; }
+  .hdr-menu-divider { height:1px;background:var(--border);margin:4px 6px; }
+
   /* Bulk assignment */
   .card-checkbox-wrap { display:none; align-items:center; justify-content:center; width:22px; flex-shrink:0; }
   .bulk-mode .card-checkbox-wrap { display:flex; }
@@ -522,20 +538,60 @@
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;position:relative;">
           <div class="sec-title">Question Repository</div>
           <div style="display:flex;gap:8px;align-items:center;">
+
+            <!-- Notification bell -->
             <button id="notif-btn" onclick="toggleNotifPanel()" title="Questions needing reassignment">
               &#9888;
               <span id="notif-badge"></span>
             </button>
-            <button class="btn-ghost sm toggle-answered-btn" id="toggle-answered-btn" onclick="toggleHideAnswered()">Hide Answered</button>
-            <button class="btn-ghost sm" id="bulk-mode-btn" onclick="toggleBulkMode()">&#9745; Bulk Assign</button>
-            <button class="btn-ghost sm" onclick="hardRefresh()">&#8635; Refresh</button>
-            <button class="btn-ghost sm" onclick="openAssigneeModal()">&#9881; Manage Assignees</button>
-            <button class="btn-ghost sm" onclick="openFaqModal()">&#128196; Manage FAQs</button>
-            <button class="btn-ghost sm" onclick="openTagsModal()">&#127991; Manage Tags</button>
-            <button class="btn-ghost sm" onclick="exportFAQ()">&#128196; Export FAQ</button>
-            <button class="btn-ghost sm" onclick="exportCSV()">Export CSV</button>
+
+            <!-- Refresh -->
+            <button class="hdr-icon-btn" onclick="hardRefresh()" title="Refresh">&#8635;</button>
+
+            <!-- View dropdown -->
+            <div style="position:relative;" id="view-dropdown-wrap">
+              <button class="hdr-text-btn" id="view-dropdown-btn" onclick="toggleHeaderDropdown('view')">
+                View <span class="hdr-caret">&#9660;</span>
+              </button>
+              <div id="view-dropdown-menu" class="hdr-dropdown-menu" style="display:none;">
+                <div class="hdr-menu-item" onclick="toggleHideAnswered();closeHeaderDropdowns();">
+                  <span class="hdr-menu-icon">&#9776;</span><span id="hide-answered-label">Hide answered</span>
+                </div>
+                <div class="hdr-menu-item" onclick="toggleBulkMode();closeHeaderDropdowns();">
+                  <span class="hdr-menu-icon">&#9745;</span><span id="bulk-mode-label">Bulk assign</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions dropdown -->
+            <div style="position:relative;" id="actions-dropdown-wrap">
+              <button class="hdr-action-btn" id="actions-dropdown-btn" onclick="toggleHeaderDropdown('actions')">
+                Actions <span class="hdr-caret" style="color:#fff;">&#9660;</span>
+              </button>
+              <div id="actions-dropdown-menu" class="hdr-dropdown-menu" style="display:none;">
+                <div class="hdr-menu-label">Manage</div>
+                <div class="hdr-menu-item" onclick="openAssigneeModal();closeHeaderDropdowns();">
+                  <span class="hdr-menu-icon">&#9881;</span>Manage assignees
+                </div>
+                <div class="hdr-menu-item" onclick="openTagsModal();closeHeaderDropdowns();">
+                  <span class="hdr-menu-icon">&#127991;</span>Manage tags
+                </div>
+                <div class="hdr-menu-item" onclick="openFaqModal();closeHeaderDropdowns();">
+                  <span class="hdr-menu-icon">&#128196;</span>Manage FAQs
+                </div>
+                <div class="hdr-menu-divider"></div>
+                <div class="hdr-menu-label">Export</div>
+                <div class="hdr-menu-item" onclick="exportFAQ();closeHeaderDropdowns();">
+                  <span class="hdr-menu-icon">&#128462;</span>Export FAQ
+                </div>
+                <div class="hdr-menu-item" onclick="exportCSV();closeHeaderDropdowns();">
+                  <span class="hdr-menu-icon">&#8681;</span>Export CSV
+                </div>
+              </div>
+            </div>
+
           </div>
-          <!-- Notification panel -->
+                    <!-- Notification panel -->
           <div id="notif-panel">
             <div id="notif-panel-header">
               <div id="notif-panel-title">Needs Reassignment</div>
@@ -1341,9 +1397,39 @@ function loadMoreCards() {
   if (items[targetIdx]) items[targetIdx].scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function toggleHeaderDropdown(which) {
+  const viewMenu    = document.getElementById('view-dropdown-menu');
+  const actionsMenu = document.getElementById('actions-dropdown-menu');
+  const viewBtn     = document.getElementById('view-dropdown-btn');
+  const actionsBtn  = document.getElementById('actions-dropdown-btn');
+  if (which === 'view') {
+    const open = viewMenu.style.display !== 'none';
+    actionsMenu.style.display = 'none';
+    actionsBtn.classList && actionsBtn.classList.remove('active');
+    viewMenu.style.display = open ? 'none' : 'block';
+    viewBtn.classList.toggle('active', !open);
+  } else {
+    const open = actionsMenu.style.display !== 'none';
+    viewMenu.style.display = 'none';
+    viewBtn.classList && viewBtn.classList.remove('active');
+    actionsMenu.style.display = open ? 'none' : 'block';
+  }
+}
+
+function closeHeaderDropdowns() {
+  const vm = document.getElementById('view-dropdown-menu');
+  const am = document.getElementById('actions-dropdown-menu');
+  const vb = document.getElementById('view-dropdown-btn');
+  if (vm) vm.style.display = 'none';
+  if (am) am.style.display = 'none';
+  if (vb) vb.classList.remove('active');
+}
+
 function toggleHideAnswered() {
   hideAnswered = !hideAnswered;
   sessionStorage.setItem('jai-hide-answered', hideAnswered ? '1' : '0');
+  const label = document.getElementById('hide-answered-label');
+  if (label) label.textContent = hideAnswered ? 'Show answered' : 'Hide answered';
   currentPage = 1;
   render();
 }
@@ -1871,13 +1957,10 @@ async function removeTag(index) {
 function toggleBulkMode() {
   bulkMode = !bulkMode;
   if (!bulkMode) clearBulkSelection();
-  const btn = document.getElementById('bulk-mode-btn');
-  if (btn) {
-    btn.textContent = bulkMode ? '✕ Exit Bulk Mode' : '☑ Bulk Assign';
-    btn.style.background = bulkMode ? '#ede8fa' : '';
-    btn.style.borderColor = bulkMode ? '#c4aff5' : '';
-    btn.style.color = bulkMode ? 'var(--accent)' : '';
-  }
+  const label = document.getElementById('bulk-mode-label');
+  const viewBtn = document.getElementById('view-dropdown-btn');
+  if (label) label.textContent = bulkMode ? 'Exit bulk assign' : 'Bulk assign';
+  if (viewBtn) viewBtn.classList.toggle('active', bulkMode);
   document.getElementById('repo-list').classList.toggle('bulk-mode', bulkMode);
   render();
 }
@@ -2032,13 +2115,15 @@ function scrollToCard(id) {
   document.getElementById('notif-panel').classList.remove('open');
 }
 
-// Close notification panel when clicking outside
+// Close notification panel and header dropdowns when clicking outside
 document.addEventListener('click', (e) => {
   const panel = document.getElementById('notif-panel');
   const btn   = document.getElementById('notif-btn');
   if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) {
     panel.classList.remove('open');
   }
+  if (!e.target.closest('#view-dropdown-wrap'))    { const m = document.getElementById('view-dropdown-menu');    if (m) m.style.display = 'none'; const b = document.getElementById('view-dropdown-btn'); if (b) b.classList.remove('active'); }
+  if (!e.target.closest('#actions-dropdown-wrap')) { const m = document.getElementById('actions-dropdown-menu'); if (m) m.style.display = 'none'; }
 });
 
 // ── TAG CARD MANIPULATION ─────────────────────────────────────────────────
