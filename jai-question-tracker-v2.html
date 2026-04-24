@@ -344,6 +344,55 @@
   }
   .section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
 
+  /* Bulk assignment */
+  .card-checkbox-wrap { display:none; align-items:center; justify-content:center; width:22px; flex-shrink:0; }
+  .bulk-mode .card-checkbox-wrap { display:flex; }
+  .bulk-mode .card-actions { display:none; }
+  .card-cb { width:16px; height:16px; cursor:pointer; accent-color:var(--accent); appearance:auto; -webkit-appearance:auto; }
+  .card.bulk-selected { outline:2px solid var(--accent); background:#f3e8ff; }
+  #bulk-bar {
+    display:none; position:sticky; bottom:0; left:0; right:0; z-index:150;
+    background:#1a1a2e; border-top:3px solid var(--accent); padding:12px 24px;
+    align-items:center; gap:12px; box-shadow:0 -4px 20px rgba(0,0,0,0.2);
+  }
+  #bulk-bar.show { display:flex; }
+  #bulk-bar-count { font-size:13px; color:#fff; font-weight:600; flex-shrink:0; }
+  #bulk-assignee-select { flex:1; max-width:220px; }
+  #bulk-bar-clear { color:#8a94a8; font-size:12px; cursor:pointer; text-decoration:underline; background:none; border:none; font-family:var(--font); }
+
+  /* Overdue indicator */
+  .pill.ps-Overdue { background:#fef2f2; color:#D22428; border-color:#fca5a5; }
+  .card.is-overdue { border-left:3px solid #f59e0b !important; }
+  .overdue-badge { display:inline-block; background:#fff8e6; color:#92400e; border:1px solid #f59e0b; border-radius:4px; font-size:10px; font-weight:600; padding:1px 7px; margin-left:6px; }
+
+  /* Tag pills */
+  .tag-pill { display:inline-block; background:#ede8fa; color:var(--accent); border:1px solid #c4aff5; border-radius:999px; font-size:10px; padding:1px 8px; margin:2px 2px 0 0; }
+  .tag-filter-wrap { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+
+  /* Tags modal */
+  #tags-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:500; align-items:center; justify-content:center; }
+  #tags-modal-overlay.open { display:flex; animation:fadeUp 0.2s ease; }
+  #tags-modal { background:#fff; border-radius:12px; width:100%; max-width:480px; max-height:75vh; display:flex; flex-direction:column; box-shadow:0 8px 40px rgba(0,0,0,0.16); overflow:hidden; margin:20px; }
+  #tags-modal-header { background:#1a1a2e; padding:18px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid var(--red); flex-shrink:0; }
+  #tags-modal-title { font-family:var(--display); font-size:16px; font-weight:800; color:#fff; }
+  #tags-modal-close { background:none; border:none; color:#8a94a8; font-size:20px; cursor:pointer; }
+  #tags-modal-close:hover { color:#fff; }
+  #tags-modal-body { padding:20px; overflow-y:auto; flex:1; }
+  .tag-row { display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--border); }
+  .tag-row:last-child { border-bottom:none; }
+  .tag-row-name { flex:1; font-size:13px; color:var(--text); font-weight:500; }
+  .btn-tag-del { background:transparent; color:var(--red); border:1px solid #fca5a5; padding:3px 8px; border-radius:4px; cursor:pointer; font-family:var(--font); font-size:11px; }
+  .btn-tag-del:hover { background:#fef2f2; }
+  #tag-add-form { margin-top:14px; padding-top:14px; border-top:2px solid var(--border); display:flex; gap:8px; }
+  #tag-input { flex:1; }
+
+  /* FAQ export */
+  /* (reuses existing btn-ghost styles) */
+
+  /* Rating badge on cards */
+  .rating-good { display:inline-block; background:#f0faf3; color:#166534; border:1px solid #86efac; border-radius:999px; font-size:10px; padding:1px 8px; }
+  .rating-poor { display:inline-block; background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; border-radius:999px; font-size:10px; padding:1px 8px; }
+
   @media (max-width: 680px) {
     header { flex-direction: column; gap: 12px; align-items: flex-start; padding: 16px; }
     .grid-2, .grid-5, .grid-edit { grid-template-columns: 1fr; }
@@ -481,6 +530,8 @@
             <button class="btn-ghost sm" onclick="hardRefresh()">&#8635; Refresh</button>
             <button class="btn-ghost sm" onclick="openAssigneeModal()">&#9881; Manage Assignees</button>
             <button class="btn-ghost sm" onclick="openFaqModal()">&#128196; Manage FAQs</button>
+            <button class="btn-ghost sm" onclick="openTagsModal()">&#127991; Manage Tags</button>
+            <button class="btn-ghost sm" onclick="exportFAQ()">&#128196; Export FAQ</button>
             <button class="btn-ghost sm" onclick="exportCSV()">Export CSV</button>
           </div>
           <!-- Notification panel -->
@@ -519,13 +570,17 @@
             <div class="stat-num" id="s-returned" style="color:#D22428;">0</div>
             <div class="stat-lbl">RETURNED</div>
           </div>
+          <div class="stat-card" style="border-top:3px solid #f59e0b;">
+            <div class="stat-num" id="s-overdue" style="color:#92400e;">0</div>
+            <div class="stat-lbl">OVERDUE</div>
+          </div>
           <div class="stat-card" style="border-top:3px solid #5300CE;">
             <div class="stat-num" id="s-answered" style="color:#5300CE;">0</div>
             <div class="stat-lbl">ANSWERED</div>
           </div>
         </div>
 
-        <div class="grid-5">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 2fr;gap:10px;margin-bottom:18px;">
           <div>
             <label class="lbl">Status</label>
             <select id="f-status" onchange="currentPage=1;render()">
@@ -556,12 +611,28 @@
             </select>
           </div>
           <div>
+            <label class="lbl">Tag</label>
+            <select id="f-tag" onchange="currentPage=1;render()">
+              <option value="">All</option>
+            </select>
+          </div>
+          <div>
             <label class="lbl">Search</label>
             <input type="text" id="f-search" placeholder="Search questions, answers, names..." oninput="currentPage=1;render()"/>
           </div>
         </div>
 
         <div id="repo-list"></div>
+      <!-- Bulk assignment bar -->
+      <div id="bulk-bar">
+        <span id="bulk-bar-count">0 selected</span>
+        <select id="bulk-assignee-select" class="btn-ghost">
+          <option value="">Assign to...</option>
+        </select>
+        <button class="btn-primary sm" onclick="bulkAssign()">Assign Selected</button>
+        <button id="bulk-bar-clear" onclick="clearBulkSelection()">Clear selection</button>
+      </div>
+
       </div><!-- end repo-content -->
 
   <!-- FAQ Manager Modal -->
@@ -593,6 +664,28 @@
             <button class="btn-ghost sm" onclick="closeFaqModal()">Close</button>
             <button class="btn-primary sm" id="faq-upload-btn" onclick="uploadFaq()">Upload Document</button>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tags Manager Modal -->
+  <div id="tags-modal-overlay" onclick="closeTagsModalOnOverlay(event)">
+    <div id="tags-modal">
+      <div id="tags-modal-header">
+        <div id="tags-modal-title">&#127991; Manage Tags</div>
+        <button id="tags-modal-close" onclick="closeTagsModal()">&#215;</button>
+      </div>
+      <div id="tags-modal-body">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Tags help the team categorize and filter questions by topic. Assigners select tags from this list when assigning questions.</div>
+        <div id="tags-list-wrap"></div>
+        <div id="tag-add-form">
+          <input type="text" id="tag-input" placeholder="e.g. Pricing &amp; Credits"/>
+          <button class="btn-primary sm" onclick="addTag()">Add Tag</button>
+        </div>
+        <div class="err" id="err-tag" style="margin-top:6px;"></div>
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn-ghost sm" onclick="closeTagsModal()">Close</button>
         </div>
       </div>
     </div>
@@ -643,12 +736,14 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwfABCyi0PCwBb4XxMTyIhq1khMe62jZDTvRoooFk4dzhQbQg3UM2MnoXPfdL98s_N_/exec';
 
-let qs = [], assignees = [], urgency = 'Medium', editId = null;
+let qs = [], assignees = [], tags = [], urgency = 'Medium', editId = null;
 let hideAnswered = sessionStorage.getItem('jai-hide-answered') === '1';
 let pageSize = 20;
 let currentPage = 1;
 const CACHE_KEY = 'jai-complete-cache';
 const CACHE_META_KEY = 'jai-cache-meta';
+let bulkSelected = new Set();
+let bulkMode = false;
 let dupeTimer = null;
 
 function genId() {
@@ -691,62 +786,24 @@ function checkDuplicates() {
       .sort((a, b) => b.score - a.score)
       .slice(0, 3);
 
-    // Also search FAQs
-    const faqScored = faqs.map(f => {
-      const haystack = (f.title + ' ' + (f.textContent || '')).toLowerCase();
-      let score = 0;
-      keywords.forEach(kw => { if (haystack.includes(kw)) score++; });
-      return { ...f, score };
-    }).filter(f => f.score > 0).sort((a,b) => b.score - a.score).slice(0, 2);
-
-    if (scored.length === 0 && faqScored.length === 0) {
+    if (scored.length === 0) {
       panel.classList.remove('show');
       return;
     }
 
-    let html = '';
-
-    if (scored.length > 0) {
-      html += `<div class="dupe-section-label">From the Q&A Repository</div>`;
-      html += scored.map(q => {
-        const hasAnswer = q.answer && q.answer.trim();
-        const answerHtml = hasAnswer
-          ? `<div class="dupe-answer"><strong>Answer:</strong> ${esc(q.answer.substring(0, 200))}${q.answer.length > 200 ? '...' : ''}</div>`
-          : `<div class="dupe-no-answer">No answer yet — ${q.status}</div>`;
-        return `
+    list.innerHTML = scored.map(q => {
+      const hasAnswer = q.answer && q.answer.trim();
+      const answerHtml = hasAnswer
+        ? `<div class="dupe-answer"><strong>Answer:</strong> ${esc(q.answer.substring(0, 200))}${q.answer.length > 200 ? '...' : ''}</div>`
+        : `<div class="dupe-no-answer">No answer yet — ${q.status}</div>`;
+      return `
 <div class="dupe-item">
   <div class="dupe-meta">${esc(q.id)} &nbsp;·&nbsp; ${esc(q.urgency)} &nbsp;·&nbsp; ${esc(q.status)}</div>
   <div class="dupe-q">${esc(q.question)}</div>
   ${answerHtml}
 </div>`;
-      }).join('');
-    }
+    }).join('');
 
-    if (faqScored.length > 0) {
-      html += `<div class="dupe-section-label">From FAQ Documents</div>`;
-      html += faqScored.map(f => {
-        // Find a relevant excerpt around the first keyword match
-        const textLower = (f.textContent || '').toLowerCase();
-        let excerpt = '';
-        for (const kw of keywords) {
-          const idx = textLower.indexOf(kw);
-          if (idx !== -1) {
-            const start = Math.max(0, idx - 60);
-            const end = Math.min((f.textContent || '').length, idx + 140);
-            excerpt = (start > 0 ? '...' : '') + (f.textContent || '').substring(start, end) + (end < (f.textContent||'').length ? '...' : '');
-            break;
-          }
-        }
-        return `
-<div class="dupe-faq-item">
-  <div class="dupe-faq-title">&#128196; ${esc(f.title)}</div>
-  ${excerpt ? `<div class="dupe-faq-excerpt">${esc(excerpt)}</div>` : ''}
-  <div style="margin-top:6px;"><button class="btn-ghost sm" onclick="switchTab('docs')">View Documents Tab &#8599;</button></div>
-</div>`;
-      }).join('');
-    }
-
-    list.innerHTML = html;
     panel.classList.add('show');
   }, 400);
 }
@@ -780,6 +837,7 @@ async function loadAssignees() {
     const res = await fetch(API + '?type=assignees&t=' + Date.now());
     const data = await res.json();
     assignees = Array.isArray(data) ? data : [];
+    populateBulkAssigneeDropdown();
   } catch(e) { assignees = []; }
 }
 
@@ -848,7 +906,7 @@ async function loadAll() {
     '<div class="spinner-wrap"><div class="spinner"></div>Loading questions...</div>';
   clearCache();
   currentPage = 1;
-  await Promise.all([loadQuestions(), loadAssignees(), loadFaqs()]);
+  await Promise.all([loadQuestions(), loadAssignees(), loadFaqs(), loadTags()]);
 }
 
 async function hardRefresh() {
@@ -1063,17 +1121,21 @@ function render() {
   }
 
   // Apply filters
+  const ftag = document.getElementById('f-tag') ? document.getElementById('f-tag').value : '';
   let filtered = qs.filter(q => {
     if (fs !== 'All' && q.status !== fs) return false;
     if (fa === 'Answered'   && !(q.answer && q.answer.trim())) return false;
     if (fa === 'Unanswered' &&   q.answer && q.answer.trim())  return false;
     if (fu !== 'All' && q.urgency !== fu) return false;
     if (fd !== 'All' && q.dept !== fd) return false;
+    if (ftag) {
+      const qtags = (q.tags || '').split(',').map(t => t.trim());
+      if (!qtags.includes(ftag)) return false;
+    }
     if (fq) {
       const hay = (q.question + ' ' + q.name + ' ' + (q.answer||'')).toLowerCase();
       if (!hay.includes(fq)) return false;
     }
-    // Hide answered if toggle is active and no explicit filter is forcing answered content
     if (hideAnswered && q.status === 'Complete' && fa !== 'Answered' && fs !== 'Complete') return false;
     return true;
   });
@@ -1093,7 +1155,13 @@ function render() {
   document.getElementById('s-assigned').textContent = qs.filter(q => q.status === 'Assigned').length;
   document.getElementById('s-complete').textContent = qs.filter(q => q.status === 'Complete').length;
   document.getElementById('s-answered').textContent = qs.filter(q => q.answer && q.answer.trim()).length;
+  const now = new Date();
   document.getElementById('s-returned').textContent = qs.filter(q => q.status === 'Returned').length;
+  document.getElementById('s-overdue').textContent  = qs.filter(q => {
+    if (q.status === 'Complete') return false;
+    if (!q.estimatedDate) return false;
+    return new Date(q.estimatedDate) < now;
+  }).length;
   updateCount();
   updateNotifBadge();
 
@@ -1136,7 +1204,11 @@ function render() {
     const isEdit     = editId === q.id;
     const isComplete = q.status === 'Complete';
     const isReturned = q.status === 'Returned';
+    const isOverdue  = !isComplete && hasEstDate && new Date(q.estimatedDate) < new Date();
     const sPillClass = 'pill ps-' + q.status.replace(' ','');
+    const cardTags   = q.tags ? q.tags.split(',').map(t=>t.trim()).filter(Boolean) : [];
+    const ratingHtml = q.rating === 'good' ? '<span class="rating-good">&#10003; Helpful</span>'
+                     : q.rating === 'poor' ? '<span class="rating-poor">&#10007; Needs improvement</span>' : '';
 
     let statusPill = '';
     if (hasAnswer) {
@@ -1175,14 +1247,19 @@ function render() {
       ? `<span><b>Notify:</b> <span style="color:#5300CE">${esc(q.submitterEmail)}</span></span>` : '';
 
     html += `
-<div class="card ${isComplete ? 'is-complete' : ''} ${isReturned ? 'needs-reassign' : ''}" data-u="${q.urgency}" id="card-${q.id}">
+<div class="card ${isComplete ? 'is-complete' : ''} ${isReturned ? 'needs-reassign' : ''} ${isOverdue ? 'is-overdue' : ''}" data-u="${q.urgency}" id="card-${q.id}">
   <div class="card-hdr">
-    <div class="card-meta">
+    <div class="card-checkbox-wrap">
+      <input type="checkbox" class="card-cb" ${bulkSelected.has(q.id)?'checked':''} onchange="toggleCardSelect('${q.id}', this.checked)"/>
+    </div>
+    <div class="card-meta" style="flex:1;">
       <span style="font-size:11px;color:var(--dim);letter-spacing:.06em">${esc(q.id)}</span>
       <span class="pill pu-${q.urgency}">${esc(q.urgency)}</span>
       <span class="${sPillClass}">${esc(q.status)}</span>
+      ${isOverdue ? '<span class="overdue-badge">&#9888; Overdue</span>' : ''}
       ${statusPill}
       ${internalPill}
+      ${ratingHtml}
     </div>
     <div class="card-actions">
       <button class="btn-ghost sm" onclick="toggleEdit('${q.id}')">${isEdit ? 'Cancel' : 'Assign'}</button>
@@ -1198,6 +1275,7 @@ function render() {
     ${aHtml}
     ${notifHtml}
   </div>
+  ${cardTags.length ? `<div style="margin-top:6px;">${cardTags.map(t=>`<span class="tag-pill">${esc(t)}</span>`).join('')}</div>` : ''}
   ${contentBlock}
   <div class="edit-panel ${isEdit ? 'open' : ''}" id="ep-${q.id}">
     <div class="status-note">Status updates automatically: Open when unassigned, Assigned when someone is selected, Complete when an answer is provided.</div>
@@ -1218,6 +1296,16 @@ function render() {
       <div>
         <div class="internal-toggle-label">&#9888; Mark as Internal Only</div>
         <div class="internal-toggle-sub">Submitter will be warned not to share this answer externally</div>
+      </div>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label class="lbl">Tags <span style="font-size:9px;background:var(--bg);border:1px solid var(--border);color:var(--dim);padding:1px 7px;border-radius:999px;margin-left:4px;">OPTIONAL</span></label>
+      <select id="etag-${q.id}" onchange="addTagToCard('${q.id}', this.value)">
+        <option value="">Add a tag...</option>
+        ${tags.map(t=>`<option value="${esc(t)}" ${cardTags.includes(t)?'disabled':''} >${esc(t)}${cardTags.includes(t)?' ✓':''}</option>`).join('')}
+      </select>
+      <div id="etag-pills-${q.id}" style="margin-top:6px;">
+        ${cardTags.map(t=>`<span class="tag-pill">${esc(t)} <span style="cursor:pointer;margin-left:2px;" onclick="removeTagFromCard('${q.id}','${esc(t)}')">&#215;</span></span>`).join('')}
       </div>
     </div>
     <div class="btn-row">
@@ -1268,6 +1356,7 @@ async function saveEdit(id) {
   saveBtn.disabled = true; saveBtn.textContent = 'Saving...';
   try {
     await apiPost({ action:'update', id, assignee, estimatedDate, updatedAt: new Date().toISOString() });
+    // Tags are saved immediately on change via addTagToCard/removeTagFromCard
     const q = qs.find(q => q.id === id);
     let newStatus = 'Open';
     if (q && q.answer && q.answer.trim()) newStatus = 'Complete';
@@ -1705,6 +1794,194 @@ async function deleteFaq(id) {
   }
 }
 
+// ── TAGS SYSTEM ───────────────────────────────────────────────────────────
+const DEFAULT_TAGS = [
+  'Pricing & Credits','Roadmap & Timeline','Security & Compliance',
+  'Platform Coverage','Implementation & PS','Objection Handling',
+  'Competitive','Assist Transition','Product Capabilities','Regional & Language'
+];
+
+async function loadTags() {
+  try {
+    const res  = await fetch(API + '?type=tags&t=' + Date.now());
+    const data = await res.json();
+    tags = Array.isArray(data) && data.length > 0 ? data : [...DEFAULT_TAGS];
+  } catch(e) { tags = [...DEFAULT_TAGS]; }
+  populateTagFilter();
+  populateBulkAssigneeDropdown();
+}
+
+function populateTagFilter() {
+  const sel = document.getElementById('f-tag');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All</option>' +
+    tags.map(t => `<option value="${esc(t)}" ${cur===t?'selected':''}>${esc(t)}</option>`).join('');
+}
+
+function openTagsModal() {
+  renderTagsList();
+  document.getElementById('tags-modal-overlay').classList.add('open');
+  document.getElementById('tag-input').value = '';
+  document.getElementById('err-tag').textContent = '';
+}
+function closeTagsModal() { document.getElementById('tags-modal-overlay').classList.remove('open'); }
+function closeTagsModalOnOverlay(e) { if (e.target===document.getElementById('tags-modal-overlay')) closeTagsModal(); }
+
+function renderTagsList() {
+  const wrap = document.getElementById('tags-list-wrap');
+  if (!tags.length) { wrap.innerHTML = '<div style="font-size:12px;color:var(--dim);padding:8px 0;">No tags yet.</div>'; return; }
+  wrap.innerHTML = tags.map((t,i) => `
+<div class="tag-row">
+  <span class="tag-row-name">${esc(t)}</span>
+  <button class="btn-tag-del" onclick="removeTag(${i})">Remove</button>
+</div>`).join('');
+}
+
+async function addTag() {
+  const val = document.getElementById('tag-input').value.trim();
+  const errEl = document.getElementById('err-tag');
+  errEl.textContent = '';
+  if (!val) { errEl.textContent = 'Please enter a tag name.'; return; }
+  if (tags.some(t => t.toLowerCase() === val.toLowerCase())) { errEl.textContent = 'This tag already exists.'; return; }
+  try {
+    await apiPost({ action: 'addTag', tag: val });
+    tags.push(val);
+    renderTagsList();
+    populateTagFilter();
+    document.getElementById('tag-input').value = '';
+    setSyncStatus('live', 'Tag added — ' + new Date().toLocaleTimeString());
+  } catch(e) { errEl.textContent = 'Failed to save. Check your connection.'; }
+}
+
+async function removeTag(index) {
+  const tag = tags[index];
+  if (!confirm(`Remove tag "${tag}"? It will be removed from the filter but existing assignments will not be affected.`)) return;
+  try {
+    await apiPost({ action: 'removeTag', tag });
+    tags.splice(index, 1);
+    renderTagsList();
+    populateTagFilter();
+    setSyncStatus('live', 'Tag removed — ' + new Date().toLocaleTimeString());
+  } catch(e) { alert('Failed to remove. Check your connection.'); }
+}
+
+// ── BULK ASSIGNMENT ────────────────────────────────────────────────────────
+function toggleBulkMode() {
+  bulkMode = !bulkMode;
+  if (!bulkMode) clearBulkSelection();
+  document.querySelectorAll('.card-checkbox-wrap').forEach(el => {
+    el.closest('.card').classList.toggle('bulk-mode-card', bulkMode);
+  });
+  document.getElementById('repo-list').classList.toggle('bulk-mode', bulkMode);
+  render();
+}
+
+function toggleCardSelect(id, checked) {
+  if (checked) bulkSelected.add(id);
+  else bulkSelected.delete(id);
+  updateBulkBar();
+  const card = document.getElementById('card-' + id);
+  if (card) card.classList.toggle('bulk-selected', checked);
+}
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulk-bar');
+  const count = bulkSelected.size;
+  if (count > 0) {
+    bar.classList.add('show');
+    document.getElementById('bulk-bar-count').textContent = count + ' question' + (count===1?'':'s') + ' selected';
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
+function clearBulkSelection() {
+  bulkSelected.clear();
+  document.querySelectorAll('.card.bulk-selected').forEach(c => c.classList.remove('bulk-selected'));
+  document.querySelectorAll('.card-cb:checked').forEach(cb => cb.checked = false);
+  updateBulkBar();
+}
+
+function populateBulkAssigneeDropdown() {
+  const sel = document.getElementById('bulk-assignee-select');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Assign to...</option>' +
+    assignees.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('');
+}
+
+async function bulkAssign() {
+  const assignee = document.getElementById('bulk-assignee-select').value;
+  if (!assignee) { alert('Please select an assignee.'); return; }
+  if (!bulkSelected.size) { alert('No questions selected.'); return; }
+  const ids = Array.from(bulkSelected);
+  const btn = document.querySelector('#bulk-bar .btn-primary');
+  btn.disabled = true; btn.textContent = 'Assigning...';
+  try {
+    await apiPost({ action: 'bulkAssign', ids, assignee, updatedAt: new Date().toISOString() });
+    qs = qs.map(q => ids.includes(q.id) ? { ...q, assignee, status: q.answer && q.answer.trim() ? 'Complete' : 'Assigned' } : q);
+    clearBulkSelection();
+    render();
+    setSyncStatus('live', `${ids.length} questions assigned to ${assignee}`);
+  } catch(e) { alert('Bulk assign failed. Check your connection.'); }
+  btn.disabled = false; btn.textContent = 'Assign Selected';
+}
+
+// ── FAQ EXPORT ─────────────────────────────────────────────────────────────
+function exportFAQ() {
+  const answered = qs.filter(q => q.status === 'Complete' && q.answer && q.answer.trim() && !q.internalOnly);
+  if (!answered.length) { alert('No answered public questions to export yet.'); return; }
+
+  const byDept = {};
+  answered.forEach(q => {
+    const d = q.dept || 'General';
+    if (!byDept[d]) byDept[d] = [];
+    byDept[d].push(q);
+  });
+
+  const date = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<title>JAI Q&A Central — FAQ Export</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 860px; margin: 40px auto; padding: 0 24px; color: #1a1a2e; line-height: 1.6; }
+  h1 { color: #D22428; border-bottom: 3px solid #D22428; padding-bottom: 12px; }
+  h2 { color: #5300CE; margin-top: 36px; border-bottom: 1px solid #e2e5ea; padding-bottom: 6px; }
+  .qa { margin: 20px 0; padding: 16px 20px; background: #f4f5f7; border-left: 4px solid #5300CE; border-radius: 0 6px 6px 0; }
+  .question { font-weight: 600; font-size: 15px; color: #1a1a2e; margin-bottom: 10px; }
+  .answer { font-size: 14px; color: #374151; white-space: pre-wrap; }
+  .meta { font-size: 11px; color: #8a94a8; margin-top: 8px; }
+  .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #e2e5ea; font-size: 11px; color: #8a94a8; text-align: center; }
+  @media print { body { margin: 20px; } }
+</style>
+</head><body>
+<h1>JAI Q&A Central — Frequently Asked Questions</h1>
+<p style="color:#5a6478;margin-bottom:32px;">Generated ${date} &nbsp;·&nbsp; ${answered.length} questions &nbsp;·&nbsp; For internal use</p>`;
+
+  Object.keys(byDept).sort().forEach(dept => {
+    html += `<h2>${dept}</h2>`;
+    byDept[dept].forEach(q => {
+      html += `<div class="qa">
+  <div class="question">Q: ${q.question.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+  <div class="answer">${q.answer.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+  <div class="meta">Answered by ${q.assignee || 'JAI Team'}</div>
+</div>`;
+    });
+  });
+
+  html += `<div class="footer">JAI Q&A Central &nbsp;·&nbsp; JAGGAER &nbsp;·&nbsp; Generated ${date}<br/>To print as PDF: File → Print → Save as PDF</div>
+</body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'JAI-QA-FAQ-Export-' + new Date().toISOString().slice(0,10) + '.html';
+  a.click();
+}
+
+// ── ANSWER RATING ──────────────────────────────────────────────────────────
+// Rating is set via email reply (RATING:good / RATING:poor) parsed by Apps Script
+// Front end just displays the rating badge on cards
+
 function toggleNotifPanel() {
   const panel = document.getElementById('notif-panel');
   panel.classList.toggle('open');
@@ -1759,6 +2036,33 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// ── TAG CARD MANIPULATION ─────────────────────────────────────────────────
+async function addTagToCard(id, tag) {
+  if (!tag) return;
+  const q = qs.find(q => q.id === id);
+  if (!q) return;
+  const currentTags = q.tags ? q.tags.split(',').map(t=>t.trim()).filter(Boolean) : [];
+  if (currentTags.includes(tag)) return;
+  const newTags = [...currentTags, tag].join(',');
+  try {
+    await apiPost({ action: 'setTags', id, tags: newTags });
+    qs = qs.map(q => q.id === id ? {...q, tags: newTags} : q);
+    render();
+    setSyncStatus('live', 'Tag added');
+  } catch(e) { alert('Failed to save tag.'); }
+}
+
+async function removeTagFromCard(id, tag) {
+  const q = qs.find(q => q.id === id);
+  if (!q) return;
+  const newTags = (q.tags||'').split(',').map(t=>t.trim()).filter(t=>t&&t!==tag).join(',');
+  try {
+    await apiPost({ action: 'setTags', id, tags: newTags });
+    qs = qs.map(q => q.id === id ? {...q, tags: newTags} : q);
+    render();
+  } catch(e) { alert('Failed to remove tag.'); }
+}
+
 function exportCSV() {
   const hdr = ['ID','Name','Department','Urgency','Question','Status','Assignee','Answer','InternalOnly','EstimatedDate','SubmitterEmail','Submitted'];
   const rows = qs.map(q => [
@@ -1786,18 +2090,35 @@ async function readUrlParams() {
     const banner = document.getElementById('followup-banner');
     if (banner) { banner.textContent = 'Loading follow-up context for ' + refId + '...'; banner.classList.add('show'); }
     try {
-      const res = await fetch(API + '?t=' + Date.now());
+      const res  = await fetch(API + '?t=' + Date.now());
       const data = await res.json();
       const original = Array.isArray(data) ? data.find(q => q.id === refId) : null;
       const qField = document.getElementById('f-question');
-      if (original && qField) {
-        const prefix = '[Follow-up to ' + refId + '] ';
-        const context = '\n\n--- Original Question ---\n' + original.question +
-                        '\n\n--- Original Answer ---\n' + (original.answer || 'Pending');
-        qField.value = prefix + context;
-        qField.focus();
-        qField.setSelectionRange(prefix.length, prefix.length);
-        if (banner) banner.textContent = 'Follow-up to ' + refId + ' — original context is pre-filled below. Type your follow-up question at the start, or remove the context if not needed.';
+
+      if (original) {
+        // Autofill submitter fields from original question
+        const nameField  = document.getElementById('f-name');
+        const deptField  = document.getElementById('f-dept');
+        const emailCheck = document.getElementById('email-optin-check');
+        const emailField = document.getElementById('f-email');
+
+        if (nameField  && original.name)  nameField.value  = original.name;
+        if (deptField  && original.dept)  deptField.value  = original.dept;
+        if (original.submitterEmail && original.submitterEmail.trim()) {
+          if (emailCheck) { emailCheck.checked = true; toggleEmailOptin(); }
+          if (emailField) emailField.value = original.submitterEmail;
+        }
+
+        // Pre-fill question with context
+        if (qField) {
+          const prefix  = '[Follow-up to ' + refId + '] ';
+          const context = '\n\n--- Original Question ---\n' + original.question +
+                          '\n\n--- Original Answer ---\n' + (original.answer || 'Pending');
+          qField.value = prefix + context;
+          qField.focus();
+          qField.setSelectionRange(prefix.length, prefix.length);
+        }
+        if (banner) banner.textContent = 'Follow-up to ' + refId + ' — your details and context have been pre-filled. Just type your follow-up question at the start.';
       } else if (qField) {
         qField.value = '[Follow-up to ' + refId + '] ';
         qField.focus();
