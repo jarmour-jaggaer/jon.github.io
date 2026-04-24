@@ -323,6 +323,27 @@
   .dupe-faq-excerpt { font-size:11px; color:#5a6478; line-height:1.5; }
   .dupe-section-label { font-size:10px; text-transform:uppercase; letter-spacing:0.09em; color:#92400e; font-weight:600; margin:10px 0 6px; }
 
+  /* Hide Answered toggle */
+  .toggle-answered-btn { position:relative; }
+  .toggle-answered-btn .hidden-count {
+    display:inline-block; background:var(--accent); color:#fff;
+    border-radius:999px; font-size:10px; font-weight:600;
+    padding:1px 6px; margin-left:5px; vertical-align:middle;
+  }
+  .toggle-answered-btn.hiding { background:#ede8fa; border-color:#c4aff5; color:var(--accent); }
+
+  /* Load More */
+  .load-more-wrap { text-align:center; padding:20px 0 8px; }
+  .load-more-info { font-size:11px; color:var(--dim); margin-top:8px; }
+
+  /* Priority section dividers */
+  .section-divider {
+    display:flex; align-items:center; gap:10px;
+    margin:16px 0 8px; font-size:10px; text-transform:uppercase;
+    letter-spacing:0.09em; color:var(--dim); font-weight:600;
+  }
+  .section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
   @media (max-width: 680px) {
     header { flex-direction: column; gap: 12px; align-items: flex-start; padding: 16px; }
     .grid-2, .grid-5, .grid-edit { grid-template-columns: 1fr; }
@@ -456,7 +477,8 @@
               &#9888;
               <span id="notif-badge"></span>
             </button>
-            <button class="btn-ghost sm" onclick="loadAll()">&#8635; Refresh</button>
+            <button class="btn-ghost sm toggle-answered-btn" id="toggle-answered-btn" onclick="toggleHideAnswered()">Hide Answered</button>
+            <button class="btn-ghost sm" onclick="hardRefresh()">&#8635; Refresh</button>
             <button class="btn-ghost sm" onclick="openAssigneeModal()">&#9881; Manage Assignees</button>
             <button class="btn-ghost sm" onclick="openFaqModal()">&#128196; Manage FAQs</button>
             <button class="btn-ghost sm" onclick="exportCSV()">Export CSV</button>
@@ -506,25 +528,25 @@
         <div class="grid-5">
           <div>
             <label class="lbl">Status</label>
-            <select id="f-status" onchange="render()">
+            <select id="f-status" onchange="currentPage=1;render()">
               <option>All</option><option>Open</option><option>Assigned</option><option>Complete</option><option>Returned</option>
             </select>
           </div>
           <div>
             <label class="lbl">Answered</label>
-            <select id="f-answered" onchange="render()">
+            <select id="f-answered" onchange="currentPage=1;render()">
               <option>All</option><option>Answered</option><option>Unanswered</option>
             </select>
           </div>
           <div>
             <label class="lbl">Urgency</label>
-            <select id="f-urgency" onchange="render()">
+            <select id="f-urgency" onchange="currentPage=1;render()">
               <option>All</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
             </select>
           </div>
           <div>
             <label class="lbl">Department</label>
-            <select id="f-dept2" onchange="render()">
+            <select id="f-dept2" onchange="currentPage=1;render()">
               <option>All</option>
               <option>Global Customer Care</option><option>Customer Success Managers</option>
               <option>Product</option><option>Engineering</option>
@@ -535,7 +557,7 @@
           </div>
           <div>
             <label class="lbl">Search</label>
-            <input type="text" id="f-search" placeholder="Search questions, answers, names..." oninput="render()"/>
+            <input type="text" id="f-search" placeholder="Search questions, answers, names..." oninput="currentPage=1;render()"/>
           </div>
         </div>
 
@@ -622,6 +644,11 @@
 const API = 'https://script.google.com/macros/s/AKfycbwfABCyi0PCwBb4XxMTyIhq1khMe62jZDTvRoooFk4dzhQbQg3UM2MnoXPfdL98s_N_/exec';
 
 let qs = [], assignees = [], urgency = 'Medium', editId = null;
+let hideAnswered = sessionStorage.getItem('jai-hide-answered') === '1';
+let pageSize = 20;
+let currentPage = 1;
+const CACHE_KEY = 'jai-complete-cache';
+const CACHE_META_KEY = 'jai-cache-meta';
 let dupeTimer = null;
 
 function genId() {
@@ -771,16 +798,115 @@ async function loadQuestions() {
   }
 }
 
+// ── CACHE HELPERS ────────────────────────────────────────────────────────────
+function getCachedComplete() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+function setCachedComplete(rows) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(rows));
+    localStorage.setItem(CACHE_META_KEY, JSON.stringify({
+      count: rows.length,
+      ts: Date.now()
+    }));
+  } catch(e) {} // storage full — skip silently
+}
+function clearCache() {
+  localStorage.removeItem(CACHE_KEY);
+  localStorage.removeItem(CACHE_META_KEY);
+}
+
+async function runDeltaCheck() {
+  // Lightweight check: fetch just count + lastUpdated for Complete rows
+  // If different from cache, do a silent background re-fetch of Complete rows
+  try {
+    const res  = await fetch(API + '?type=delta&t=' + Date.now());
+    const data = await res.json();
+    const meta = JSON.parse(localStorage.getItem(CACHE_META_KEY) || '{}');
+    if (data.completeCount !== meta.count || data.lastUpdated !== meta.lastUpdated) {
+      // Cache is stale — re-fetch complete rows silently
+      const full = await fetch(API + '?t=' + Date.now());
+      const all  = await full.json();
+      if (Array.isArray(all)) {
+        const complete = all.filter(q => q.status === 'Complete');
+        setCachedComplete(complete);
+        // Merge into qs without disrupting current view
+        const nonComplete = qs.filter(q => q.status !== 'Complete');
+        qs = [...nonComplete, ...complete];
+        render();
+      }
+    }
+  } catch(e) {} // delta check is best-effort, never blocks
+}
+
 async function loadAll() {
   setSyncStatus('loading', 'Loading from Google Sheets...');
   document.getElementById('repo-list').innerHTML =
     '<div class="spinner-wrap"><div class="spinner"></div>Loading questions...</div>';
+  clearCache();
+  currentPage = 1;
   await Promise.all([loadQuestions(), loadAssignees(), loadFaqs()]);
+}
+
+async function hardRefresh() {
+  clearCache();
+  currentPage = 1;
+  await loadAll();
+}
+
+async function loadQuestions() {
+  try {
+    // Step 1: fetch unanswered only (fast — excludes Complete rows from sheet read)
+    const unansweredRes  = await fetch(API + '?type=unanswered&t=' + Date.now());
+    const unansweredData = await unansweredRes.json();
+    const unanswered = Array.isArray(unansweredData) ? unansweredData.filter(q => q.id) : [];
+
+    // Step 2: serve Complete from cache immediately
+    const cached = getCachedComplete();
+
+    // Merge: unanswered first, cached complete appended
+    qs = [...unanswered, ...cached];
+    updateCount();
+    render();
+    setSyncStatus('live', 'Live — last synced ' + new Date().toLocaleTimeString());
+
+    // Step 3: if no cache, fetch Complete rows in background and cache them
+    if (cached.length === 0) {
+      fetchAndCacheComplete(unanswered);
+    } else {
+      // Cache exists — run delta check in background to see if it is stale
+      setTimeout(runDeltaCheck, 1500);
+    }
+  } catch(e) {
+    setSyncStatus('error', 'Connection error — check your network or re-deploy the Apps Script');
+    document.getElementById('repo-list').innerHTML =
+      '<div class="empty">Could not load data. Check your connection and try refreshing.</div>';
+  }
+}
+
+async function fetchAndCacheComplete(unanswered) {
+  // Background fetch of Complete rows — does not block initial render
+  try {
+    const res  = await fetch(API + '?type=complete&t=' + Date.now());
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      const complete = data.filter(q => q.id && q.status === 'Complete');
+      setCachedComplete(complete);
+      qs = [...unanswered, ...complete];
+      updateCount();
+      render();
+      setSyncStatus('live', 'Fully loaded — ' + new Date().toLocaleTimeString());
+    }
+  } catch(e) {} // best-effort — cached version will be re-tried on next load
 }
 
 // Load questions silently on page load for duplicate detection
 async function loadQuestionsBackground() {
-  // Load questions and FAQs independently so a FAQ failure cannot break question load
+  // Submit tab: always load ALL questions (full dataset) for duplicate detection
+  // This is intentionally separate from the repository smart-load logic
   try {
     const qRes = await fetch(API + '?t=' + Date.now());
     const qData = await qRes.json();
@@ -921,9 +1047,23 @@ function render() {
   const fa = document.getElementById('f-answered').value;
   const fu = document.getElementById('f-urgency').value;
   const fd = document.getElementById('f-dept2').value;
-  const fq = document.getElementById('f-search').value.toLowerCase();
+  const fq = (document.getElementById('f-search').value || '').toLowerCase();
 
-  const filtered = qs.filter(q => {
+  // Update hide-answered button state
+  const toggleBtn = document.getElementById('toggle-answered-btn');
+  if (toggleBtn) {
+    if (hideAnswered) {
+      const hiddenCount = qs.filter(q => q.status === 'Complete' && q.answer && q.answer.trim()).length;
+      toggleBtn.classList.add('hiding');
+      toggleBtn.innerHTML = `Show Answered <span class="hidden-count">${hiddenCount}</span>`;
+    } else {
+      toggleBtn.classList.remove('hiding');
+      toggleBtn.innerHTML = 'Hide Answered';
+    }
+  }
+
+  // Apply filters
+  let filtered = qs.filter(q => {
     if (fs !== 'All' && q.status !== fs) return false;
     if (fa === 'Answered'   && !(q.answer && q.answer.trim())) return false;
     if (fa === 'Unanswered' &&   q.answer && q.answer.trim())  return false;
@@ -933,12 +1073,21 @@ function render() {
       const hay = (q.question + ' ' + q.name + ' ' + (q.answer||'')).toLowerCase();
       if (!hay.includes(fq)) return false;
     }
+    // Hide answered if toggle is active and no explicit filter is forcing answered content
+    if (hideAnswered && q.status === 'Complete' && fa !== 'Answered' && fs !== 'Complete') return false;
     return true;
   });
 
-  const urgencyOrder = { Critical: 0, High: 1, Medium: 2, Low: 3 };
-  filtered.sort((a, b) => (urgencyOrder[a.urgency] ?? 4) - (urgencyOrder[b.urgency] ?? 4));
+  // Priority sort: Open/Returned first by urgency, Assigned next by urgency, Complete last
+  const statusOrder  = { 'Open': 0, 'Returned': 0, 'Assigned': 1, 'Complete': 2 };
+  const urgencyOrder = { 'Critical': 0, 'High': 1, 'Medium': 2, 'Low': 3 };
+  filtered.sort((a, b) => {
+    const sd = (statusOrder[a.status] ?? 3) - (statusOrder[b.status] ?? 3);
+    if (sd !== 0) return sd;
+    return (urgencyOrder[a.urgency] ?? 4) - (urgencyOrder[b.urgency] ?? 4);
+  });
 
+  // Update stats (always across full qs, not filtered)
   document.getElementById('s-total').textContent    = qs.length;
   document.getElementById('s-open').textContent     = qs.filter(q => q.status === 'Open').length;
   document.getElementById('s-assigned').textContent = qs.filter(q => q.status === 'Assigned').length;
@@ -949,6 +1098,7 @@ function render() {
   updateNotifBadge();
 
   const el = document.getElementById('repo-list');
+
   if (!filtered.length) {
     el.innerHTML = '<div class="empty">' + (qs.length === 0
       ? 'No questions submitted yet. Share the Submit tab with your org.'
@@ -956,16 +1106,38 @@ function render() {
     return;
   }
 
-  el.innerHTML = filtered.map(q => {
+  // Pagination — slice to currentPage * pageSize
+  const totalFiltered = filtered.length;
+  const visible = filtered.slice(0, currentPage * pageSize);
+  const hasMore = totalFiltered > visible.length;
+
+  // Build cards with section dividers between Open/Returned → Assigned → Complete
+  let html = '';
+  let lastSection = null;
+
+  visible.forEach(q => {
+    const section = q.status === 'Complete' ? 'complete'
+                  : q.status === 'Assigned' ? 'assigned'
+                  : 'open';
+
+    if (section !== lastSection) {
+      const labels = {
+        open:     'Needs Attention',
+        assigned: 'In Progress',
+        complete: 'Answered',
+      };
+      html += `<div class="section-divider">${labels[section]}</div>`;
+      lastSection = section;
+    }
+
     const date       = new Date(q.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
     const hasAnswer  = q.answer && q.answer.trim();
     const hasEstDate = q.estimatedDate && q.estimatedDate.trim();
     const isEdit     = editId === q.id;
     const isComplete = q.status === 'Complete';
-    const sPillClass = 'pill ps-' + q.status.replace(' ','');
     const isReturned = q.status === 'Returned';
+    const sPillClass = 'pill ps-' + q.status.replace(' ','');
 
-    // Answer / estimated date pill
     let statusPill = '';
     if (hasAnswer) {
       statusPill = `<span class="pill pa-answered">Answered</span>`;
@@ -975,12 +1147,9 @@ function render() {
       statusPill = `<span class="pill pa-unanswered">Awaiting Answer</span>`;
     }
 
-    // Internal only badge
     const internalPill = q.internalOnly
-      ? `<span class="pill pi-internal">Internal Only</span>`
-      : '';
+      ? `<span class="pill pi-internal">Internal Only</span>` : '';
 
-    // Answer / estimated / awaiting block
     let contentBlock = '';
     if (hasAnswer) {
       contentBlock = `<div class="answer-block">
@@ -994,10 +1163,10 @@ function render() {
       contentBlock = `<div class="estimated-block">
         <div class="estimated-label">Estimated Response Date</div>
         <div class="estimated-date">${esc(formatEstimatedDate(q.estimatedDate))}</div>
-        <div class="estimated-sub">An answer is expected by this date. You will be notified when it is available.</div>
+        <div class="estimated-sub">An answer is expected by this date.</div>
       </div>`;
     } else {
-      contentBlock = `<div class="awaiting">No answer yet — add one in the Google Sheet or via email reply and refresh</div>`;
+      contentBlock = `<div class="awaiting">No answer yet — assign and respond via email</div>`;
     }
 
     const aHtml = q.assignee
@@ -1005,8 +1174,8 @@ function render() {
     const notifHtml = q.submitterEmail
       ? `<span><b>Notify:</b> <span style="color:#5300CE">${esc(q.submitterEmail)}</span></span>` : '';
 
-    return `
-<div class="card ${isComplete ? 'is-complete' : isReturned ? 'needs-reassign' : ''}" data-u="${q.urgency}" id="card-${q.id}">
+    html += `
+<div class="card ${isComplete ? 'is-complete' : ''} ${isReturned ? 'needs-reassign' : ''}" data-u="${q.urgency}" id="card-${q.id}">
   <div class="card-hdr">
     <div class="card-meta">
       <span style="font-size:11px;color:var(--dim);letter-spacing:.06em">${esc(q.id)}</span>
@@ -1032,7 +1201,7 @@ function render() {
   ${contentBlock}
   <div class="edit-panel ${isEdit ? 'open' : ''}" id="ep-${q.id}">
     <div class="status-note">Status updates automatically: Open when unassigned, Assigned when someone is selected, Complete when an answer is provided.</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;margin-bottom:12px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;margin-bottom:10px;">
       <div>
         <label class="lbl">Assign To</label>
         <select id="ea-${q.id}">
@@ -1040,7 +1209,7 @@ function render() {
         </select>
       </div>
       <div>
-        <label class="lbl">Estimated Answer Date <span style="font-size:9px;background:var(--bg);border:1px solid var(--border);color:var(--dim);padding:1px 7px;border-radius:999px;letter-spacing:0.06em;margin-left:4px;">OPTIONAL</span></label>
+        <label class="lbl">Estimated Answer Date <span style="font-size:9px;background:var(--bg);border:1px solid var(--border);color:var(--dim);padding:1px 7px;border-radius:999px;margin-left:4px;">OPTIONAL</span></label>
         <input type="date" id="ed-${q.id}" value="${q.estimatedDate ? q.estimatedDate.substring(0,10) : ''}"/>
       </div>
     </div>
@@ -1048,7 +1217,7 @@ function render() {
       <input type="checkbox" id="ei-${q.id}" ${q.internalOnly ? 'checked' : ''} onchange="setInternalOnly('${q.id}', this.checked)"/>
       <div>
         <div class="internal-toggle-label">&#9888; Mark as Internal Only</div>
-        <div class="internal-toggle-sub">Submitter will be warned not to share this answer with external clients or customers</div>
+        <div class="internal-toggle-sub">Submitter will be warned not to share this answer externally</div>
       </div>
     </div>
     <div class="btn-row">
@@ -1057,7 +1226,37 @@ function render() {
     </div>
   </div>
 </div>`;
-  }).join('');
+  });
+
+  // Load More button
+  if (hasMore) {
+    html += `<div class="load-more-wrap">
+      <button class="btn-primary" onclick="loadMoreCards()">Load More</button>
+      <div class="load-more-info">Showing ${visible.length} of ${totalFiltered} questions</div>
+    </div>`;
+  } else if (totalFiltered > pageSize) {
+    html += `<div class="load-more-wrap">
+      <div class="load-more-info">All ${totalFiltered} questions shown</div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function loadMoreCards() {
+  currentPage++;
+  render();
+  // Scroll to where the new cards start
+  const items = document.querySelectorAll('#repo-list .card');
+  const targetIdx = (currentPage - 1) * pageSize;
+  if (items[targetIdx]) items[targetIdx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleHideAnswered() {
+  hideAnswered = !hideAnswered;
+  sessionStorage.setItem('jai-hide-answered', hideAnswered ? '1' : '0');
+  currentPage = 1;
+  render();
 }
 
 function toggleEdit(id) { editId = (editId === id) ? null : id; render(); }
@@ -1074,6 +1273,11 @@ async function saveEdit(id) {
     if (q && q.answer && q.answer.trim()) newStatus = 'Complete';
     else if (assignee) newStatus = 'Assigned';
     qs = qs.map(q => q.id === id ? {...q, assignee, estimatedDate, status: newStatus} : q);
+    // Update cache if this question is now complete
+    if (newStatus === 'Complete') {
+      const allComplete = qs.filter(q => q.status === 'Complete');
+      setCachedComplete(allComplete);
+    }
     editId = null; render();
     setSyncStatus('live', 'Saved — ' + new Date().toLocaleTimeString());
   } catch(e) {
