@@ -780,17 +780,23 @@ async function loadAll() {
 
 // Load questions silently on page load for duplicate detection
 async function loadQuestionsBackground() {
+  // Load questions and FAQs independently so a FAQ failure cannot break question load
   try {
-    const [qRes, fRes] = await Promise.all([
-      fetch(API + '?t=' + Date.now()),
-      fetch(API + '?type=faqs&t=' + Date.now())
-    ]);
+    const qRes = await fetch(API + '?t=' + Date.now());
     const qData = await qRes.json();
-    const fData = await fRes.json();
     qs = Array.isArray(qData) ? qData.filter(q => q.id) : [];
-    faqs = Array.isArray(fData) ? fData : [];
     updateCount();
-  } catch(e) {}
+  } catch(e) {
+    console.warn('Background question load failed:', e);
+  }
+  try {
+    const fRes = await fetch(API + '?type=faqs&t=' + Date.now());
+    const fData = await fRes.json();
+    faqs = Array.isArray(fData) ? fData : [];
+  } catch(e) {
+    console.warn('Background FAQ load failed:', e);
+    faqs = [];
+  }
 }
 
 function selUrg(btn) {
