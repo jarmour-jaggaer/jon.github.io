@@ -530,6 +530,17 @@
           <input type="password" id="repo-gate-input" placeholder="Password" onkeydown="if(event.key==='Enter') checkRepoPass()"/>
           <button id="repo-gate-btn" onclick="checkRepoPass()">Enter Repository →</button>
           <div id="repo-gate-err"></div>
+
+          <!-- Request Access -->
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+            <div style="font-size:11px;color:var(--dim);margin-bottom:10px;text-align:center;">Don't have the password?</div>
+            <div id="request-access-wrap" style="display:none;">
+              <input type="email" id="request-access-email" placeholder="you@jaggaer.com" style="margin-bottom:8px;" onkeydown="if(event.key==='Enter') requestAccess()"/>
+              <button id="request-access-btn" onclick="requestAccess()" style="width:100%;padding:11px;background:var(--bg);color:var(--accent);border:1px solid #c4aff5;border-radius:6px;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;">Send me the password</button>
+              <div id="request-access-msg" style="font-size:11px;margin-top:8px;min-height:16px;text-align:center;"></div>
+            </div>
+            <button onclick="toggleRequestAccess()" id="request-access-toggle" style="width:100%;padding:8px;background:none;border:none;font-family:var(--font);font-size:12px;color:var(--accent);cursor:pointer;text-decoration:underline;">Request access</button>
+          </div>
         </div>
       </div>
 
@@ -866,6 +877,42 @@ function checkDuplicates() {
 }
 
 // --- PASSWORD GATE ---
+function toggleRequestAccess() {
+  const wrap   = document.getElementById('request-access-wrap');
+  const toggle = document.getElementById('request-access-toggle');
+  const showing = wrap.style.display !== 'none';
+  wrap.style.display   = showing ? 'none' : 'block';
+  toggle.textContent   = showing ? 'Request access' : 'Cancel';
+  if (!showing) setTimeout(() => document.getElementById('request-access-email').focus(), 50);
+}
+
+async function requestAccess() {
+  const email  = document.getElementById('request-access-email').value.trim();
+  const msgEl  = document.getElementById('request-access-msg');
+  const btn    = document.getElementById('request-access-btn');
+  msgEl.style.color = 'var(--red)';
+  msgEl.textContent = '';
+
+  if (!email) { msgEl.textContent = 'Please enter your email address.'; return; }
+  if (!/@jaggaer\.com$/i.test(email)) {
+    msgEl.textContent = 'Access is limited to @jaggaer.com email addresses.';
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    await apiPost({ action: 'requestAccess', email });
+    msgEl.style.color = 'var(--green)';
+    msgEl.textContent = '✓ Password sent — check your inbox.';
+    document.getElementById('request-access-email').value = '';
+    btn.textContent = 'Sent';
+  } catch(e) {
+    msgEl.style.color = 'var(--red)';
+    msgEl.textContent = 'Failed to send. Try again or contact Jon Armour.';
+    btn.disabled = false; btn.textContent = 'Send me the password';
+  }
+}
+
 function checkRepoPass() {
   const val = document.getElementById('repo-gate-input').value;
   if (val === 'JAGGAER1Q&A') {
