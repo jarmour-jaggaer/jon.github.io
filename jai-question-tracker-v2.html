@@ -66,6 +66,14 @@
   .dupe-q { font-size: 12px; color: var(--text); line-height: 1.5; margin-bottom: 6px; font-weight: 500; }
   .dupe-answer { font-size: 11px; color: #5a6478; line-height: 1.5; padding: 8px 10px; background: #f8f6ff; border-radius: 4px; border-left: 2px solid var(--accent); }
   .dupe-no-answer { font-size: 11px; color: var(--dim); font-style: italic; }
+  .dupe-follow-wrap { margin-top:8px; }
+  .dupe-follow-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; background:#f3e8ff; color:var(--accent); border:1px solid #c4aff5; border-radius:5px; font-family:var(--font); font-size:11px; font-weight:500; cursor:pointer; transition:all 0.15s; }
+  .dupe-follow-btn:hover { background:#ede8fa; }
+  .dupe-follow-btn.following { background:#f0fdf4; color:#166534; border-color:#86efac; cursor:default; }
+  .dupe-follow-email-wrap { margin-top:6px; display:flex; gap:6px; align-items:center; }
+  .dupe-follow-email-input { flex:1; font-size:12px; padding:5px 8px; border:1px solid var(--border); border-radius:5px; font-family:var(--font); }
+  .dupe-follow-email-submit { padding:5px 10px; background:var(--accent); color:#fff; border:none; border-radius:5px; font-family:var(--font); font-size:11px; font-weight:500; cursor:pointer; }
+  .dupe-follow-msg { font-size:10px; margin-top:4px; }
   .dupe-meta { font-size: 10px; color: var(--dim); margin-bottom: 4px; }
   .dupe-expand { font-size: 10px; color: var(--accent); cursor: pointer; margin-top: 4px; display: inline-block; }
 
@@ -864,11 +872,19 @@ function checkDuplicates() {
       const answerHtml = hasAnswer
         ? `<div class="dupe-answer"><strong>Answer:</strong> ${esc(q.answer.substring(0, 200))}${q.answer.length > 200 ? '...' : ''}</div>`
         : `<div class="dupe-no-answer">No answer yet — ${q.status}</div>`;
+
+      // Follow button — only shown on unanswered questions
+      const followHtml = !hasAnswer ? `
+<div class="dupe-follow-wrap" id="follow-wrap-${esc(q.id)}">
+  <button class="dupe-follow-btn" onclick="initFollow('${esc(q.id)}')">&#9993; Notify me when this is answered</button>
+</div>` : '';
+
       return `
 <div class="dupe-item">
   <div class="dupe-meta">${esc(q.id)} &nbsp;·&nbsp; ${esc(q.urgency)} &nbsp;·&nbsp; ${esc(q.status)}</div>
   <div class="dupe-q">${esc(q.question)}</div>
   ${answerHtml}
+  ${followHtml}
 </div>`;
     }).join('');
 
@@ -2116,6 +2132,80 @@ function exportFAQ() {
 // ── ANSWER RATING ──────────────────────────────────────────────────────────
 // Rating is set via email reply (RATING:good / RATING:poor) parsed by Apps Script
 // Front end just displays the rating badge on cards
+
+// ── QUESTION FOLLOWING ────────────────────────────────────────────────────
+function initFollow(questionId) {
+  const wrap = document.getElementById('follow-wrap-' + questionId);
+  if (!wrap) return;
+
+  // Check if email is already filled in the opt-in field
+  const emailField  = document.getElementById('f-email');
+  const emailCheck  = document.getElementById('email-optin-check');
+  const prefilled   = emailCheck && emailCheck.checked && emailField && emailField.value.trim();
+
+  if (prefilled) {
+    // Email already available — follow immediately
+    addFollower(questionId, emailField.value.trim(), wrap);
+  } else {
+    // Show inline email input
+    wrap.innerHTML = `
+<div class="dupe-follow-email-wrap">
+  <input type="email" class="dupe-follow-email-input" id="follow-email-${questionId}"
+    placeholder="your@jaggaer.com" onkeydown="if(event.key==='Enter') submitFollow('${questionId}')"/>
+  <button class="dupe-follow-email-submit" onclick="submitFollow('${questionId}')">Notify me</button>
+</div>
+<div class="dupe-follow-msg" id="follow-msg-${questionId}"></div>`;
+    setTimeout(() => {
+      const inp = document.getElementById('follow-email-' + questionId);
+      if (inp) inp.focus();
+    }, 50);
+  }
+}
+
+function submitFollow(questionId) {
+  const inp   = document.getElementById('follow-email-' + questionId);
+  const msgEl = document.getElementById('follow-msg-' + questionId);
+  const wrap  = document.getElementById('follow-wrap-' + questionId);
+  if (!inp || !msgEl) return;
+
+  const email = inp.value.trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msgEl.style.color = 'var(--red)';
+    msgEl.textContent = 'Please enter a valid email address.';
+    return;
+  }
+
+  addFollower(questionId, email, wrap, msgEl);
+}
+
+async function addFollower(questionId, email, wrapEl, msgEl) {
+  try {
+    if (wrapEl) {
+      wrapEl.innerHTML = '<button class="dupe-follow-btn" disabled>Adding...</button>';
+    }
+    await apiPost({ action: 'addFollower', id: questionId, email });
+
+    // Also auto-fill the main email opt-in field if not already set
+    const emailCheck = document.getElementById('email-optin-check');
+    const emailField = document.getElementById('f-email');
+    if (emailCheck && !emailCheck.checked) {
+      emailCheck.checked = true;
+      toggleEmailOptin();
+    }
+    if (emailField && !emailField.value.trim()) {
+      emailField.value = email;
+    }
+
+    if (wrapEl) {
+      wrapEl.innerHTML = '<button class="dupe-follow-btn following">&#10003; You will be notified when this is answered</button>';
+    }
+  } catch(e) {
+    if (wrapEl) {
+      wrapEl.innerHTML = `<button class="dupe-follow-btn" onclick="initFollow('${questionId}')">&#9993; Notify me when this is answered</button>`;
+    }
+    if (msgEl) { msgEl.style.color = 'var(--red)'; msgEl.textContent = 'Failed to save. Please try again.'; }
+  }
+}
 
 function toggleNotifPanel() {
   const panel = document.getElementById('notif-panel');
