@@ -1340,6 +1340,11 @@ function buildThreadHtml(threads, parentId) {
     + '</div>';
 }
 
+function buildTagPills(tags) {
+  if (!tags || !tags.length) return '';
+  return '<div style="margin-top:6px;">' + tags.map(function(t){ return '<span class="tag-pill">' + esc(t) + '</span>'; }).join('') + '</div>';
+}
+
 function buildFollowersDisplay(q) {
   const fList = (q.followers||'').split(',').map(function(f){return f.trim();}).filter(Boolean);
   if (!fList.length) return '';
@@ -1528,7 +1533,7 @@ function render() {
     ${aHtml}
     ${notifHtml}
   </div>
-  ${cardTags.length ? `<div style="margin-top:6px;">${cardTags.map(t=>`<span class="tag-pill">${esc(t)}</span>`).join('')}</div>` : ''}
+  ${buildTagPills(cardTags)}
   ${buildFollowersDisplay(q)}
   ${contentBlock}
   <div class="edit-panel ${isEdit ? 'open' : ''}" id="ep-${q.id}">
@@ -2315,11 +2320,11 @@ function renderAnswerModalView(qId) {
     q.question.length > 80 ? q.question.substring(0, 80) + '...' : q.question;
 
   // Meta
-  document.getElementById('answer-modal-meta').innerHTML = `
-    <span class="pill pu-${esc(q.urgency)}">${esc(q.urgency)}</span>
-    <span class="pill ps-${esc(q.status)}">${esc(q.status)}</span>
-    <span style="font-size:10px;color:var(--dim);">${esc(q.id)}</span>
-    ${q.dept ? `<span style="font-size:10px;color:var(--dim);">${esc(q.dept)}</span>` : ''}`;
+  document.getElementById('answer-modal-meta').innerHTML =
+    '<span class="pill pu-' + esc(q.urgency) + '">' + esc(q.urgency) + '</span> '
+    + '<span class="pill ps-' + esc(q.status) + '">' + esc(q.status) + '</span> '
+    + '<span style="font-size:10px;color:var(--dim);">' + esc(q.id) + '</span>'
+    + (q.dept ? ' <span style="font-size:10px;color:var(--dim);">' + esc(q.dept) + '</span>' : '');
 
   // Question
   document.getElementById('answer-modal-question').textContent = q.question;
