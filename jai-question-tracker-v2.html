@@ -947,29 +947,30 @@ function checkDuplicates() {
     }
 
     list.innerHTML = scored.map(function(q) {
-      const hasAnswer = q.answer && q.answer.trim();
+      var hasAnswer = q.answer && q.answer.trim();
+      var qId = esc(q.id);
 
-      let answerHtml;
+      var answerHtml;
       if (hasAnswer) {
-        const preview = esc(q.answer.substring(0, 200)) + (q.answer.length > 200 ? '...' : '');
+        var preview = esc(q.answer.substring(0, 200)) + (q.answer.length > 200 ? '...' : '');
         answerHtml = '<div class="dupe-answer"><strong>Answer:</strong> ' + preview + '</div>';
       } else {
         answerHtml = '<div class="dupe-no-answer">No answer yet — ' + esc(q.status) + '</div>';
       }
 
-      let followHtml = '';
-      if (!hasAnswer) {
-        followHtml = '<div class="dupe-follow-wrap" id="follow-wrap-' + esc(q.id) + '">'
-          + '<button class="dupe-follow-btn" onclick="event.stopPropagation();initFollow('' + esc(q.id) + '')">&#9993; Notify me when this is answered</button>'
-          + '</div>';
-      }
-
-      const expandHint = hasAnswer
+      var expandHint = hasAnswer
         ? '<div class="dupe-expand-hint">&#9654; Click to read full answer</div>'
         : '<div class="dupe-expand-hint">&#9654; Click to view &amp; follow</div>';
 
-      return '<div class="dupe-item" onclick="openAnswerModal('' + esc(q.id) + '')">'
-        + '<div class="dupe-meta">' + esc(q.id) + ' &nbsp;&middot;&nbsp; ' + esc(q.urgency) + ' &nbsp;&middot;&nbsp; ' + esc(q.status) + '</div>'
+      var followHtml = '';
+      if (!hasAnswer) {
+        followHtml = '<div class="dupe-follow-wrap" id="follow-wrap-' + qId + '">'
+          + '<button class="dupe-follow-btn" onclick="event.stopPropagation();initFollow(this)" data-qid="' + qId + '">&#9993; Notify me when this is answered</button>'
+          + '</div>';
+      }
+
+      return '<div class="dupe-item" onclick="openAnswerModal(this)" data-qid="' + qId + '">'
+        + '<div class="dupe-meta">' + qId + ' &nbsp;&middot;&nbsp; ' + esc(q.urgency) + ' &nbsp;&middot;&nbsp; ' + esc(q.status) + '</div>'
         + '<div class="dupe-q">' + esc(q.question) + '</div>'
         + answerHtml
         + expandHint
@@ -1315,18 +1316,19 @@ function formatEstimatedDate(dateStr) {
 }
 
 function buildThreadHtml(threads, parentId) {
-  const items = threads.map(t => {
-    const date = new Date(t.askedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    let answerBlock;
+  var items = threads.map(function(t) {
+    var date = new Date(t.askedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    var answerBlock;
     if (t.answer && t.answer.trim()) {
       answerBlock = '<div class="thread-item-answer">' + esc(t.answer) + '</div>'
         + '<div style="font-size:10px;color:var(--dim);margin-top:4px;">Answered by ' + esc(t.answeredBy || 'JAI Team') + '</div>';
     } else {
-      const safeQ = esc(t.question).replace(/'/g, '&#39;');
-      const safeT = esc(t.threadId);
-      const safeP = esc(parentId);
       answerBlock = '<div class="thread-item-awaiting">Awaiting answer</div>'
-        + '<button class="thread-reply-btn" onclick="replyToThread('' + safeP + '','' + safeT + '','' + safeQ + '')">&#9993; Reply with Answer</button>';
+        + '<button class="thread-reply-btn" onclick="replyToThread(this)"'
+        + ' data-parent="' + esc(parentId) + '"'
+        + ' data-thread="' + esc(t.threadId) + '"'
+        + ' data-question="' + esc(t.question).replace(/"/g, '&quot;') + '">'
+        + '&#9993; Reply with Answer</button>';
     }
     return '<div class="thread-item" id="thread-' + esc(t.threadId) + '">'
       + '<div class="thread-item-q">' + esc(t.question) + '</div>'
@@ -1340,16 +1342,11 @@ function buildThreadHtml(threads, parentId) {
     + '</div>';
 }
 
-function buildTagPills(tags) {
-  if (!tags || !tags.length) return '';
-  return '<div style="margin-top:6px;">' + tags.map(function(t){ return '<span class="tag-pill">' + esc(t) + '</span>'; }).join('') + '</div>';
-}
-
 function buildFollowersDisplay(q) {
-  const fList = (q.followers||'').split(',').map(function(f){return f.trim();}).filter(Boolean);
+  var fList = (q.followers||'').split(',').map(function(f){return f.trim();}).filter(Boolean);
   if (!fList.length) return '';
-  const label = fList.length === 1 ? '1 follower' : fList.length + ' followers';
-  return '<div class="card-followers" onclick="toggleEdit('' + esc(q.id) + '')">'
+  var label = fList.length === 1 ? '1 follower' : fList.length + ' followers';
+  return '<div class="card-followers" onclick="toggleEditById(this)" data-qid="' + esc(q.id) + '">'
     + '<span class="card-followers-icon">&#9993;</span>' + label + ' — click Assign to manage</div>';
 }
 
@@ -1524,7 +1521,7 @@ function render() {
       <button class="btn-del" onclick="delQ('${q.id}')">Del</button>
     </div>
   </div>
-  ${isReturned ? `<div class="reassign-banner">Returned for reassignment — please assign to a new team member</div>` : ''}
+  ${buildReassignBanner(isReturned)}
   <div class="card-body">${esc(q.question)}</div>
   <div class="card-footer">
     <span><b>From:</b> ${esc(q.name)}</span>
@@ -1652,6 +1649,7 @@ function toggleHideAnswered() {
 }
 
 function toggleEdit(id) { editId = (editId === id) ? null : id; render(); }
+function toggleEditById(el) { var id = el.getAttribute('data-qid'); toggleEdit(id); }
 
 async function saveEdit(id) {
   const assignee      = document.getElementById('ea-' + id).value.trim();
@@ -2290,7 +2288,8 @@ function exportFAQ() {
 // ── ANSWER EXPAND MODAL (with threaded follow-ups) ────────────────────────────
 let modalCurrentQId = null;
 
-function openAnswerModal(qId) {
+function openAnswerModal(el) {
+  var qId = el.getAttribute ? el.getAttribute('data-qid') : el;
   modalCurrentQId = qId;
   renderAnswerModalView(qId);
   document.getElementById('answer-modal-overlay').classList.add('open');
@@ -2339,14 +2338,7 @@ function renderAnswerModalView(qId) {
     } else if (threads.length > 0) {
       threadHtml = `<div class="thread-section">
         <div class="thread-section-label">&#8618; Follow-up Questions (${threads.length})</div>
-        ${threads.map(t => `
-        <div class="thread-item">
-          <div class="thread-item-q">${esc(t.question)}</div>
-          <div class="thread-item-meta">Asked by ${esc(t.askedBy)} &nbsp;·&nbsp; ${new Date(t.askedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
-          ${t.answer && t.answer.trim()
-            ? `<div class="thread-item-answer">${esc(t.answer)}</div><div style="font-size:10px;color:var(--dim);margin-top:4px;">Answered by ${esc(t.answeredBy||'JAI Team')}</div>`
-            : `<div class="thread-item-awaiting">Awaiting answer</div>`}
-        </div>`).join('')}
+        ${buildThreadItemsHtml(threads)}
       </div>`;
     }
 
@@ -2532,7 +2524,10 @@ function submitFollowFromModal(questionId) {
 }
 
 // ── THREAD REPLY FROM REPOSITORY ─────────────────────────────────────────────
-async function replyToThread(parentId, threadId, threadQuestion) {
+async function replyToThread(el) {
+  var parentId = el.getAttribute('data-parent');
+  var threadId = el.getAttribute('data-thread');
+  var threadQuestion = el.getAttribute('data-question');
   // Open the answer modal on the parent question and pre-fill a reply
   openAnswerModal(parentId);
 }
@@ -2621,7 +2616,8 @@ async function removeFollowerFromRepo(id, email) {
 }
 
 // ── QUESTION FOLLOWING — SUBMIT SIDE ─────────────────────────────────────────
-function initFollow(questionId) {
+function initFollow(el) {
+  var questionId = el.getAttribute ? el.getAttribute('data-qid') : el;
   const wrap = document.getElementById('follow-wrap-' + questionId);
   if (!wrap) return;
 
