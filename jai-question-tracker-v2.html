@@ -946,30 +946,35 @@ function checkDuplicates() {
       return;
     }
 
-    list.innerHTML = scored.map(q => {
+    list.innerHTML = scored.map(function(q) {
       const hasAnswer = q.answer && q.answer.trim();
-      const answerHtml = hasAnswer
-        ? `<div class="dupe-answer"><strong>Answer:</strong> ${esc(q.answer.substring(0, 200))}${q.answer.length > 200 ? '...' : ''}</div>`
-        : `<div class="dupe-no-answer">No answer yet — ${q.status}</div>`;
 
-      // Follow button — only shown on unanswered questions
-      const followHtml = !hasAnswer ? `
-<div class="dupe-follow-wrap" id="follow-wrap-${esc(q.id)}">
-  <button class="dupe-follow-btn" onclick="event.stopPropagation();initFollow('${esc(q.id)}')">&#9993; Notify me when this is answered</button>
-</div>` : '';
+      let answerHtml;
+      if (hasAnswer) {
+        const preview = esc(q.answer.substring(0, 200)) + (q.answer.length > 200 ? '...' : '');
+        answerHtml = '<div class="dupe-answer"><strong>Answer:</strong> ' + preview + '</div>';
+      } else {
+        answerHtml = '<div class="dupe-no-answer">No answer yet — ' + esc(q.status) + '</div>';
+      }
+
+      let followHtml = '';
+      if (!hasAnswer) {
+        followHtml = '<div class="dupe-follow-wrap" id="follow-wrap-' + esc(q.id) + '">'
+          + '<button class="dupe-follow-btn" onclick="event.stopPropagation();initFollow('' + esc(q.id) + '')">&#9993; Notify me when this is answered</button>'
+          + '</div>';
+      }
 
       const expandHint = hasAnswer
-        ? `<div class="dupe-expand-hint">&#9654; Click to read full answer</div>`
-        : `<div class="dupe-expand-hint">&#9654; Click to view &amp; follow</div>`;
+        ? '<div class="dupe-expand-hint">&#9654; Click to read full answer</div>'
+        : '<div class="dupe-expand-hint">&#9654; Click to view &amp; follow</div>';
 
-      return `
-<div class="dupe-item" onclick="openAnswerModal('${esc(q.id)}')">
-  <div class="dupe-meta">${esc(q.id)} &nbsp;·&nbsp; ${esc(q.urgency)} &nbsp;·&nbsp; ${esc(q.status)}</div>
-  <div class="dupe-q">${esc(q.question)}</div>
-  ${answerHtml}
-  ${expandHint}
-  ${followHtml}
-</div>`;
+      return '<div class="dupe-item" onclick="openAnswerModal('' + esc(q.id) + '')">'
+        + '<div class="dupe-meta">' + esc(q.id) + ' &nbsp;&middot;&nbsp; ' + esc(q.urgency) + ' &nbsp;&middot;&nbsp; ' + esc(q.status) + '</div>'
+        + '<div class="dupe-q">' + esc(q.question) + '</div>'
+        + answerHtml
+        + expandHint
+        + followHtml
+        + '</div>';
     }).join('');
 
     panel.classList.add('show');
@@ -1309,6 +1314,40 @@ function formatEstimatedDate(dateStr) {
   return dateStr;
 }
 
+function buildThreadHtml(threads, parentId) {
+  const items = threads.map(t => {
+    const date = new Date(t.askedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    let answerBlock;
+    if (t.answer && t.answer.trim()) {
+      answerBlock = '<div class="thread-item-answer">' + esc(t.answer) + '</div>'
+        + '<div style="font-size:10px;color:var(--dim);margin-top:4px;">Answered by ' + esc(t.answeredBy || 'JAI Team') + '</div>';
+    } else {
+      const safeQ = esc(t.question).replace(/'/g, '&#39;');
+      const safeT = esc(t.threadId);
+      const safeP = esc(parentId);
+      answerBlock = '<div class="thread-item-awaiting">Awaiting answer</div>'
+        + '<button class="thread-reply-btn" onclick="replyToThread('' + safeP + '','' + safeT + '','' + safeQ + '')">&#9993; Reply with Answer</button>';
+    }
+    return '<div class="thread-item" id="thread-' + esc(t.threadId) + '">'
+      + '<div class="thread-item-q">' + esc(t.question) + '</div>'
+      + '<div class="thread-item-meta">Asked by ' + esc(t.askedBy) + ' &nbsp;&middot;&nbsp; ' + date + '</div>'
+      + answerBlock
+      + '</div>';
+  }).join('');
+  return '<div class="thread-section">'
+    + '<div class="thread-section-label">&#8618; Follow-up Questions (' + threads.length + ')</div>'
+    + items
+    + '</div>';
+}
+
+function buildFollowersDisplay(q) {
+  const fList = (q.followers||'').split(',').map(function(f){return f.trim();}).filter(Boolean);
+  if (!fList.length) return '';
+  const label = fList.length === 1 ? '1 follower' : fList.length + ' followers';
+  return '<div class="card-followers" onclick="toggleEdit('' + esc(q.id) + '')">'
+    + '<span class="card-followers-icon">&#9993;</span>' + label + ' — click Assign to manage</div>';
+}
+
 function render() {
   const fs = document.getElementById('f-status').value;
   const fa = document.getElementById('f-answered').value;
@@ -1436,19 +1475,7 @@ function render() {
 
     let contentBlock = '';
     if (hasAnswer) {
-      const threadHtml = cardThreads.length ? `
-<div class="thread-section">
-  <div class="thread-section-label">&#8618; Follow-up Questions (${cardThreads.length})</div>
-  ${cardThreads.map(t => `
-  <div class="thread-item" id="thread-${esc(t.threadId)}">
-    <div class="thread-item-q">${esc(t.question)}</div>
-    <div class="thread-item-meta">Asked by ${esc(t.askedBy)} &nbsp;·&nbsp; ${new Date(t.askedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
-    ${t.answer && t.answer.trim()
-      ? `<div class="thread-item-answer">${esc(t.answer)}</div><div style="font-size:10px;color:var(--dim);margin-top:4px;">Answered by ${esc(t.answeredBy||'JAI Team')}</div>`
-      : `<div class="thread-item-awaiting">Awaiting answer</div>
-         <button class="thread-reply-btn" onclick="replyToThread('${esc(q.id)}','${esc(t.threadId)}','${esc(t.question).replace(/'/g,"\'")}')">&#9993; Reply with Answer</button>`}
-  </div>`).join('')}
-</div>` : '';
+      const threadHtml = cardThreads.length ? buildThreadHtml(cardThreads, q.id) : '';
       contentBlock = `<div class="answer-block">
         <div class="answer-label">Answer</div>
         <div class="answer-text">${esc(q.answer)}</div>
@@ -1502,12 +1529,7 @@ function render() {
     ${notifHtml}
   </div>
   ${cardTags.length ? `<div style="margin-top:6px;">${cardTags.map(t=>`<span class="tag-pill">${esc(t)}</span>`).join('')}</div>` : ''}
-  ${(() => {
-    const fList = (q.followers||'').split(',').map(f=>f.trim()).filter(Boolean);
-    if (!fList.length) return '';
-    const label = fList.length === 1 ? '1 follower' : fList.length + ' followers';
-    return `<div class="card-followers" onclick="toggleEdit('${q.id}')"><span class="card-followers-icon">✉</span>${label} — click Assign to manage</div>`;
-  })()}
+  ${buildFollowersDisplay(q)}
   ${contentBlock}
   <div class="edit-panel ${isEdit ? 'open' : ''}" id="ep-${q.id}">
     <div class="status-note">Status updates automatically: Open when unassigned, Assigned when someone is selected, Complete when an answer is provided.</div>
