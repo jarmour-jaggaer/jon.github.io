@@ -413,6 +413,21 @@
   /* FAQ export */
   /* (reuses existing btn-ghost styles) */
 
+  /* Followers */
+  .card-followers { display:flex; align-items:center; gap:6px; margin-top:5px; font-size:11px; color:var(--muted); cursor:pointer; }
+  .card-followers:hover { color:var(--accent); }
+  .card-followers-icon { font-size:12px; }
+  .follower-pill { display:inline-flex; align-items:center; gap:4px; background:#f8f6ff; color:var(--accent); border:1px solid #c4aff5; border-radius:999px; font-size:11px; padding:2px 8px; margin:2px 2px 0 0; }
+  .follower-pill-remove { cursor:pointer; font-size:12px; color:#c4aff5; line-height:1; margin-left:2px; }
+  .follower-pill-remove:hover { color:var(--red); }
+  .followers-section { margin-bottom:10px; padding:10px 14px; background:#f8f6ff; border:1px solid #e0d5f5; border-radius:6px; }
+  .followers-section-label { font-size:11px; font-weight:600; color:var(--accent); margin-bottom:8px; }
+  .followers-add-row { display:flex; gap:6px; margin-top:8px; }
+  .followers-add-input { flex:1; font-size:12px; }
+  .followers-add-btn { padding:6px 12px; background:var(--accent); color:#fff; border:none; border-radius:5px; font-family:var(--font); font-size:11px; font-weight:500; cursor:pointer; white-space:nowrap; }
+  .followers-add-btn:hover { background:var(--accent-hov); }
+  .followers-none { font-size:11px; color:var(--dim); font-style:italic; }
+
   /* Rating badge on cards */
   .rating-good { display:inline-block; background:#f0faf3; color:#166534; border:1px solid #86efac; border-radius:999px; font-size:10px; padding:1px 8px; }
   .rating-poor { display:inline-block; background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; border-radius:999px; font-size:10px; padding:1px 8px; }
@@ -1396,6 +1411,12 @@ function render() {
     ${notifHtml}
   </div>
   ${cardTags.length ? `<div style="margin-top:6px;">${cardTags.map(t=>`<span class="tag-pill">${esc(t)}</span>`).join('')}</div>` : ''}
+  ${(() => {
+    const fList = (q.followers||'').split(',').map(f=>f.trim()).filter(Boolean);
+    if (!fList.length) return '';
+    const label = fList.length === 1 ? '1 follower' : fList.length + ' followers';
+    return `<div class="card-followers" onclick="toggleEdit('${q.id}')"><span class="card-followers-icon">✉</span>${label} — click Assign to manage</div>`;
+  })()}
   ${contentBlock}
   <div class="edit-panel ${isEdit ? 'open' : ''}" id="ep-${q.id}">
     <div class="status-note">Status updates automatically: Open when unassigned, Assigned when someone is selected, Complete when an answer is provided.</div>
@@ -1427,6 +1448,21 @@ function render() {
       <div id="etag-pills-${q.id}" style="margin-top:6px;">
         ${cardTags.map(t=>`<span class="tag-pill">${esc(t)} <span style="cursor:pointer;margin-left:2px;" onclick="removeTagFromCard('${q.id}','${esc(t)}')">&#215;</span></span>`).join('')}
       </div>
+    </div>
+    <div class="followers-section">
+      <div class="followers-section-label">&#9993; Followers — notified when answered or dated</div>
+      <div id="followers-pills-${q.id}">
+        ${(() => {
+          const fList = (q.followers||'').split(',').map(f=>f.trim()).filter(Boolean);
+          if (!fList.length) return '<div class="followers-none">No followers yet</div>';
+          return fList.map(f => `<span class="follower-pill">${esc(f)}<span class="follower-pill-remove" onclick="removeFollowerFromRepo('${q.id}','${esc(f)}')" title="Remove">&#215;</span></span>`).join('');
+        })()}
+      </div>
+      <div class="followers-add-row">
+        <input type="email" class="followers-add-input" id="follower-add-${q.id}" placeholder="Add follower email..." onkeydown="if(event.key==='Enter') addFollowerFromRepo('${q.id}')"/>
+        <button class="followers-add-btn" onclick="addFollowerFromRepo('${q.id}')">+ Add</button>
+      </div>
+      <div class="err" id="follower-err-${q.id}" style="margin-top:4px;"></div>
     </div>
     <div class="btn-row">
       <button class="btn-ghost sm" onclick="toggleEdit('${q.id}')">Cancel</button>
@@ -2133,7 +2169,77 @@ function exportFAQ() {
 // Rating is set via email reply (RATING:good / RATING:poor) parsed by Apps Script
 // Front end just displays the rating badge on cards
 
-// ── QUESTION FOLLOWING ────────────────────────────────────────────────────
+// ── QUESTION FOLLOWING — REPOSITORY SIDE ────────────────────────────────────
+async function addFollowerFromRepo(id) {
+  const inp    = document.getElementById('follower-add-' + id);
+  const errEl  = document.getElementById('follower-err-' + id);
+  const pillEl = document.getElementById('followers-pills-' + id);
+  if (!inp || !errEl) return;
+
+  const email = inp.value.trim();
+  errEl.textContent = '';
+
+  if (!email) { errEl.textContent = 'Please enter an email address.'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email address.'; return; }
+
+  const q = qs.find(q => q.id === id);
+  if (q) {
+    const existing = (q.followers||'').split(',').map(f=>f.trim()).filter(Boolean);
+    if (existing.includes(email)) { errEl.textContent = 'This email is already following this question.'; return; }
+  }
+
+  const btn = inp.nextElementSibling;
+  btn.disabled = true; btn.textContent = 'Adding...';
+
+  try {
+    await apiPost({ action: 'addFollower', id, email });
+    // Update local state
+    qs = qs.map(q => {
+      if (q.id !== id) return q;
+      const current = (q.followers||'').split(',').map(f=>f.trim()).filter(Boolean);
+      if (!current.includes(email)) current.push(email);
+      return { ...q, followers: current.join(',') };
+    });
+    inp.value = '';
+    // Re-render just the pills
+    const updated = qs.find(q => q.id === id);
+    if (pillEl && updated) {
+      const fList = (updated.followers||'').split(',').map(f=>f.trim()).filter(Boolean);
+      pillEl.innerHTML = fList.length
+        ? fList.map(f => `<span class="follower-pill">${esc(f)}<span class="follower-pill-remove" onclick="removeFollowerFromRepo('${id}','${esc(f)}')" title="Remove">&#215;</span></span>`).join('')
+        : '<div class="followers-none">No followers yet</div>';
+    }
+    setSyncStatus('live', 'Follower added — ' + new Date().toLocaleTimeString());
+  } catch(e) {
+    errEl.textContent = 'Failed to add. Check your connection and try again.';
+  }
+  btn.disabled = false; btn.textContent = '+ Add';
+}
+
+async function removeFollowerFromRepo(id, email) {
+  const pillEl = document.getElementById('followers-pills-' + id);
+  try {
+    await apiPost({ action: 'removeFollower', id, email });
+    qs = qs.map(q => {
+      if (q.id !== id) return q;
+      const updated = (q.followers||'').split(',').map(f=>f.trim()).filter(f=>f&&f!==email);
+      return { ...q, followers: updated.join(',') };
+    });
+    const updated = qs.find(q => q.id === id);
+    if (pillEl && updated) {
+      const fList = (updated.followers||'').split(',').map(f=>f.trim()).filter(Boolean);
+      pillEl.innerHTML = fList.length
+        ? fList.map(f => `<span class="follower-pill">${esc(f)}<span class="follower-pill-remove" onclick="removeFollowerFromRepo('${id}','${esc(f)}')" title="Remove">&#215;</span></span>`).join('')
+        : '<div class="followers-none">No followers yet</div>';
+    }
+    render(); // Re-render card to update closed-card follower count
+    setSyncStatus('live', 'Follower removed');
+  } catch(e) {
+    alert('Failed to remove follower. Check your connection and try again.');
+  }
+}
+
+// ── QUESTION FOLLOWING — SUBMIT SIDE ─────────────────────────────────────────
 function initFollow(questionId) {
   const wrap = document.getElementById('follow-wrap-' + questionId);
   if (!wrap) return;
