@@ -1841,7 +1841,7 @@ async function extractDocxText(base64) {
       .replace(/<w:p[ >][^>]*>/g, '\n')
       .replace(/<[^>]+>/g, ' ')
       .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
-      .replace(/&quot;/g,'"').replace(/&apos;/g,"'")
+      .replace(/&quot;/g, String.fromCharCode(34)).replace(/&apos;/g, String.fromCharCode(39))
       .replace(/[ \t]+/g,' ')
       .replace(/\n +/g,'\n')
       .replace(/\n{3,}/g,'\n\n')
