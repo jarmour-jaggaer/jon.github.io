@@ -413,52 +413,6 @@
   /* FAQ export */
   /* (reuses existing btn-ghost styles) */
 
-  /* Thread styles */
-  .thread-section { margin-top:12px; border-top:2px solid var(--border); padding-top:12px; }
-  .thread-section-label { font-size:10px; text-transform:uppercase; letter-spacing:0.09em; color:var(--accent); font-weight:600; margin-bottom:8px; }
-  .thread-item { margin-bottom:10px; padding:12px 14px; background:#f8f6ff; border-left:3px solid var(--accent); border-radius:0 6px 6px 0; }
-  .thread-item-q { font-size:12px; font-weight:600; color:var(--text); margin-bottom:6px; }
-  .thread-item-q::before { content:'↳ '; color:var(--accent); }
-  .thread-item-meta { font-size:10px; color:var(--dim); margin-bottom:8px; }
-  .thread-item-answer { font-size:12px; color:#374151; line-height:1.65; white-space:pre-wrap; margin-top:6px; padding-top:8px; border-top:1px solid #e0d5f5; }
-  .thread-item-awaiting { font-size:11px; color:var(--dim); font-style:italic; margin-top:4px; }
-  .thread-reply-btn { margin-top:6px; background:#fff; color:var(--accent); border:1px solid #c4aff5; border-radius:5px; padding:4px 10px; font-family:var(--font); font-size:11px; font-weight:500; cursor:pointer; }
-  .thread-reply-btn:hover { background:#ede8fa; }
-
-  /* Modal thread states */
-  .answer-modal-compose { margin-top:16px; padding-top:16px; border-top:2px solid var(--border); }
-  .answer-modal-compose-label { font-size:12px; font-weight:600; color:var(--text); margin-bottom:10px; }
-  .answer-modal-compose textarea { min-height:90px; resize:vertical; width:100%; box-sizing:border-box; margin-bottom:8px; }
-  .answer-modal-name-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
-  .answer-modal-success { text-align:center; padding:20px; }
-  .answer-modal-success-icon { font-size:32px; margin-bottom:10px; }
-  .answer-modal-success-msg { font-size:14px; font-weight:600; color:var(--text); margin-bottom:6px; }
-  .answer-modal-success-sub { font-size:12px; color:var(--dim); }
-
-  /* Answer expand modal */
-  #answer-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:600; align-items:center; justify-content:center; padding:20px; }
-  #answer-modal-overlay.open { display:flex; animation:fadeUp 0.2s ease; }
-  #answer-modal { background:#fff; border-radius:12px; width:100%; max-width:640px; max-height:82vh; display:flex; flex-direction:column; box-shadow:0 8px 40px rgba(0,0,0,0.18); overflow:hidden; }
-  #answer-modal-header { background:#1a1a2e; padding:18px 24px; display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid var(--red); flex-shrink:0; }
-  #answer-modal-title { font-family:var(--display); font-size:15px; font-weight:800; color:#fff; flex:1; margin-right:12px; line-height:1.4; }
-  #answer-modal-close { background:none; border:none; color:#8a94a8; font-size:22px; cursor:pointer; line-height:1; flex-shrink:0; padding:0; }
-  #answer-modal-close:hover { color:#fff; }
-  #answer-modal-body { padding:24px; overflow-y:auto; flex:1; }
-  .answer-modal-meta { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
-  .answer-modal-question { font-size:14px; font-weight:600; color:var(--text); line-height:1.6; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
-  .answer-modal-answer-label { font-size:10px; text-transform:uppercase; letter-spacing:0.09em; color:var(--accent); font-weight:600; margin-bottom:8px; }
-  .answer-modal-answer { font-size:13px; color:#374151; line-height:1.75; white-space:pre-wrap; }
-  .answer-modal-unanswered { font-size:13px; color:var(--dim); font-style:italic; padding:16px; background:var(--bg); border-radius:6px; text-align:center; }
-  .answer-modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end; flex-shrink:0; background:#fff; }
-
-  /* Make dupe items look clickable */
-  .dupe-item { cursor:pointer; transition:box-shadow 0.15s, border-color 0.15s; }
-  .dupe-item:hover { border-color:#c4aff5 !important; box-shadow:0 2px 8px rgba(83,0,206,0.08); }
-  .dupe-item .dupe-q { font-size:12px; color:var(--text); }
-
-  /* Expand hint */
-  .dupe-expand-hint { font-size:10px; color:var(--accent); margin-top:6px; }
-
   /* Followers */
   .card-followers { display:flex; align-items:center; gap:6px; margin-top:5px; font-size:11px; color:var(--muted); cursor:pointer; }
   .card-followers:hover { color:var(--accent); }
@@ -828,7 +782,6 @@
     </div>
   </div>
 
-
   <!-- Assignee Manager Modal -->
   <div id="assignee-modal-overlay" onclick="closeAssigneeModalOnOverlay(event)">
     <div id="assignee-modal">
@@ -872,10 +825,9 @@
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbwnkEBSMRB_QsCk9ZE_YkIupkrqGir_F2zb_zR0TRI6TDitO_q7nHAwKZxQgz8eTFCG/exec';
+const API = 'https://script.google.com/macros/s/AKfycbwfABCyi0PCwBb4XxMTyIhq1khMe62jZDTvRoooFk4dzhQbQg3UM2MnoXPfdL98s_N_/exec';
 
 let qs = [], assignees = [], tags = [], urgency = 'Medium', editId = null;
-let threadsCache = {}; // keyed by parentId
 let hideAnswered = sessionStorage.getItem('jai-hide-answered') === '1';
 let pageSize = 20;
 let currentPage = 1;
@@ -930,36 +882,25 @@ function checkDuplicates() {
       return;
     }
 
-    list.innerHTML = scored.map(function(q) {
-      var hasAnswer = q.answer && q.answer.trim();
-      var qId = esc(q.id);
+    list.innerHTML = scored.map(q => {
+      const hasAnswer = q.answer && q.answer.trim();
+      const answerHtml = hasAnswer
+        ? `<div class="dupe-answer"><strong>Answer:</strong> ${esc(q.answer.substring(0, 200))}${q.answer.length > 200 ? '...' : ''}</div>`
+        : `<div class="dupe-no-answer">No answer yet — ${q.status}</div>`;
 
-      var answerHtml;
-      if (hasAnswer) {
-        var preview = esc(q.answer.substring(0, 200)) + (q.answer.length > 200 ? '...' : '');
-        answerHtml = '<div class="dupe-answer"><strong>Answer:</strong> ' + preview + '</div>';
-      } else {
-        answerHtml = '<div class="dupe-no-answer">No answer yet — ' + esc(q.status) + '</div>';
-      }
+      // Follow button — only shown on unanswered questions
+      const followHtml = !hasAnswer ? `
+<div class="dupe-follow-wrap" id="follow-wrap-${esc(q.id)}">
+  <button class="dupe-follow-btn" onclick="initFollow('${esc(q.id)}')">&#9993; Notify me when this is answered</button>
+</div>` : '';
 
-      var expandHint = hasAnswer
-        ? '<div class="dupe-expand-hint">&#9654; Click to read full answer</div>'
-        : '<div class="dupe-expand-hint">&#9654; Click to view &amp; follow</div>';
-
-      var followHtml = '';
-      if (!hasAnswer) {
-        followHtml = '<div class="dupe-follow-wrap" id="follow-wrap-' + qId + '">'
-          + '<button class="dupe-follow-btn" onclick="event.stopPropagation();initFollow(this)" data-qid="' + qId + '">&#9993; Notify me when this is answered</button>'
-          + '</div>';
-      }
-
-      return '<div class="dupe-item" onclick="openAnswerModal(this)" data-qid="' + qId + '">'
-        + '<div class="dupe-meta">' + qId + ' &nbsp;&middot;&nbsp; ' + esc(q.urgency) + ' &nbsp;&middot;&nbsp; ' + esc(q.status) + '</div>'
-        + '<div class="dupe-q">' + esc(q.question) + '</div>'
-        + answerHtml
-        + expandHint
-        + followHtml
-        + '</div>';
+      return `
+<div class="dupe-item">
+  <div class="dupe-meta">${esc(q.id)} &nbsp;·&nbsp; ${esc(q.urgency)} &nbsp;·&nbsp; ${esc(q.status)}</div>
+  <div class="dupe-q">${esc(q.question)}</div>
+  ${answerHtml}
+  ${followHtml}
+</div>`;
     }).join('');
 
     panel.classList.add('show');
@@ -1035,7 +976,20 @@ async function loadAssignees() {
   } catch(e) { assignees = []; }
 }
 
-
+async function loadQuestions() {
+  try {
+    const res = await fetch(API + '?t=' + Date.now());
+    const data = await res.json();
+    qs = Array.isArray(data) ? data.filter(q => q.id) : [];
+    updateCount();
+    render();
+    setSyncStatus('live', 'Live — last synced ' + new Date().toLocaleTimeString());
+  } catch(e) {
+    setSyncStatus('error', 'Connection error — check your network or re-deploy the Apps Script');
+    document.getElementById('repo-list').innerHTML =
+      '<div class="empty">Could not load data. Check your connection and try refreshing.</div>';
+  }
+}
 
 // ── CACHE HELPERS ────────────────────────────────────────────────────────────
 function getCachedComplete() {
@@ -1088,11 +1042,6 @@ async function loadAll() {
   clearCache();
   currentPage = 1;
   await Promise.all([loadQuestions(), loadAssignees(), loadFaqs(), loadTags()]);
-  // After questions load, fetch threads for all answered questions in background
-  setTimeout(() => {
-    const answeredIds = qs.filter(q => q.status === 'Complete').map(q => q.id);
-    if (answeredIds.length) loadThreadsForCards(answeredIds).then(() => render());
-  }, 800);
 }
 
 async function hardRefresh() {
@@ -1286,41 +1235,6 @@ function formatEstimatedDate(dateStr) {
   return dateStr;
 }
 
-function buildThreadHtml(threads, parentId) {
-  var items = threads.map(function(t) {
-    var date = new Date(t.askedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    var answerBlock;
-    if (t.answer && t.answer.trim()) {
-      answerBlock = '<div class="thread-item-answer">' + esc(t.answer) + '</div>'
-        + '<div style="font-size:10px;color:var(--dim);margin-top:4px;">Answered by ' + esc(t.answeredBy || 'JAI Team') + '</div>';
-    } else {
-      answerBlock = '<div class="thread-item-awaiting">Awaiting answer</div>'
-        + '<button class="thread-reply-btn" onclick="replyToThread(this)"'
-        + ' data-parent="' + esc(parentId) + '"'
-        + ' data-thread="' + esc(t.threadId) + '"'
-        + ' data-question="' + esc(t.question).replace(/"/g, '&quot;') + '">'
-        + '&#9993; Reply with Answer</button>';
-    }
-    return '<div class="thread-item" id="thread-' + esc(t.threadId) + '">'
-      + '<div class="thread-item-q">' + esc(t.question) + '</div>'
-      + '<div class="thread-item-meta">Asked by ' + esc(t.askedBy) + ' &nbsp;&middot;&nbsp; ' + date + '</div>'
-      + answerBlock
-      + '</div>';
-  }).join('');
-  return '<div class="thread-section">'
-    + '<div class="thread-section-label">&#8618; Follow-up Questions (' + threads.length + ')</div>'
-    + items
-    + '</div>';
-}
-
-function buildFollowersDisplay(q) {
-  var fList = (q.followers||'').split(',').map(function(f){return f.trim();}).filter(Boolean);
-  if (!fList.length) return '';
-  var label = fList.length === 1 ? '1 follower' : fList.length + ' followers';
-  return '<div class="card-followers" onclick="toggleEditById(this)" data-qid="' + esc(q.id) + '">'
-    + '<span class="card-followers-icon">&#9993;</span>' + label + ' — click Assign to manage</div>';
-}
-
 function render() {
   const fs = document.getElementById('f-status').value;
   const fa = document.getElementById('f-answered').value;
@@ -1443,19 +1357,14 @@ function render() {
     const internalPill = q.internalOnly
       ? `<span class="pill pi-internal">Internal Only</span>` : '';
 
-    // Load threads for this card if cached
-    const cardThreads = threadsCache[q.id] || [];
-
     let contentBlock = '';
     if (hasAnswer) {
-      const threadHtml = cardThreads.length ? buildThreadHtml(cardThreads, q.id) : '';
       contentBlock = `<div class="answer-block">
         <div class="answer-label">Answer</div>
         <div class="answer-text">${esc(q.answer)}</div>
         ${q.internalOnly ? `<div style="margin-top:10px;padding:8px 12px;background:#fff8e6;border:1px solid #f59e0b;border-radius:6px;font-size:11px;color:#92400e;font-weight:500;">
           &#9888; Internal Use Only — Do not share with external clients or customers
         </div>` : ''}
-        ${threadHtml}
       </div>`;
     } else if (hasEstDate) {
       contentBlock = `<div class="estimated-block">
@@ -1492,7 +1401,7 @@ function render() {
       <button class="btn-del" onclick="delQ('${q.id}')">Del</button>
     </div>
   </div>
-  ${buildReassignBanner(isReturned)}
+  ${isReturned ? `<div class="reassign-banner">Returned for reassignment — please assign to a new team member</div>` : ''}
   <div class="card-body">${esc(q.question)}</div>
   <div class="card-footer">
     <span><b>From:</b> ${esc(q.name)}</span>
@@ -1501,8 +1410,13 @@ function render() {
     ${aHtml}
     ${notifHtml}
   </div>
-  ${buildTagPills(cardTags)}
-  ${buildFollowersDisplay(q)}
+  ${cardTags.length ? `<div style="margin-top:6px;">${cardTags.map(t=>`<span class="tag-pill">${esc(t)}</span>`).join('')}</div>` : ''}
+  ${(() => {
+    const fList = (q.followers||'').split(',').map(f=>f.trim()).filter(Boolean);
+    if (!fList.length) return '';
+    const label = fList.length === 1 ? '1 follower' : fList.length + ' followers';
+    return `<div class="card-followers" onclick="toggleEdit('${q.id}')"><span class="card-followers-icon">✉</span>${label} — click Assign to manage</div>`;
+  })()}
   ${contentBlock}
   <div class="edit-panel ${isEdit ? 'open' : ''}" id="ep-${q.id}">
     <div class="status-note">Status updates automatically: Open when unassigned, Assigned when someone is selected, Complete when an answer is provided.</div>
@@ -1620,7 +1534,6 @@ function toggleHideAnswered() {
 }
 
 function toggleEdit(id) { editId = (editId === id) ? null : id; render(); }
-function toggleEditById(el) { var id = el.getAttribute('data-qid'); toggleEdit(id); }
 
 async function saveEdit(id) {
   const assignee      = document.getElementById('ea-' + id).value.trim();
@@ -2256,266 +2169,6 @@ function exportFAQ() {
 // Rating is set via email reply (RATING:good / RATING:poor) parsed by Apps Script
 // Front end just displays the rating badge on cards
 
-// ── ANSWER EXPAND MODAL (with threaded follow-ups) ────────────────────────────
-let modalCurrentQId = null;
-
-function openAnswerModal(el) {
-  var qId = el.getAttribute ? el.getAttribute('data-qid') : el;
-  modalCurrentQId = qId;
-  renderAnswerModalView(qId);
-  document.getElementById('answer-modal-overlay').classList.add('open');
-  // Lazy-load threads for this question
-  loadThreadsForModal(qId);
-}
-
-async function loadThreadsForModal(qId) {
-  if (threadsCache[qId]) { renderAnswerModalView(qId); return; }
-  try {
-    const res  = await fetch(API + '?type=threads&parentId=' + encodeURIComponent(qId) + '&t=' + Date.now());
-    const data = await res.json();
-    threadsCache[qId] = Array.isArray(data) ? data : [];
-    if (modalCurrentQId === qId) renderAnswerModalView(qId);
-  } catch(e) { threadsCache[qId] = []; }
-}
-
-function renderAnswerModalView(qId) {
-  const q = qs.find(q => q.id === qId);
-  if (!q) return;
-
-  const hasAnswer = q.answer && q.answer.trim();
-  const threads   = threadsCache[qId] || null; // null = not yet loaded
-
-  // Header
-  document.getElementById('answer-modal-title').textContent =
-    q.question.length > 80 ? q.question.substring(0, 80) + '...' : q.question;
-
-  // Meta
-  document.getElementById('answer-modal-meta').innerHTML =
-    '<span class="pill pu-' + esc(q.urgency) + '">' + esc(q.urgency) + '</span> '
-    + '<span class="pill ps-' + esc(q.status) + '">' + esc(q.status) + '</span> '
-    + '<span style="font-size:10px;color:var(--dim);">' + esc(q.id) + '</span>'
-    + (q.dept ? ' <span style="font-size:10px;color:var(--dim);">' + esc(q.dept) + '</span>' : '');
-
-  // Question
-  document.getElementById('answer-modal-question').textContent = q.question;
-
-  // Answer
-  const answerWrap = document.getElementById('answer-modal-answer-wrap');
-  if (hasAnswer) {
-    // Threads section
-    let threadHtml = '';
-    if (threads === null) {
-      threadHtml = `<div class="thread-section"><div style="font-size:11px;color:var(--dim);">Loading follow-up questions...</div></div>`;
-    } else if (threads.length > 0) {
-      threadHtml = `<div class="thread-section">
-        <div class="thread-section-label">&#8618; Follow-up Questions (${threads.length})</div>
-        ${buildThreadItemsHtml(threads)}
-      </div>`;
-    }
-
-    answerWrap.innerHTML = `
-<div class="answer-modal-answer-label">&#9679; Answer</div>
-<div class="answer-modal-answer">${esc(q.answer)}</div>
-${q.internalOnly ? `<div style="margin-top:12px;padding:10px 14px;background:#fff8e6;border:1px solid #f59e0b;border-radius:6px;font-size:11px;color:#92400e;font-weight:500;">&#9888; Internal Use Only</div>` : ''}
-${q.assignee ? `<div style="margin-top:8px;font-size:11px;color:var(--dim);">Answered by: <span style="color:var(--accent);font-weight:500;">${esc(q.assignee)}</span></div>` : ''}
-${threadHtml}`;
-  } else {
-    answerWrap.innerHTML = `<div class="answer-modal-unanswered">No answer yet — this question is ${esc(q.status).toLowerCase()}${q.estimatedDate ? '. Expected by ' + esc(formatEstimatedDate(q.estimatedDate)) : ''}.</div>`;
-  }
-
-  // Follow wrap (unanswered only)
-  const followWrap = document.getElementById('answer-modal-follow-wrap');
-  if (!hasAnswer) {
-    followWrap.innerHTML = `<div id="follow-wrap-modal-${esc(qId)}">
-      <button class="dupe-follow-btn" onclick="initFollowFromModal('${esc(qId)}')">&#9993; Notify me when this is answered</button>
-    </div>`;
-  } else {
-    followWrap.innerHTML = '';
-  }
-
-  // Footer
-  const footer = document.getElementById('answer-modal-footer');
-  if (hasAnswer) {
-    footer.innerHTML = `
-<button class="btn-ghost sm" onclick="closeAnswerModal()">Close</button>
-<button class="btn-primary sm" onclick="showThreadCompose('${esc(qId)}')">&#8618; Ask a Follow-up</button>`;
-  } else {
-    footer.innerHTML = `<button class="btn-ghost sm" onclick="closeAnswerModal()">Close</button>`;
-  }
-}
-
-function showThreadCompose(qId) {
-  const q = qs.find(q => q.id === qId);
-  if (!q) return;
-
-  // Get pre-fill values from submit form if available
-  const prefillName  = document.getElementById('f-name')  ? document.getElementById('f-name').value.trim()  : '';
-  const prefillEmail = document.getElementById('f-email') && document.getElementById('email-optin-check') && document.getElementById('email-optin-check').checked
-    ? document.getElementById('f-email').value.trim() : '';
-
-  document.getElementById('answer-modal-answer-wrap').innerHTML += `
-<div class="answer-modal-compose" id="thread-compose-${esc(qId)}">
-  <div class="answer-modal-compose-label">&#8618; Ask a Follow-up Question</div>
-  <textarea id="thread-q-${esc(qId)}" placeholder="Type your follow-up question here..."></textarea>
-  <div class="answer-modal-name-row">
-    <div>
-      <label class="lbl" style="font-size:10px;">Your Name</label>
-      <input type="text" id="thread-name-${esc(qId)}" value="${esc(prefillName)}" placeholder="Full name"/>
-    </div>
-    <div>
-      <label class="lbl" style="font-size:10px;">Email (for notification)</label>
-      <input type="email" id="thread-email-${esc(qId)}" value="${esc(prefillEmail)}" placeholder="you@jaggaer.com"/>
-    </div>
-  </div>
-  <div class="err" id="thread-err-${esc(qId)}"></div>
-</div>`;
-
-  document.getElementById('answer-modal-footer').innerHTML = `
-<button class="btn-ghost sm" onclick="renderAnswerModalView('${esc(qId)}')">Cancel</button>
-<button class="btn-primary sm" onclick="submitThread('${esc(qId)}')">Submit Follow-up</button>`;
-
-  setTimeout(() => {
-    const ta = document.getElementById('thread-q-' + qId);
-    if (ta) ta.focus();
-  }, 50);
-}
-
-async function submitThread(qId) {
-  const qEl    = document.getElementById('thread-q-'     + qId);
-  const nameEl = document.getElementById('thread-name-'  + qId);
-  const emailEl= document.getElementById('thread-email-' + qId);
-  const errEl  = document.getElementById('thread-err-'   + qId);
-  if (!qEl || !nameEl || !errEl) return;
-
-  const question = qEl.value.trim();
-  const askedBy  = nameEl.value.trim();
-  const email    = emailEl ? emailEl.value.trim() : '';
-  errEl.textContent = '';
-
-  if (!question) { errEl.textContent = 'Please enter your follow-up question.'; return; }
-  if (!askedBy)  { errEl.textContent = 'Please enter your name.'; return; }
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email address.'; return; }
-
-  const btn = document.querySelector('#answer-modal-footer .btn-primary');
-  if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
-
-  const threadId = 'T' + Date.now().toString(36).toUpperCase().slice(-5) + Math.random().toString(36).slice(2,4).toUpperCase();
-
-  try {
-    const q = qs.find(q => q.id === qId);
-    await apiPost({
-      action:   'submitThread',
-      threadId,
-      parentId:  qId,
-      question,
-      askedBy,
-      submitterEmail: email,
-      askedAt:  new Date().toISOString(),
-      parentQuestion: q ? q.question : '',
-      parentAnswer:   q ? q.answer   : '',
-      assignee:       q ? q.assignee : '',
-    });
-
-    // Update local cache
-    if (!threadsCache[qId]) threadsCache[qId] = [];
-    threadsCache[qId].push({ threadId, parentId:qId, question, askedBy, askedAt:new Date().toISOString(), answer:'', answeredBy:'', answeredAt:'', submitterEmail:email });
-
-    // Auto-fill name on submit form for future submissions
-    const nameField = document.getElementById('f-name');
-    if (nameField && !nameField.value.trim() && askedBy) nameField.value = askedBy;
-
-    // Show success state
-    document.getElementById('answer-modal-answer-wrap').innerHTML += ``;
-    const compose = document.getElementById('thread-compose-' + qId);
-    if (compose) compose.innerHTML = `<div class="answer-modal-success">
-      <div class="answer-modal-success-icon">&#10003;</div>
-      <div class="answer-modal-success-msg">Follow-up submitted</div>
-      <div class="answer-modal-success-sub">The assignee has been notified.${email ? ' You will receive an email when it is answered.' : ''}</div>
-    </div>`;
-    document.getElementById('answer-modal-footer').innerHTML = `<button class="btn-primary sm" onclick="closeAnswerModal()">Close</button>`;
-
-    // Re-render cards to show thread count
-    render();
-  } catch(e) {
-    errEl.textContent = 'Failed to submit. Check your connection and try again.';
-    if (btn) { btn.disabled = false; btn.textContent = 'Submit Follow-up'; }
-  }
-}
-
-function closeAnswerModal() {
-  document.getElementById('answer-modal-overlay').classList.remove('open');
-  modalCurrentQId = null;
-}
-
-function closeAnswerModalOnOverlay(e) {
-  if (e.target === document.getElementById('answer-modal-overlay')) closeAnswerModal();
-}
-
-function submitFollowUp(refId) {
-  // Legacy path — now opens the threaded compose via modal
-  openAnswerModal(refId);
-  setTimeout(() => showThreadCompose(refId), 150);
-}
-
-function initFollowFromModal(questionId) {
-  const wrap = document.getElementById('follow-wrap-modal-' + questionId);
-  if (!wrap) return;
-  const emailField  = document.getElementById('f-email');
-  const emailCheck  = document.getElementById('email-optin-check');
-  const prefilled   = emailCheck && emailCheck.checked && emailField && emailField.value.trim();
-  if (prefilled) {
-    addFollower(questionId, emailField.value.trim(), wrap);
-  } else {
-    wrap.innerHTML = `
-<div class="dupe-follow-email-wrap">
-  <input type="email" class="dupe-follow-email-input" id="follow-email-modal-${questionId}"
-    placeholder="your@jaggaer.com" onkeydown="if(event.key==='Enter') submitFollowFromModal('${questionId}')"/>
-  <button class="dupe-follow-email-submit" onclick="submitFollowFromModal('${questionId}')">Notify me</button>
-</div>
-<div class="dupe-follow-msg" id="follow-msg-modal-${questionId}"></div>`;
-    setTimeout(() => {
-      const inp = document.getElementById('follow-email-modal-' + questionId);
-      if (inp) inp.focus();
-    }, 50);
-  }
-}
-
-function submitFollowFromModal(questionId) {
-  const inp   = document.getElementById('follow-email-modal-' + questionId);
-  const msgEl = document.getElementById('follow-msg-modal-' + questionId);
-  const wrap  = document.getElementById('follow-wrap-modal-' + questionId);
-  if (!inp || !msgEl) return;
-  const email = inp.value.trim();
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    msgEl.style.color = 'var(--red)';
-    msgEl.textContent = 'Please enter a valid email address.';
-    return;
-  }
-  addFollower(questionId, email, wrap, msgEl);
-}
-
-// ── THREAD REPLY FROM REPOSITORY ─────────────────────────────────────────────
-async function replyToThread(el) {
-  var parentId = el.getAttribute('data-parent');
-  var threadId = el.getAttribute('data-thread');
-  var threadQuestion = el.getAttribute('data-question');
-  // Open the answer modal on the parent question and pre-fill a reply
-  openAnswerModal(parentId);
-}
-
-async function loadThreadsForCards(questionIds) {
-  // Batch load threads for multiple answered questions
-  if (!questionIds.length) return;
-  for (const qId of questionIds) {
-    if (threadsCache[qId] !== undefined) continue; // already cached
-    try {
-      const res  = await fetch(API + '?type=threads&parentId=' + encodeURIComponent(qId) + '&t=' + Date.now());
-      const data = await res.json();
-      threadsCache[qId] = Array.isArray(data) ? data : [];
-    } catch(e) { threadsCache[qId] = []; }
-  }
-}
-
 // ── QUESTION FOLLOWING — REPOSITORY SIDE ────────────────────────────────────
 async function addFollowerFromRepo(id) {
   const inp    = document.getElementById('follower-add-' + id);
@@ -2587,8 +2240,7 @@ async function removeFollowerFromRepo(id, email) {
 }
 
 // ── QUESTION FOLLOWING — SUBMIT SIDE ─────────────────────────────────────────
-function initFollow(el) {
-  var questionId = el.getAttribute ? el.getAttribute('data-qid') : el;
+function initFollow(questionId) {
   const wrap = document.getElementById('follow-wrap-' + questionId);
   if (!wrap) return;
 
@@ -2706,16 +2358,6 @@ function scrollToCard(id) {
   document.getElementById('notif-panel').classList.remove('open');
 }
 
-// Escape key closes modals
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closeAnswerModal();
-    closeHeaderDropdowns();
-    const ap = document.getElementById('answer-modal-overlay');
-    if (ap) ap.classList.remove('open');
-  }
-});
-
 // Close notification panel and header dropdowns when clicking outside
 document.addEventListener('click', (e) => {
   const panel = document.getElementById('notif-panel');
@@ -2829,24 +2471,5 @@ window.addEventListener('DOMContentLoaded', () => {
   readUrlParams();
 });
 </script>
-
-
-<!-- Answer Expand Modal -->
-  <div id="answer-modal-overlay" onclick="closeAnswerModalOnOverlay(event)">
-    <div id="answer-modal">
-      <div id="answer-modal-header">
-        <div id="answer-modal-title">Similar Question</div>
-        <button id="answer-modal-close" onclick="closeAnswerModal()">&#215;</button>
-      </div>
-      <div id="answer-modal-body">
-        <div class="answer-modal-meta" id="answer-modal-meta"></div>
-        <div class="answer-modal-question" id="answer-modal-question"></div>
-        <div id="answer-modal-answer-wrap"></div>
-        <div id="answer-modal-follow-wrap" style="margin-top:16px;"></div>
-      </div>
-      <div class="answer-modal-footer" id="answer-modal-footer"></div>
-    </div>
-  </div>
-
 </body>
 </html>
