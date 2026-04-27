@@ -828,22 +828,6 @@
     </div>
   </div>
 
-  <!-- Answer Expand Modal -->
-  <div id="answer-modal-overlay" onclick="closeAnswerModalOnOverlay(event)">
-    <div id="answer-modal">
-      <div id="answer-modal-header">
-        <div id="answer-modal-title">Similar Question</div>
-        <button id="answer-modal-close" onclick="closeAnswerModal()">&#215;</button>
-      </div>
-      <div id="answer-modal-body">
-        <div class="answer-modal-meta" id="answer-modal-meta"></div>
-        <div class="answer-modal-question" id="answer-modal-question"></div>
-        <div id="answer-modal-answer-wrap"></div>
-        <div id="answer-modal-follow-wrap" style="margin-top:16px;"></div>
-      </div>
-      <div class="answer-modal-footer" id="answer-modal-footer"></div>
-    </div>
-  </div>
 
   <!-- Assignee Manager Modal -->
   <div id="assignee-modal-overlay" onclick="closeAssigneeModalOnOverlay(event)">
@@ -1051,20 +1035,7 @@ async function loadAssignees() {
   } catch(e) { assignees = []; }
 }
 
-async function loadQuestions() {
-  try {
-    const res = await fetch(API + '?t=' + Date.now());
-    const data = await res.json();
-    qs = Array.isArray(data) ? data.filter(q => q.id) : [];
-    updateCount();
-    render();
-    setSyncStatus('live', 'Live — last synced ' + new Date().toLocaleTimeString());
-  } catch(e) {
-    setSyncStatus('error', 'Connection error — check your network or re-deploy the Apps Script');
-    document.getElementById('repo-list').innerHTML =
-      '<div class="empty">Could not load data. Check your connection and try refreshing.</div>';
-  }
-}
+
 
 // ── CACHE HELPERS ────────────────────────────────────────────────────────────
 function getCachedComplete() {
@@ -2858,5 +2829,24 @@ window.addEventListener('DOMContentLoaded', () => {
   readUrlParams();
 });
 </script>
+
+
+<!-- Answer Expand Modal -->
+  <div id="answer-modal-overlay" onclick="closeAnswerModalOnOverlay(event)">
+    <div id="answer-modal">
+      <div id="answer-modal-header">
+        <div id="answer-modal-title">Similar Question</div>
+        <button id="answer-modal-close" onclick="closeAnswerModal()">&#215;</button>
+      </div>
+      <div id="answer-modal-body">
+        <div class="answer-modal-meta" id="answer-modal-meta"></div>
+        <div class="answer-modal-question" id="answer-modal-question"></div>
+        <div id="answer-modal-answer-wrap"></div>
+        <div id="answer-modal-follow-wrap" style="margin-top:16px;"></div>
+      </div>
+      <div class="answer-modal-footer" id="answer-modal-footer"></div>
+    </div>
+  </div>
+
 </body>
 </html>
